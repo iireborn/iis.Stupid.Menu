@@ -180,7 +180,7 @@ namespace iiMenu.Mods
             audioFilePool.Remove(name);
             
             AudioClip soundDownloaded = LoadSoundFromURL(url, filename);
-            if (soundDownloaded != null && soundDownloaded.length < 20f)
+            if (soundDownloaded.length < 20f)
                 Play2DAudio(soundDownloaded);
             
             NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to the soundboard.");
@@ -193,9 +193,6 @@ namespace iiMenu.Mods
 
         public static void PlayAudio(AudioClip sound, bool disableMicrophone = false)
         {
-            if (sound == null)
-                return;
-
             if (!PhotonNetwork.InRoom)
             {
                 if (soundboardAudioManager == null)

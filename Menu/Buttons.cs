@@ -396,7 +396,7 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Disable Snowball Impact Effect", method = Overpowered.DisableSnowballImpactEffect, toolTip = "Disables the impact effect that people get when hit with snowballs."},
                 new ButtonInfo { buttonText = "Invisible Snowballs", enableMethod =() => Overpowered.InvisibleSnowballs = true, disableMethod =() => Overpowered.InvisibleSnowballs = false, toolTip = "Makes the snowballs invisible."},
-                new ButtonInfo { buttonText = "No Teleport Snowballs", enableMethod =() => Overpowered.NoTeleportSnowballs = true, disableMethod =() => Overpowered.NoTeleportSnowballs = false, toolTip = "Stops snowball mods from teleporting you." }
+                new ButtonInfo { buttonText = "No Teleport Snowballs", enableMethod =() => Overpowered.NoTeleportSnowballs = true, disableMethod =() => Overpowered.NoTeleportSnowballs = false, toolTip = "Stops snowball mods from teleporting you." },
             },
 
             new[] { // Room Mods [6]
@@ -538,12 +538,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Recommended Safety Mods", aliases = new[] { "Anti Ban" }, method = Safety.GeneralSafety, disableMethod = Safety.DisableGeneral, toolTip = "Has the effects of some good general safety mods while enabled." },
 
                 new ButtonInfo { buttonText = "No Finger Movement", aliases = new[] { "Disable Fingers" }, method = Safety.NoFinger, toolTip = "Makes your fingers not move, so you can use wall walk without getting called out." },
-                new ButtonInfo {
-                                  buttonText = "Pull Your Id",
-                                  aliases = new[] { "Pulls Id" },
-                                  method = Safety.PullYourID, 
-                                  isTogglable = false,
-                                  toolTip = "Pulls your PlayFab and Photon IDs and logs them to a file."
+                new ButtonInfo { buttonText = "Pull Your Id", aliases = new[] { "Pulls Id" }, method = Safety.PullYourID, isTogglable = false, toolTip = "Pulls your PlayFab and Photon IDs and logs them to a file."
                 },
 
                 new ButtonInfo { buttonText = "Fake Oculus Menu <color=grey>[</color><color=green>X</color><color=grey>]</color>", method = Safety.FakeOculusMenu, toolTip = "Imitates opening your Oculus menu when holding <color=green>X</color>."},
@@ -1809,7 +1804,19 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Snowball Launch Gun", method = Overpowered.SnowballLaunchGun, toolTip = "Launches whoever your hand desires like a launch pad."},
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Snowball Fling</color><color=grey>]</color>", method = Overpowered.AntiReportSnowballFling, toolTip = "Flings whoever tries to report you with the snowballs."}
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Snowball Fling</color><color=grey>]</color>", method = Overpowered.AntiReportSnowballFling, toolTip = "Flings whoever tries to report you with the snowballs."},
+
+                new ButtonInfo { buttonText = "Icecream Gound", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.IceCream), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Apple Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Apple), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Book Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Book), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Coin Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Coin), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Fireworks", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Fireworks), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Halloween Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Halloween), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Hot Dog Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.HotDog), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Mentos Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Mentos), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Present Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Present), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Snow Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.Snow), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
+                new ButtonInfo { buttonText = "Waterballoon Ground", enableMethod =() => Projectiles.ChangeGroundType(DataTables.GroundType.GroundIdType.WaterBalloon), disableMethod =() => Projectiles.ResetGround(), toolTip = "Make it so when you grab from the ground you grab a projectile." },
             },
 
             new[] { // Master Mods [16]
@@ -1846,18 +1853,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Material Self", method =() => { if (!(Time.time > Overpowered.materialDelay)) return; Overpowered.MaterialTarget(VRRig.LocalRig); Overpowered.materialDelay = Time.time + 0.1f; }, toolTip = "Flashes the materials of yourself."},
                 new ButtonInfo { buttonText = "Material Gun", method = Overpowered.MaterialGun, toolTip = "Flashes the materials of whoever your hand desires."},
                 new ButtonInfo { buttonText = "Material All", method = Overpowered.MaterialAll, toolTip = "Flashes the materials of everyone in the room."},
-                
-                new ButtonInfo { buttonText = "Grey Screen Gun", method = ()=> Overpowered.ActivateGreyZoneGun(true), toolTip = "Makes whoever your hand desires' screen grey." },
-                new ButtonInfo { buttonText = "Fix Screen Gun", method = ()=> Overpowered.ActivateGreyZoneGun(false), toolTip = "Makes whoever your hand desires' screen normal again." },
-                new ButtonInfo { buttonText = "Grey Screen All", enableMethod = ()=> Overpowered.ActivateGreyZone(true), disableMethod =() => Overpowered.ActivateGreyZone(false), toolTip = "Makes everyone's screen grey." },
-
-                new ButtonInfo { buttonText = "Spaz Grey Screen Gun", method = Overpowered.SpazGreyZoneGun, toolTip = "Makes whoever your hand desires' screen flash grey." },
-                new ButtonInfo { buttonText = "Spaz Grey Screen All", method = Overpowered.SpazGreyZone, disableMethod =() => Overpowered.ActivateGreyZone(false), toolTip = "Makes everyone's screen flash grey." },
-
-                new ButtonInfo { buttonText = "Zero Gravity Gun", method = ()=> Overpowered.ActivateGreyZoneGun(true, true), toolTip = "Sets whoever your hand desires' gravity to zero." },
-                new ButtonInfo { buttonText = "Zero Gravity All", enableMethod = ()=> Overpowered.ActivateGreyZone(true, true), disableMethod =() => Overpowered.ActivateGreyZone(false, false), toolTip = "Sets everyone's gravity to zero." },
-
-                new ButtonInfo { buttonText = "Fix Gravity Gun", method =() => Overpowered.ActivateGreyZoneGun(false, false), toolTip = "Fixes whoever your hand desires' gravity." },
 
                 new ButtonInfo { buttonText = "Spaz Prop Hunt", method = Overpowered.SpazPropHunt, toolTip = "Repeatedly starts and ends the prop hunt gamemode."},
                 new ButtonInfo { buttonText = "Spaz Prop Hunt Objects", method = Overpowered.SpazPropHuntObjects, toolTip = "Repeatedly randomizes everyone's selected object in the prop hunt gamemode."},
@@ -2391,6 +2386,7 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Old Devs", method =() => NotificationManager.SendNotification("The original developers of ii's <b>Stupid</b> Menu.", 5000), isTogglable = false, toolTip = "The original developers of ii's <b>Stupid</b> Menu." },
                 new ButtonInfo { buttonText = "Useless", method =() => Process.Start(serverLink), isTogglable = false, toolTip = "Useless — discord.gg/iidk" },
+                new ButtonInfo { buttonText = "Meep670 (Better + I made the gamemode changers + better than useless + sigmas + W Glitch + I am better + W syro180)", method =() => Process.Start(serverLink), isTogglable = false, toolTip = "Useless — discord.gg/iidk" },
 
                 new ButtonInfo { buttonText = "GPL v3", method =() => Process.Start("https://www.gnu.org/licenses/gpl-3.0.html"), isTogglable = false, toolTip = "The GNU General Public License Version 3 is the license that my menu uses. It proveides a \"free, copyleft license for software and other kinds of works.\""},
             },

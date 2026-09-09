@@ -74,8 +74,6 @@ namespace iiMenu.Classes.Menu
 
         private const float BeaconInterval = 25f; // Beacons expire server-side well after this
         private static float nextBeaconTime;
-        private static float nextBeaconRetryTime;
-        private static bool beaconFailureLogged;
 
         #region Menu Status
         public static bool MenuStatusChecked; // True once the first menustatus check has completed
@@ -99,7 +97,7 @@ namespace iiMenu.Classes.Menu
 
         public void Update()
         {
-            if (Time.time > nextBeaconTime && Time.time > nextBeaconRetryTime)
+            if (Time.time > nextBeaconTime)
             {
                 nextBeaconTime = Time.time + BeaconInterval;
                 SendBeacon();
@@ -437,19 +435,15 @@ namespace iiMenu.Classes.Menu
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                nextBeaconRetryTime = Time.time + BeaconInterval;
-                if (!beaconFailureLogged)
-                {
-                    beaconFailureLogged = true;
-                    LogManager.LogError("Beacon failed: " + request.error);
-                }
+                LogManager.LogError("Beacon failed: " + request.error);
                 yield break;
             }
 
-            beaconFailureLogged = false;
-
-            // The beacon is intentionally silent on success. It runs periodically,
-            // so logging every successful refresh needlessly floods the console.
+            // The count comes back in a response header — surface it so the
+            // live user count is verifiable from the log.
+            string users = request.GetResponseHeader("X-Users");
+            if (!string.IsNullOrEmpty(users))
+                LogManager.Log($"Beacon sent — current users: {users}");
         }
 
         public static bool IsPlayerSteam(VRRig Player)
