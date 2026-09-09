@@ -74,7 +74,7 @@ cls
 title ii's Stupid Menu Installer // [#######---] Downloading menu
 echo Downloading latest release of ii's Stupid Menu...
 
-for /f "tokens=*" %%i in ('powershell -Command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/iireborn/ii.Stupid.Menu/releases/latest').assets | Where-Object { $_.name -like '*.dll' } | Select-Object -First 1 -ExpandProperty browser_download_url"') do (
+for /f "tokens=*" %%i in ('powershell -Command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/iireborn/iis.Stupid.Menu/releases/latest').assets | Where-Object { $_.name -like '*.dll' } | Select-Object -First 1 -ExpandProperty browser_download_url"') do (
     set pluginUrl=%%i
 )
 
