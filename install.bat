@@ -44,7 +44,8 @@ if errorlevel 1 (
 
 echo.
 echo  Extracting BepInEx...
-powershell -command "Expand-Archive -Path 'BPNX54234.zip' -DestinationPath '%gamePath%' -Force"
+powershell -command "$ErrorActionPreference = 'SilentlyContinue'; Expand-Archive -Path 'BPNX54234.zip' -DestinationPath '%gamePath%' -Force 2>$null" >nul 2>&1
+del "BPNX54234.zip" >nul 2>&1
 
 if not exist "%gamePath%\BepInEx\config" mkdir "%gamePath%\BepInEx\config"
 if not exist "%gamePath%\BepInEx\plugins" mkdir "%gamePath%\BepInEx\plugins"
@@ -58,27 +59,23 @@ echo.
 echo  Downloading ii.menu...
 echo.
 
-for /f "usebackq tokens=*" %%i in (`powershell -Command "(Invoke-RestMethod -Uri 'https://api.github.com/repos/iireborn/iis.Stupid.Menu/releases/latest').assets | Where-Object { $_.name -like '*.dll' } | Select-Object -First 1 -ExpandProperty browser_download_url"`) do (
-    set "pluginUrl=%%i"
-)
-
-if not defined pluginUrl (
-    color 0c
-    echo Failed to fetch latest release URL. Please report to Discord.
-    pause
-    exit /b
-)
-
-curl -L -f -# "%pluginUrl%" -o "%gamePath%\BepInEx\plugins\ii.s.Stupid.Menu.dll"
+curl -L -f -# "https://github.com/iireborn/iis.Stupid.Menu/releases/latest/download/ii.s.Stupid.Menu.dll" -o "iimenu_temp.dll"
 
 if errorlevel 1 (
     color 0c
-    echo Failed to download the menu. Please report to Discord.
+    echo Failed to download ii.menu. Check your internet connection.
     pause
     exit /b
 )
 
-del "BPNX54234.zip" >nul 2>&1
+move /y "iimenu_temp.dll" "%gamePath%\BepInEx\plugins\ii.s.Stupid.Menu.dll" >nul
+
+if errorlevel 1 (
+    color 0c
+    echo Failed to move dll into plugins folder.
+    pause
+    exit /b
+)
 
 cls
 title ii.menu Installer -- Done!
