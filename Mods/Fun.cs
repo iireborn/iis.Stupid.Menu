@@ -1254,13 +1254,8 @@ namespace iiMenu.Mods
             }
         }
 
-        public static void SetBraceletState(bool enable, bool isLeftHand)
-        {
-            if (GorillaTagger.Instance == null || GorillaTagger.Instance.myVRRig == null)
-                return;
-
+        public static void SetBraceletState(bool enable, bool isLeftHand) => 
             GorillaTagger.Instance.myVRRig.SendRPC("EnableNonCosmeticHandItemRPC", RpcTarget.All, enable, isLeftHand);
-        }
 
         public static void GetBracelet(bool state)
         {
@@ -1295,9 +1290,6 @@ namespace iiMenu.Mods
 
         public static void RemoveBracelet()
         {
-            if (VRRig.LocalRig == null)
-                return;
-
             SetBraceletState(false, true);
             SetBraceletState(false, false);
             RPCProtection();
@@ -1306,9 +1298,6 @@ namespace iiMenu.Mods
         public static float isDirtyDelay;
         public static void RainbowBracelet()
         {
-            if (VRRig.LocalRig == null || VRRig.LocalRig.nonCosmeticRightHandItem == null || VRRig.LocalRig.reliableState == null || VRRig.LocalRig.friendshipBraceletRightHand == null)
-                return;
-
             BraceletPatch.enabled = true;
             if (!VRRig.LocalRig.nonCosmeticRightHandItem.IsEnabled)
             {
@@ -1336,9 +1325,6 @@ namespace iiMenu.Mods
         public static void RemoveRainbowBracelet()
         {
             BraceletPatch.enabled = false;
-            if (VRRig.LocalRig == null || VRRig.LocalRig.nonCosmeticRightHandItem == null || VRRig.LocalRig.reliableState == null)
-                return;
-
             if (!VRRig.LocalRig.nonCosmeticRightHandItem.IsEnabled)
             {
                 SetBraceletState(false, false);
@@ -3532,9 +3518,6 @@ Piece Name: {gunTarget.name}";
             if (rightGrab && Time.time > everythingSpamDelay)
             {
                 SnowballThrowable projectile = GetProjectile(projectileName);
-                if (projectile == null)
-                    return;
-
                 projectile.SetSnowballActiveLocal(true);
                 CoroutineManager.instance.StartCoroutine(Projectiles.DisableProjectile(projectile));
 
@@ -6595,7 +6578,7 @@ Piece Name: {gunTarget.name}";
             CosmeticsController.instance.UpdateShoppingCart();
         }
 
-        public static void PurchaseCosmetic(string cosmetic)
+        public static void PurchaseCosmetic(string cosmetic) 
         {
             CosmeticsController.CosmeticItem hat = CosmeticsController.instance.GetItemFromDict(cosmetic);
             PlayFabClientAPI.PurchaseItem(new PurchaseItemRequest
@@ -6867,7 +6850,6 @@ Piece Name: {gunTarget.name}";
                 SpeakText(ids);
             }
         }
-
         public static void NarrateIDOnTouch()
         {
             if (!PhotonNetwork.InRoom) return;

@@ -4686,115 +4686,6 @@ namespace iiMenu.Menu
         public static Vector3 GetGunDirection(Transform transform) =>
             new[] { transform.forward, - transform.up, transform == GorillaTagger.Instance.rightHandTransform ? ControllerUtilities.GetTrueRightHand().forward : ControllerUtilities.GetTrueLeftHand().forward, GorillaTagger.Instance.headCollider.transform.forward } [GunDirection];
 
-        private const string FreeTtsEndpoint = "https://freetts.org/api";
-        private const string FreeTtsFallbackVoice = "en-US-JennyNeural";
-
-        private static string GetFreeTtsVoice(int voiceIndex)
-        {
-            switch (voiceIndex)
-            {
-                case 1: return "en-US-JennyNeural";
-                case 2: return "en-US-BrianNeural";
-                case 3: return "en-US-GuyNeural";
-                case 4: return "en-US-ChristopherNeural";
-                case 5: return "en-US-EricNeural";
-                case 6: return "en-US-AriaNeural";
-                case 7: return "en-GB-SoniaNeural";
-                case 8: return "en-GB-RyanNeural";
-                case 9: return "en-US-AriaNeural";
-                case 10: return "en-US-AnaNeural";
-                case 11: return "en-US-AndrewNeural";
-                case 12: return "en-GB-RyanNeural";
-                case 13: return "en-US-AndrewNeural";
-                case 14: return "en-US-AvaNeural";
-                case 15: return "en-US-DavisNeural";
-                case 16: return "en-US-GuyNeural";
-                case 17: return "en-US-JennyNeural";
-                case 18: return "en-US-ChristopherNeural";
-                case 19: return "en-US-EricNeural";
-                case 20: return "en-US-AndrewNeural";
-                case 21: return "en-US-AriaNeural";
-                case 22: return "en-US-GuyNeural";
-                case 23: return "en-US-AriaNeural";
-                case 24: return "en-GB-SoniaNeural";
-                default: return "en-US-AriaNeural";
-            }
-        }
-
-        private static IEnumerator RequestFreeTtsAudio(string text, string voice, Action<byte[], string> onComplete)
-        {
-            string payload = JsonConvert.SerializeObject(new
-            {
-                text,
-                voice,
-                rate = "+0%",
-                pitch = "+0%"
-            });
-
-            using UnityWebRequest request = new UnityWebRequest($"{FreeTtsEndpoint}/tts", "POST");
-            request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(payload));
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            request.timeout = 20;
-
-            yield return request.SendWebRequest();
-
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                onComplete?.Invoke(null, request.error);
-                yield break;
-            }
-
-            byte[] responseBytes = request.downloadHandler.data;
-            string contentType = request.GetResponseHeader("Content-Type") ?? string.Empty;
-            if (responseBytes != null && responseBytes.Length > 0 && !contentType.Contains("json"))
-            {
-                onComplete?.Invoke(responseBytes, null);
-                yield break;
-            }
-
-            string responseText = request.downloadHandler.text;
-            Dictionary<string, object> responseData = null;
-            try
-            {
-                responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
-            }
-            catch (Exception exception)
-            {
-                onComplete?.Invoke(null, $"Invalid TTS response: {exception.Message}");
-                yield break;
-            }
-
-            if (responseData == null)
-            {
-                onComplete?.Invoke(null, "TTS returned an empty response.");
-                yield break;
-            }
-
-            string audioUrl = responseData.TryGetValue("audio_url", out object audioUrlValue) ? audioUrlValue?.ToString() : null;
-            audioUrl ??= responseData.TryGetValue("url", out object urlValue) ? urlValue?.ToString() : null;
-            audioUrl = audioUrl?.Trim().Trim('"').Replace("\\\\", "");
-
-            if (string.IsNullOrEmpty(audioUrl) && responseData.TryGetValue("file_id", out object fileIdValue) && fileIdValue != null)
-                audioUrl = $"{FreeTtsEndpoint}/audio/{UnityWebRequest.EscapeURL(fileIdValue.ToString())}";
-
-            if (string.IsNullOrEmpty(audioUrl))
-            {
-                onComplete?.Invoke(null, "TTS response did not contain an audio URL or file ID.");
-                yield break;
-            }
-
-            using UnityWebRequest audioRequest = UnityWebRequest.Get(audioUrl);
-            audioRequest.downloadHandler = new DownloadHandlerBuffer();
-            audioRequest.timeout = 20;
-            yield return audioRequest.SendWebRequest();
-
-            if (audioRequest.result != UnityWebRequest.Result.Success)
-                onComplete?.Invoke(null, audioRequest.error);
-            else
-                onComplete?.Invoke(audioRequest.downloadHandler.data, null);
-        }
-
         /// <summary>
         /// Generates a text-to-speech audio clip from the provided text using various TTS services and invokes a
         /// callback with the resulting AudioClip.
@@ -4806,71 +4697,50 @@ namespace iiMenu.Menu
         /// <returns>An enumerator for coroutine-based asynchronous execution.</returns>
         public static IEnumerator TranscribeText(string text, Action<AudioClip> onComplete, string customFileName = null, string customPath = null)
         {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                onComplete?.Invoke(null);
-                yield break;
-            }
-
             if (Time.time < timeMenuStarted + 5f)
             {
                 onComplete?.Invoke(null);
                 yield break;
             }
 
-            string fileName = !string.IsNullOrEmpty(customPath)
-                ? SanitizeFileName(customFileName) + ".mp3"
-                : $"{GetSHA256(text)}.mp3";
-            string directoryPath = !string.IsNullOrEmpty(customPath) ? customPath : $"{PluginInfo.BaseDirectory}/TTS";
+            string fileName = !string.IsNullOrEmpty(customPath) ? SanitizeFileName(customFileName) : $"{GetSHA256(text)}{(narratorIndex == 0 ? ".wav" : ".mp3")}";
+            string directoryPath = !string.IsNullOrEmpty(customPath) ? customPath : $"{PluginInfo.BaseDirectory}/TTS{(narratorName == "Default" ? "" : narratorName)}";
             string filePath = directoryPath + "/" + fileName;
 
             if (!Directory.Exists(directoryPath))
                 Directory.CreateDirectory(directoryPath);
 
-            // Keep the voice in the cache path so switching voices does not reuse
-            // audio generated for a different voice.
-            if (string.IsNullOrEmpty(customPath))
-                fileName = $"{GetSHA256(text + "|" + GetFreeTtsVoice(narratorIndex))}.mp3";
-            filePath = directoryPath + "/" + fileName;
-
             if (!File.Exists(filePath))
             {
-                // FreeTTS is the primary provider for every voice. If a selected
-                // voice is unavailable, retry once with a known-good neural voice.
+                switch (narratorIndex)
                 {
-                            byte[] audioData = null;
-                            string primaryError = null;
-                            string selectedVoice = GetFreeTtsVoice(narratorIndex);
-                            if (text.Length > 550)
-                                text = text[..550];
+                    // My endpoint
+                    case 0:
+                        {
+                            string postData = JsonConvert.SerializeObject(new { text });
 
-                            yield return RequestFreeTtsAudio(text, selectedVoice, (data, error) =>
-                            {
-                                audioData = data;
-                                primaryError = error;
-                            });
+                            using UnityWebRequest request = new UnityWebRequest($"{PluginInfo.ServerAPI}/tts", "POST");
+                            byte[] raw = Encoding.UTF8.GetBytes(postData);
 
-                            if (audioData == null && selectedVoice != FreeTtsFallbackVoice)
-                            {
-                                yield return RequestFreeTtsAudio(text, FreeTtsFallbackVoice, (data, error) =>
-                                {
-                                    audioData = data;
-                                    if (audioData == null)
-                                        primaryError = error;
-                                });
-                            }
+                            request.uploadHandler = new UploadHandlerRaw(raw);
+                            request.SetRequestHeader("Content-Type", "application/json");
+                            request.downloadHandler = new DownloadHandlerBuffer();
 
-                            if (audioData == null)
+                            yield return request.SendWebRequest();
+
+                            if (request.result != UnityWebRequest.Result.Success)
                             {
-                                LogManager.LogError($"TTS unavailable for voice {selectedVoice}; fallback also failed: {primaryError ?? "unknown error"}");
+                                LogManager.LogError("Error downloading TTS: " + request.error);
                                 onComplete?.Invoke(null);
                                 yield break;
                             }
 
-                    File.WriteAllBytes(filePath, audioData);
-                }
+                            byte[] response = request.downloadHandler.data;
+                            File.WriteAllBytes(filePath, response);
 
-                /*
+                            break;
+                        }
+
                     // Streamlabs TTS voices
                     case 1:
                     case 2:
@@ -4897,14 +4767,8 @@ namespace iiMenu.Menu
 
                             string jsonResponse = request.downloadHandler.text;
                             var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                            if (responseData == null || !responseData.TryGetValue("audio_url", out object audioUrl) || audioUrl == null)
-                            {
-                                LogManager.LogError("TTS response did not contain an audio URL.");
-                                onComplete?.Invoke(null);
-                                yield break;
-                            }
 
-                            using UnityWebRequest dataRequest = UnityWebRequest.Get(audioUrl.ToString().Replace("\\", ""));
+                            using UnityWebRequest dataRequest = UnityWebRequest.Get(responseData["audio_url"].ToString().Replace("\\", ""));
                             yield return dataRequest.SendWebRequest();
 
                             if (dataRequest.result != UnityWebRequest.Result.Success)
@@ -4965,14 +4829,8 @@ namespace iiMenu.Menu
 
                             string jsonResponse = request.downloadHandler.text;
                             var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                            if (responseData == null || !responseData.TryGetValue("audio_url", out object audioUrl) || audioUrl == null)
-                            {
-                                LogManager.LogError("TTS response did not contain an audio URL.");
-                                onComplete?.Invoke(null);
-                                yield break;
-                            }
 
-                            using UnityWebRequest dataRequest = UnityWebRequest.Get(audioUrl.ToString().Replace("\\", ""));
+                            using UnityWebRequest dataRequest = UnityWebRequest.Get(responseData["audio_url"].ToString().Replace("\\", ""));
                             yield return dataRequest.SendWebRequest();
 
                             if (dataRequest.result != UnityWebRequest.Result.Success)
@@ -5008,14 +4866,8 @@ namespace iiMenu.Menu
 
                             string jsonResponse = request.downloadHandler.text;
                             var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                            if (responseData == null || !responseData.TryGetValue("audio_url", out object audioUrl) || audioUrl == null)
-                            {
-                                LogManager.LogError("TTS response did not contain an audio URL.");
-                                onComplete?.Invoke(null);
-                                yield break;
-                            }
 
-                            using UnityWebRequest dataRequest = UnityWebRequest.Get(audioUrl.ToString().Replace("\\", ""));
+                            using UnityWebRequest dataRequest = UnityWebRequest.Get(responseData["audio_url"].ToString().Replace("\\", ""));
                             yield return dataRequest.SendWebRequest();
 
                             if (dataRequest.result != UnityWebRequest.Result.Success)
@@ -5057,14 +4909,8 @@ namespace iiMenu.Menu
 
                             string jsonResponse = request.downloadHandler.text;
                             var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
-                            if (responseData == null || !responseData.TryGetValue("audio_url", out object audioUrl) || audioUrl == null)
-                            {
-                                LogManager.LogError("TTS response did not contain an audio URL.");
-                                onComplete?.Invoke(null);
-                                yield break;
-                            }
 
-                            using UnityWebRequest dataRequest = UnityWebRequest.Get(audioUrl.ToString().Replace("\\", ""));
+                            using UnityWebRequest dataRequest = UnityWebRequest.Get(responseData["audio_url"].ToString().Replace("\\", ""));
                             yield return dataRequest.SendWebRequest();
 
                             if (dataRequest.result != UnityWebRequest.Result.Success)
@@ -5074,13 +4920,11 @@ namespace iiMenu.Menu
 
                             break;
                         }
-                */
+
+                }
             }
 
-            AudioClip audio = File.Exists(filePath)
-                ? LoadSoundFromFile($"{directoryPath[$"{PluginInfo.BaseDirectory}/".Length..]}/{fileName}")
-                : null;
-            onComplete?.Invoke(audio);
+            onComplete?.Invoke(LoadSoundFromFile($"{directoryPath[$"{PluginInfo.BaseDirectory}/".Length..]}/{fileName}"));
         }
 
         /// <summary>

@@ -23,7 +23,6 @@ using ExitGames.Client.Photon;
 using GorillaGameModes;
 using GorillaLocomotion;
 using iiMenu.Extensions;
-using iiMenu.Classes.Menu;
 using iiMenu.Managers;
 using iiMenu.Menu;
 using iiMenu.Patches.Menu;
@@ -253,7 +252,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -290,7 +289,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -422,7 +421,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -521,7 +520,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -628,7 +627,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal() && gunTarget.IsTagged())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -659,14 +658,6 @@ namespace iiMenu.Mods
 
         public static void TagAll()
         {
-            if (!PhotonNetwork.InRoom || GorillaGameManager.instance == null || VRRig.LocalRig == null || NetworkSystem.Instance == null)
-            {
-                ButtonInfo tagAllButton = Buttons.GetIndex("Tag All");
-                if (tagAllButton != null)
-                    tagAllButton.enabled = false;
-                return;
-            }
-
             if (GorillaGameManager.instance.GameType() == GameModeType.HuntDown)
             {
                 HuntTagAll();
@@ -803,7 +794,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > tagGunDelay)
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         tagGunDelay = Time.time + 0.2f;
@@ -815,9 +806,6 @@ namespace iiMenu.Mods
 
         public static void InstantTagAll()
         {
-            if (!PhotonNetwork.InRoom || GorillaGameManager.instance == null || VRRig.LocalRig == null || GorillaTagger.Instance == null || GorillaTagger.Instance.myVRRig == null)
-                return;
-
             if (!VRRig.LocalRig.IsTagged())
             {
                 NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be tagged.");
@@ -843,22 +831,11 @@ namespace iiMenu.Mods
 
         public static void HuntTagAll()
         {
-            if (!PhotonNetwork.InRoom || GorillaGameManager.instance == null || VRRig.LocalRig == null || GTPlayer.Instance == null)
-                return;
-
-            GorillaHuntManager huntComputer = GorillaGameManager.instance as GorillaHuntManager;
-            if (huntComputer == null)
-                return;
-
+            GorillaHuntManager huntComputer = (GorillaHuntManager)GorillaGameManager.instance;
             NetPlayer target = huntComputer.GetTargetOf(PhotonNetwork.LocalPlayer);
-            if (target == null)
-                return;
-
             if (!GTPlayer.Instance.disableMovement)
             {
                 VRRig vrrig = GetVRRigFromPlayer(target);
-                if (vrrig == null)
-                    return;
 
                 if (!Buttons.GetIndex("Obnoxious Tag").enabled)
                 {
@@ -1042,7 +1019,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -1086,7 +1063,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer owner = GetPlayerFromVRRig(gunTarget);
@@ -1161,7 +1138,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer owner = GetPlayerFromVRRig(gunTarget);
