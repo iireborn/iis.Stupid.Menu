@@ -50,6 +50,7 @@ using static iiMenu.Utilities.AssetUtilities;
 using static iiMenu.Utilities.GameModeUtilities;
 using static iiMenu.Utilities.RandomUtilities;
 using static iiMenu.Utilities.RigUtilities;
+using static OVRColocationSession;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using JoinType = GorillaNetworking.JoinType;
 using Object = UnityEngine.Object;
@@ -5246,33 +5247,7 @@ namespace iiMenu.Mods
             }
         }
 
-        private static float freezeAllDelay;
         public static bool muteOnFreeze;
-        public static void FreezeServer(float delay = 0.1f, int eventCount = 11, RaiseEventOptions options = null)
-        {
-            if (!PhotonNetwork.InRoom) return;
-
-            options ??= new RaiseEventOptions
-            {
-                Flags = new WebFlags(byte.MaxValue),
-                TargetActors = new[] { -1 }
-            };
-
-            if (muteOnFreeze)
-            {
-                for (int i = 0; i < 10; i++)
-                    MuteTarget(options);
-            }
-
-            if (Time.time > freezeAllDelay)
-            {
-                for (int i = 0; i < eventCount; i++)
-                    PhotonNetwork.RaiseEvent(51, new object[] { serverLink }, options, SendOptions.SendUnreliable);
-
-                RPCProtection();
-                freezeAllDelay = Time.time + delay;
-            }
-        }
 
         private static float closeRoomDelay;
         public static void CloseRoom()
@@ -5344,9 +5319,6 @@ namespace iiMenu.Mods
                     zaWarudoTrigger = true;
 
                     Movement.LowGravity();
-
-                    if (!Buttons.GetIndex("No Freeze Za Warudo").enabled)
-                        FreezeServer();
                 }
             }
             else
@@ -5481,6 +5453,7 @@ namespace iiMenu.Mods
             };
         }
 
+        public static RaiseEventOptions REO = new RaiseEventOptions();
         private static float lagDebounce;
         public static void LagTarget(object target)
         {
@@ -5497,91 +5470,25 @@ namespace iiMenu.Mods
 
             lagDebounce = Time.time + lagDelay;
 
-            if (IsLagMethodRPC())
+            object[] hi = { float.NaN };
+            switch (target)
             {
-                PhotonView view = lagTypeIndex switch
-                {
-                    1 => GorillaTagger.Instance.myVRRig.GetView,
-                    _ => FriendshipGroupDetection.Instance.photonView
-                };
-                string rpcName = lagTypeIndex switch
-                {
-                    _ => "AddPartyMembers"
-                };
-                object[] data = lagTypeIndex switch
-                {
-                    _ => new object[] { "Infection", (short)12, null }
-                };
+                case RpcTarget rpcTarget:
+                    REO.Receivers =
+                        rpcTarget == RpcTarget.All ? ReceiverGroup.All :
+                        rpcTarget == RpcTarget.MasterClient ? ReceiverGroup.MasterClient :
+                        ReceiverGroup.Others;
+                    break;
 
-                switch (target)
-                {
-                    case RpcTarget rpcTarget:
-                        for (int i = 0; i < lagAmount; i++)
-                            view.RPC(rpcName, rpcTarget, data);
+                case Player player:
+                    REO.TargetActors = new[] { player.ActorNumber };
+                    break;
 
-                        break;
-                    case Player player:
-                        for (int i = 0; i < lagAmount; i++)
-                            view.RPC(rpcName, player, data);
-
-                        break;
-                    case int[] actorNumbers:
-                        if (actorNumbers.Length == 0)
-                            break;
-
-                        for (int i = 0; i < lagAmount; i++)
-                            SpecialTargetRPC(view, rpcName, new RaiseEventOptions { TargetActors = actorNumbers }, data);
-
-                        break;
-                }
-            } else
-            {
-                bool isOp = lagTypeIndex switch
-                {
-                    _ => true
-                };
-
-                byte eventIndex = lagTypeIndex switch
-                {
-                    _ => 204
-                };
-
-                SendOptions sendOptions = lagTypeIndex switch
-                {
-                    _ => new SendOptions { Encrypt = true, Reliability = false, DeliveryMode = DeliveryMode.Unreliable }
-                };
-
-                object data = lagTypeIndex switch
-                {
-                    _ => new object[] { float.NaN }
-                };
-
-                RaiseEventOptions raiseEventOptions = lagTypeIndex switch 
-                {
-                    _ => new RaiseEventOptions { CachingOption = EventCaching.DoNotCache }
-                };
-
-                switch (target)
-                {
-                    case RpcTarget rpcTarget:
-                        raiseEventOptions.Receivers = rpcTarget == RpcTarget.All ? ReceiverGroup.All : (rpcTarget == RpcTarget.Others ? ReceiverGroup.Others : (rpcTarget == RpcTarget.MasterClient ? ReceiverGroup.MasterClient : ReceiverGroup.Others));
-                        break;
-                    case Player player:
-                        raiseEventOptions.TargetActors = new[] { player.ActorNumber };
-                        break;
-                    case int[] actorNumbers:
-                        raiseEventOptions.TargetActors = actorNumbers;
-                        break;
-                }
-
-                for (int i = 0; i < lagAmount; i++)
-                {
-                    if (isOp)
-                        PhotonNetwork.NetworkingClient.OpRaiseEvent(eventIndex, data, raiseEventOptions, sendOptions);
-                    else
-                        PhotonNetwork.RaiseEvent(eventIndex, data, raiseEventOptions, sendOptions);
-                }
+                case int[] actorNumbers:
+                    REO.TargetActors = actorNumbers;
+                    break;
             }
+            PhotonNetwork.NetworkingClient.OpRaiseEvent(186, hi, REO, SendOptions.SendUnreliable);
 
             RPCProtection();
         }
@@ -6497,68 +6404,7 @@ namespace iiMenu.Mods
             }
         }
 
-        public static void CacheKickGun()
-        {
-            if (GetGunInput(false))
-            {
-                var GunData = RenderGun();
-                RaycastHit Ray = GunData.Ray;
-
-                if (gunLocked && lockTarget != null)
-                {
-                    if (!lockTarget.Active())
-                    {
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Kicked all successfully!");
-                        gunLocked = false;
-                        return;
-                    }
-
-                    FreezeServer(8.5f, 3950, new RaiseEventOptions
-                    {
-                        CachingOption = EventCaching.AddToRoomCache,
-                        TargetActors = new[] { lockTarget.GetPlayer().ActorNumber },
-                        Flags = new WebFlags(byte.MaxValue)
-                    });
-                }
-
-                if (GetGunInput(true))
-                {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                    if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
-                    {
-                        gunLocked = true;
-                        lockTarget = gunTarget;
-
-                        OptimizeEvents = true;
-                        string name = $"<color=#{(lockTarget != null ? ColorUtility.ToHtmlStringRGBA(lockTarget.GetColor()) : "white")}>{lockTarget.GetName()}</color>";
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking {name}. This can take up to 2 minutes, please be patient.");
-                    }
-                }
-            }
-            else
-            {
-                if (gunLocked)
-                {
-                    gunLocked = false;
-                    OptimizeEvents = false;
-                }
-            }
-        }
-
-        public static void EnableCacheKickAll()
-        {
-            OptimizeEvents = true;
-            NotificationManager.SendNotification($"<color=grey>[</color><color=purple>KICK</color><color=grey>]</color> Kicking everyone. This can take up to 2 minutes, please be patient.");
-        }
-
-        public static void CacheKickAll() =>
-            FreezeServer(8.5f, 3950, new RaiseEventOptions
-            {
-                CachingOption = EventCaching.AddToRoomCache,
-                Receivers = ReceiverGroup.Others,
-                Flags = new WebFlags(byte.MaxValue)
-            });
-
+        
         public static float lagMasterDelay;
 
         public static void LagMasterClient()

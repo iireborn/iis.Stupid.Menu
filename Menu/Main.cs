@@ -57,7 +57,6 @@ using UnityEngine.Video;
 using UnityEngine.XR;
 using Valve.Newtonsoft.Json;
 using Valve.VR;
-using WebSocketSharp;
 using static iiMenu.Utilities.AssetUtilities;
 using static iiMenu.Utilities.FileUtilities;
 using static iiMenu.Utilities.RandomUtilities;
