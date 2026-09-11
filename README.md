@@ -65,8 +65,6 @@ Let's bring back the collaboration of modding. No paywalls, no secrets, no malwa
 
 </details>
 
----
-
 <details>
   <summary><b>🎛️ System Compatibility</b></summary>
 	
