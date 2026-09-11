@@ -7,60 +7,61 @@ at runtime by the managers under `Managers/`, `Mods/` and `Menu/`.
 - **Menu version:** 1.0.3
 - **Tabs:** 45
 - **Features declared in the static tabs:** 1816
-- **Features built at runtime:** 187
-- **Total features:** 2003
+- **Features built at runtime:** 161
+- **Total features:** 1977
 
 A feature marked **Action** fires once when clicked; everything else is a toggle. The text
-after the dash is the in-menu tooltip.
+after the dash is the in-menu tooltip, and a trailing `...` means the menu fills that part in
+at runtime with the player, sound or map it refers to.
 
 ## Contents
 
-- [Main](#main) — 1816
-- [Settings](#settings) — 0
-- [Menu Settings](#menu-settings) — 0
-- [Room Settings](#room-settings) — 0
-- [Movement Settings](#movement-settings) — 0
-- [Projectile Settings](#projectile-settings) — 0
-- [Room Mods](#room-mods) — 0
-- [Important Mods](#important-mods) — 0
-- [Safety Mods](#safety-mods) — 0
-- [Movement Mods](#movement-mods) — 0
-- [Advantage Mods](#advantage-mods) — 0
-- [Visual Mods](#visual-mods) — 0
-- [Fun Mods](#fun-mods) — 0
-- [Rebind Settings](#rebind-settings) — 0
-- [Sound Mods](#sound-mods) — 0
-- [Projectile Mods](#projectile-mods) — 0
-- [Master Mods](#master-mods) — 0
-- [Overpowered Mods](#overpowered-mods) — 0
-- [Soundboard](#soundboard) — 0
-- [Favorite Mods](#favorite-mods) — 0
-- [Menu Presets](#menu-presets) — 0
-- [Advantage Settings](#advantage-settings) — 0
-- [Visual Settings](#visual-settings) — 0
-- [Enabled Mods](#enabled-mods) — 0
-- [Internal Mods](#internal-mods) — 0
-- [MyInstants](#myinstants) — 0
-- [Experimental Mods](#experimental-mods) — 0
-- [Safety Settings](#safety-settings) — 0
+- [Main](#main) — 20
+- [Settings](#settings) — 16
+- [Menu Settings](#menu-settings) — 168
+- [Room Settings](#room-settings) — 3
+- [Movement Settings](#movement-settings) — 36
+- [Projectile Settings](#projectile-settings) — 29
+- [Room Mods](#room-mods) — 50
+- [Important Mods](#important-mods) — 53
+- [Safety Mods](#safety-mods) — 47
+- [Movement Mods](#movement-mods) — 169
+- [Advantage Mods](#advantage-mods) — 26
+- [Visual Mods](#visual-mods) — 130
+- [Fun Mods](#fun-mods) — 487
+- [Rebind Settings](#rebind-settings) — 12
+- [Sound Mods](#sound-mods) — 27
+- [Projectile Mods](#projectile-mods) — 62
+- [Master Mods](#master-mods) — 140
+- [Overpowered Mods](#overpowered-mods) — 99
+- [Soundboard](#soundboard) — 1
+- [Favorite Mods](#favorite-mods) — 1
+- [Menu Presets](#menu-presets) — 27
+- [Advantage Settings](#advantage-settings) — 9
+- [Visual Settings](#visual-settings) — 15
+- [Enabled Mods](#enabled-mods) — 1
+- [Internal Mods](#internal-mods) — 7
+- [MyInstants](#myinstants) — 1
+- [Experimental Mods](#experimental-mods) — 13
+- [Safety Settings](#safety-settings) — 8
 - [Temporary Category](#temporary-category) — 0
-- [Soundboard Settings](#soundboard-settings) — 0
-- [Overpowered Settings](#overpowered-settings) — 0
-- [Keybind Settings](#keybind-settings) — 0
-- [Plugin Settings](#plugin-settings) — 0
-- [Fun Settings](#fun-settings) — 0
-- [Players](#players) — 0
-- [Credits](#credits) — 0
-- [Custom Maps](#custom-maps) — 0
+- [Soundboard Settings](#soundboard-settings) — 7
+- [Overpowered Settings](#overpowered-settings) — 14
+- [Keybind Settings](#keybind-settings) — 14
+- [Plugin Settings](#plugin-settings) — 2
+- [Fun Settings](#fun-settings) — 20
+- [Players](#players) — 1
+- [Credits](#credits) — 4
+- [Custom Maps](#custom-maps) — 2
 - [Chat Messages](#chat-messages) — 0
-- [Macros](#macros) — 0
-- [Detected Mods](#detected-mods) — 0
-- [Detected Settings](#detected-settings) — 0
-- [Achievements](#achievements) — 0
-- [Mod List](#mod-list) — 0
-- [Patreon Mods](#patreon-mods) — 0
-- [Patreon Settings](#patreon-settings) — 0
-- [Runtime-built features](#runtime-built-features) — 187
+- [Macros](#macros) — 4
+- [Detected Mods](#detected-mods) — 81
+- [Detected Settings](#detected-settings) — 4
+- [Achievements](#achievements) — 1
+- [Mod List](#mod-list) — 1
+- [Patreon Mods](#patreon-mods) — 2
+- [Patreon Settings](#patreon-settings) — 2
+- [Runtime-built features](#runtime-built-features) — 161
 
 ---
 
@@ -86,6 +87,9 @@ after the dash is the in-menu tooltip.
 - **Detected Mods** — *Action.* Opens the detected mods.
 - **Achievements** — *Action.* Opens the achievements page.
 - **Credits** — *Action.* Opens the credits page.
+
+## Settings
+
 - **Exit Settings** — *Action.* Returns you back to the main page.
 - **Menu Settings** — *Action.* Opens the settings for the menu.
 - **Category Settings** — *Action.* Opens the settings for the categories.
@@ -102,6 +106,9 @@ after the dash is the in-menu tooltip.
 - **Overpowered Settings** — *Action.* Opens the settings for the overpowered mods.
 - **Detected Settings** — *Action.* Opens the settings for the detected mods.
 - **Projectile Settings** — *Action.* Opens the settings for the projectiles.
+
+## Menu Settings
+
 - **Exit Menu Settings** — *Action.* Returns you back to the settings menu.
 - **Right Hand** — Puts the menu on your right hand.
 - **Both Hands** — Puts the menu on your both of your hands.
@@ -270,9 +277,15 @@ after the dash is the in-menu tooltip.
 - **Load Preferences** — *Action.* Loads your preferences from a file.
 - **Disable Autosave** — Disables the auto save mechanism.
 - **Panic** — *Action.* Disables every single active mod.
+
+## Room Settings
+
 - **Exit Room Settings** — *Action.* Returns you back to the settings menu.
 - **20 Player Rooms** — Changes Create Public and Create Private to 20 player capacity.
 - **crTime** — *Action.* Changes the amount of time waited before attempting to reconnect again.
+
+## Movement Settings
+
 - **Exit Movement Settings** — *Action.* Returns you back to the settings menu.
 - **Change Platform Type** — *Action.* Changes the type of the platforms.
 - **Change Platform Shape** — *Action.* Changes the shape of the platforms.
@@ -309,6 +322,9 @@ after the dash is the in-menu tooltip.
 - **Reverse Intercourse** — Turns you into the receiver when using the intercourse gun.
 - **Elevated Sticky Drive** — Makes you float higher in the air whenever you use Sticky Drive.
 - **High Quality Portals** — Makes the view through the portals higher quality.
+
+## Projectile Settings
+
 - **Exit Projectile Settings** — *Action.* Returns you back to the settings menu.
 - **Change Projectile** — *Action.* Changes the projectile of the projectile mods.
 - **Change Growing Projectile** — *Action.* Changes the projectile of the snowball mods.
@@ -338,6 +354,9 @@ after the dash is the in-menu tooltip.
 - **Disable Snowball Impact Effect** — Disables the impact effect that people get when hit with snowballs.
 - **Invisible Snowballs** — Makes the snowballs invisible.
 - **No Teleport Snowballs** — Stops snowball mods from teleporting you.
+
+## Room Mods
+
 - **Exit Room Mods** — *Action.* Returns you back to the main page.
 - **Disconnect** — *Action.* Disconnects you from the the room.
 - **Reconnect** — *Action.* Reconnects you from and to the the room.
@@ -388,6 +407,9 @@ after the dash is the in-menu tooltip.
 - **Auto Join Room "GAY"** — *Action.* Automatically attempts to connect to room "GAY" every couple of seconds until connected.
 - **Auto Join Room "FURRY"** — *Action.* Automatically attempts to connect to room "FURRY" every couple of seconds until connected.
 - **Auto Join Room "FORSAKEN"** — *Action.* Automatically attempts to connect to room "FORSAKEN" every couple of seconds until connected.
+
+## Important Mods
+
 - **Exit Important Mods** — *Action.* Returns you back to the main page.
 - **Restart Gorilla Tag** — *Action.* Restarts Gorilla Tag.
 - **Open Gorilla Tag Folder** — *Action.* Opens the folder in which your game is located.
@@ -441,6 +463,9 @@ after the dash is the in-menu tooltip.
 - **Connect to US West** — Connects you to the western United States servers.
 - **Connect to EU** — Connects you to the Europe servers.
 - **Reauthenticate** — *Action.* Restarts the login flow that happens at the beginning of the game.
+
+## Safety Mods
+
 - **Exit Safety Mods** — *Action.* Returns you back to the main page.
 - **Recommended Safety Mods** — Has the effects of some good general safety mods while enabled.
 - **No Finger Movement** — Makes your fingers not move, so you can use wall walk without getting called out.
@@ -488,6 +513,9 @@ after the dash is the in-menu tooltip.
 - **Color Spoof** — Makes your color appear different to every player.
 - **Unload Menu** — *Action.* Unloads the menu from your game.
 - **Disable Anti Telemetry** — Allows the game to send log data to Gorilla Tag's servers.
+
+## Movement Mods
+
 - **Exit Movement Mods** — *Action.* Returns you back to the main page.
 - **Platforms** — Spawns platforms on your hands when holding grip.
 - **Trigger Platforms** — Spawns platforms on your hands when holding trigger.
@@ -657,6 +685,9 @@ after the dash is the in-menu tooltip.
 - **Intercourse All** — Makes you thrust everyone in the room, with sounds.
 - **Head Gun** — Makes you thrust whoever your hand desires, but lower, with sounds.
 - **Head All** — Makes you thrust everyone in the room, but lower, with sounds.
+
+## Advantage Mods
+
 - **Exit Advantage Mods** — *Action.* Returns you back to the main page.
 - **Tag Self** — Attempts to tags yourself.
 - **Tag Gun** — Tags whoever your hand desires.
@@ -683,6 +714,9 @@ after the dash is the in-menu tooltip.
 - **Paintbrawl Kill Self** — Kills yourself in paintbrawl.
 - **Paintbrawl Kill Gun** — Kills whoever your hand desires in paintbrawl.
 - **Paintbrawl Kill All** — Kills everyone in the room in paintbrawl.
+
+## Visual Mods
+
 - **Exit Visual Mods** — *Action.* Returns you back to the main page.
 - **Morning Time** — Sets your time of day to morning.
 - **Day Time** — Sets your time of day to daytime.
@@ -813,6 +847,9 @@ after the dash is the in-menu tooltip.
 - **Info Watch Time** — Shows the current time on the Info Watch mod.
 - **Info Watch Clipboard** — Shows your clipboard on the Info Watch mod.
 - **Info Watch Code** — Shows the lobby code on the Info Watch mod.
+
+## Fun Mods
+
 - **Exit Fun Mods** — *Action.* Returns you back to the main page.
 - **Custom Maps** — *Action.* Opens the custom maps tab.
 - **Upside Down Head** — Flips your head upside down on the Z axis.
@@ -1300,6 +1337,9 @@ after the dash is the in-menu tooltip.
 - **Narrate Creation Date Aura** — Gets the creation date of nearby players accounts and speaks it through your microphone.
 - **Narrate Creation Date On Touch** — Gets the creation date of players you touch accounts and speaks it through your microphone.
 - **Grab Player Info** — *Action.* Saves every player's name, color, and player ID as a text file and opens it.
+
+## Rebind Settings
+
 - **Exit Rebind Settings** — *Action.* Returns you back to the settings menu.
 - **Rebind A** — Enables rebinding mode, letting you change a mod's button.
 - **Rebind B** — Enables rebinding mode, letting you change a mod's button.
@@ -1312,6 +1352,9 @@ after the dash is the in-menu tooltip.
 - **Rebind Left Joystick** — Enables rebinding mode, letting you change a mod's button.
 - **Rebind Right Joystick** — Enables rebinding mode, letting you change a mod's button.
 - **Clear Rebinds** — *Action.* Removes all rebinds.
+
+## Sound Mods
+
 - **Exit Sound Mods** — *Action.* Returns you back to the main page.
 - **Soundboard** — *Action.* A working, customizable soundboard that lets you play audios through your microphone.
 - **Bass Sound Spam [G]** — Plays the loud drum sound when holding grip.
@@ -1339,6 +1382,9 @@ after the dash is the in-menu tooltip.
 - **Custom Sound ID** — *Action.* Changes the Sound ID of the Custom Sound Spam.
 - **Custom Sound Spam** — Plays the selected sound when holding grip.
 - **Override Tap Sound** — Plays the selected sound when holding grip.
+
+## Projectile Mods
+
 - **Exit Projectile Mods** — *Action.* Returns you back to the main page.
 - **Grab Projectile [G]** — Grabs your selected projectile(s) holding grip.
 - **Projectile Spam [G]** — Spams your selected projectile(s) when holding grip.
@@ -1401,6 +1447,9 @@ after the dash is the in-menu tooltip.
 - **Snowball Fling Player Away Gun** — Flings whoever your hand desires away from you.
 - **Snowball Launch Gun** — Launches whoever your hand desires like a launch pad.
 - **Anti Report [Snowball Fling]** — Flings whoever tries to report you with the snowballs.
+
+## Master Mods
+
 - **Exit Master Mods** — *Action.* Returns you back to the main page.
 - **MasterLabel**
 - **Guardian Self** — *Action.* Makes you red.
@@ -1541,6 +1590,9 @@ after the dash is the in-menu tooltip.
 - **Vibrate All** — Makes everyone in the the room's controllers vibrate.
 - **Vibrate Aura** — Makes players nearby you controllers vibrate.
 - **Vibrate On Touch** — Makes whoever you touch controllers vibrate.
+
+## Overpowered Mods
+
 - **Exit Overpowered Mods** — *Action.* Returns you back to the main page.
 - **Always Guardian** — Makes you always the guardian.
 - **Guardian Protector** — Pushes people away from the guardian moon if they try to approach it.
@@ -1640,8 +1692,17 @@ after the dash is the in-menu tooltip.
 - **Auto Party Ban** — When you party, you will automatically send everyone in your party to a bannable code.
 - **Break Audio Gun** — Attempts to break the audio of whoever your hand desires.
 - **Break Audio All [T]** — Attempts to break everyone's audio when holding trigger.
+
+## Soundboard
+
 - **Exit Soundboard** — *Action.* Returns you back to the fun mods.
+
+## Favorite Mods
+
 - **Exit Favorite Mods** — *Action.* Returns you back to the main page.
+
+## Menu Presets
+
 - **Exit Menu Presets** — *Action.* Returns to the settings for the menu.
 - **Legitimate Preset** — *Action.* Enables a bunch of mods that make it impossible to mod check you.
 - **Goldentrophy Preset** — *Action.* Enables the mods that "goldentrophy" uses.
@@ -1669,6 +1730,9 @@ after the dash is the in-menu tooltip.
 - **Save Custom Preset 10** — *Action.* Saves a custom preset.
 - **Load Custom Preset 10** — *Action.* Loads a custom preset.
 - **Quick Start Mods** — *Action.* Enables some mods that attempt to improve your experience using the menu.
+
+## Advantage Settings
+
 - **Exit Advantage Settings** — *Action.* Returns you back to the settings menu.
 - **Instant Tag** — Makes the tag instant.
 - **Obnoxious Tag** — Makes the tag mods more obnoxious. Instead of hiding in the ground, you teleport around the player like crazy.
@@ -1678,6 +1742,9 @@ after the dash is the in-menu tooltip.
 - **Fake Lag Others** — Makes fake lag affect other players' rigs.
 - **Disable Fake Lag Self** — Excludes yourself from fake lag.
 - **Change Fake Lag Strength** — *Action.* Changes the ping of the "Fake Lag" mod.
+
+## Visual Settings
+
 - **Exit Visual Settings** — *Action.* Returns you back to the settings menu.
 - **Change Performance Visuals Step** — *Action.* Changes the time between rendering visual mods.
 - **Performance Visuals** — Makes visual mods render less often, to increase performange and decrease memory usage.
@@ -1693,7 +1760,13 @@ after the dash is the in-menu tooltip.
 - **Thin Tracers** — Makes the tracers thinner.
 - **Smooth Lines** — Makes every line generated by the menu have smooth ends.
 - **Show Cosmetics** — If enabled, the cosmetics will also show through walls.
+
+## Enabled Mods
+
 - **Exit Enabled Mods** — *Action.* Returns you back to the main page.
+
+## Internal Mods
+
 - **Search** — *Action.* Lets you search for specific mods.
 - **Global Return** — *Action.* Returns you to the previous category.
 - **Info Screen** — Shows game and modding related information.
@@ -1701,7 +1774,13 @@ after the dash is the in-menu tooltip.
 - **Update Button** — *Action.* Prompts you to update the menu.
 - **Accept Prompt** — *Action.*
 - **Decline Prompt** — *Action.*
+
+## MyInstants
+
 - **Exit MyInstants** — *Action.* Returns you back to the soundboard.
+
+## Experimental Mods
+
 - **Exit Experimental Mods** — *Action.* Returns you back to the main page.
 - **Safe Restart Game** — Restarts Gorilla Tag, saving room and position data.
 - **Fix Broken Buttons** — *Action.* Fixes any duplicate or broken buttons.
@@ -1715,6 +1794,9 @@ after the dash is the in-menu tooltip.
 - **Better FPS Boost** — Makes everything one color, boosting your FPS.
 - **Replay Tutorial** — *Action.* Replays the tutorial video.
 - **Disorganize Menu** — *Action.* Disorganizes the entire menu. This cannot be undone.
+
+## Safety Settings
+
 - **Exit Safety Settings** — *Action.* Returns you back to the settings menu.
 - **Change Anti Report Distance** — *Action.* Changes the distance threshold for the anti report mods.
 - **Change FPS Spoof Value** — *Action.* Changes the target FPS for the FPS Spoof mod.
@@ -1723,6 +1805,13 @@ after the dash is the in-menu tooltip.
 - **Visualize Anti Report** — Visualizes the distance threshold for the anti report mods.
 - **Smart Anti Report** — Makes the anti report mods only activate in non-modded public lobbies.
 - **Anti Mute** — Includes the mute button with the anti report mods.
+
+## Temporary Category
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Soundboard Settings
+
 - **Exit Soundboard Settings** — *Action.* Returns you back to the settings menu.
 - **Soundboard Local Volume** — *Action.* How loud the soundboard is to your ears (local preview). 0-200%.
 - **Soundboard Mic Volume** — *Action.* How loud the soundboard is through your microphone to others. 0-200%.
@@ -1730,6 +1819,9 @@ after the dash is the in-menu tooltip.
 - **Loop Sounds** — Makes sounds loop forever until stopped.
 - **Overlap Sounds** — Makes it so you can play sounds over and over again, making them overlap eachother.
 - **Sound Bindings** — *Action.* Changes the button used to play sounds on the soundboard.
+
+## Overpowered Settings
+
 - **Exit Overpowered Settings** — *Action.* Returns you back to the settings menu.
 - **Graphic Punch Mod** — Spawns blood projectiles when hitting other players with the allowed punch mods.
 - **No Freeze Za Warudo** — Disables the freezing on the "Za Warudo" mod, turning it into a fun mod.
@@ -1744,6 +1836,9 @@ after the dash is the in-menu tooltip.
 - **Fast Kick** — Instantly creates a room instead of checking if one already exists.
 - **Kick Fix** — Stops the super infection, virtual stump, and other kick mods from breaking.
 - **Mute All on Freeze** — Whenever you freeze the server, everyone will be muted along with it
+
+## Keybind Settings
+
 - **Exit Keybind Settings** — *Action.* Returns you back to the settings menu.
 - **Non-Toggle Keybinds** — Enables mods while holding down the button, instead of toggling them.
 - **Overwrite Keybinds** — Forces every button to be held down with keybinded mods.
@@ -1758,8 +1853,14 @@ after the dash is the in-menu tooltip.
 - **Keybind Right Trigger** — Enables binding mode, letting you bind a mod to a button.
 - **Keybind Left Joystick** — Enables binding mode, letting you bind a mod to a button.
 - **Keybind Right Joystick** — Enables binding mode, letting you bind a mod to a button.
+
+## Plugin Settings
+
 - **Exit Plugin Settings** — *Action.* Returns you back to the settings menu.
 - **Reload Plugins** — *Action.* Reloads all of your plugins.
+
+## Fun Settings
+
 - **Exit Fun Settings** — *Action.* Returns you back to the settings menu.
 - **Change Head Spin Speed** — *Action.* Changes the speed of the head spin mods.
 - **Change Tinnitus Hertz** — *Action.* Changes the target hertz for the tinnitus mods.
@@ -1780,17 +1881,36 @@ after the dash is the in-menu tooltip.
 - **Change Cycle Delay** — *Action.* Changes the delay on name cycle mods.
 - **Entity Gravity** — Gives gravity to any spawned entities in the ghost reactor or Super Infection gamemode.
 - **Tinnitus Self** — Be able to hear the loud beep the menu creates with this mod on. God save your ears.
+
+## Players
+
 - **Exit Players** — *Action.* Returns you back to the main page.
+
+## Credits
+
 - **Exit Credits** — *Action.* Returns you back to the main page.
 - **Old Devs** — *Action.* The original developers of ii's Stupid Menu.
 - **Useless** — *Action.* Useless — discord.gg/iidk
 - **GPL v3** — *Action.* The GNU General Public License Version 3 is the license that my menu uses. It proveides a "free, copyleft license for software and other kinds of works."
+
+## Custom Maps
+
 - **Exit Custom Maps** — *Action.* Returns you back to the fun mods.
 - **You have not loaded a map.**
+
+## Chat Messages
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Macros
+
 - **Exit Macros** — *Action.* Returns you back to the movement mods.
 - **Record [T]** — Record your macros with your left trigger.
 - **Reload Macros** — *Action.* Reloads your macros.
 - **Disable Macros** — Disables all macros.
+
+## Detected Mods
+
 - **Exit Detected Mods** — *Action.* Returns you back to the main page.
 - **Detected Auto Set Master Client** — Automatically sets you as master client.
 - **Detected Set Master Client Self** — *Action.* Sets you as master client.
@@ -1872,200 +1992,39 @@ after the dash is the in-menu tooltip.
 - **Change Gamemode to Freeze Tag** — *Action.* Changes the gamemode to freeze tag.
 - **Change Gamemode to Prop Hunt** — *Action.* Changes the gamemode to prop hunt.
 - **Change Gamemode to Custom** — *Action.* Changes the gamemode to custom.
+
+## Detected Settings
+
 - **Exit Detected Settings** — *Action.* Returns you back to the main page.
 - **Switch to Modded Gamemode** — Automatically sets the gamemode as modded when changed.
 - **Isolate Others** — Allows you to still be seen when isolating players.
 - **Public Room Guard** — Automatically disables all enabled detected mods when you join a public room.
-- **Exit Achievements** — *Action.* Returns you back to the main page.
-- **Exit Mod List** — *Action.* Returns you back to the main page.
-- **Exit Patreon Mods** — *Action.* Returns you back to the main page.
-- **No Patreon Indicator** — Disables the membership that appears above your head to others with the menu.
-- **Exit Patreon Settings** — *Action.* Returns you back to the main page.
-- **Disable Patreon Indicators** — Disables the memberships that appear above people's head with the menu.
-
-## Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Menu Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Room Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Movement Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Projectile Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Room Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Important Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Safety Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Movement Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Advantage Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Visual Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Fun Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Rebind Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Sound Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Projectile Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Master Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Overpowered Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Soundboard
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Favorite Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Menu Presets
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Advantage Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Visual Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Enabled Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Internal Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## MyInstants
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Experimental Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Safety Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Temporary Category
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Soundboard Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Overpowered Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Keybind Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Plugin Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Fun Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Players
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Credits
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Custom Maps
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Chat Messages
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Macros
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Detected Mods
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
-
-## Detected Settings
-
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
 
 ## Achievements
 
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+- **Exit Achievements** — *Action.* Returns you back to the main page.
 
 ## Mod List
 
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+- **Exit Mod List** — *Action.* Returns you back to the main page.
 
 ## Patreon Mods
 
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+- **Exit Patreon Mods** — *Action.* Returns you back to the main page.
+- **No Patreon Indicator** — Disables the membership that appears above your head to others with the menu.
 
 ## Patreon Settings
 
-_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+- **Exit Patreon Settings** — *Action.* Returns you back to the main page.
+- **Disable Patreon Indicators** — Disables the memberships that appear above people's head with the menu.
 
 ---
 
 ## Runtime-built features
 
 These are created in code rather than declared in `Buttons.cs`, so their contents follow
-the game's state — players in the room, installed plugins, presets, macos and the online
-sound library.
+the game's state — players in the room, installed plugins, saved presets, macros and the
+online sound library.
 
 ### Managers/AchievementManager.cs
 
@@ -2083,7 +2042,6 @@ sound library.
 - **Reload Plugins** — *Action.* Reloads all of your plugins.
 - **Get More Plugins** — *Action.* Opens a public plugin library, where you can download your own plugins.
 - **Exit Plugin Library** — *Action.* Returns you back to the plugin settings.
-- **PluginDownload** — *Action.*
 
 ### Mods/Fun.cs
 
@@ -2099,19 +2057,10 @@ sound library.
 - **Reload Macros** — *Action.* Reloads your macros.
 - **Disable Macros** — Disables all macros.
 - **Exit Teleport to Map** — *Action.* Returns you back to the movement mods.
-- **TeleportMap** — *Action.* Teleports you to the
 
 ### Mods/Settings.cs
 
 - **Exit Info Screen** — *Action.* Returns you back to the main page.
-- **DebugMenuName**
-- **DebugColor**
-- **DebugName**
-- **DebugId**
-- **DebugClip**
-- **DebugFps**
-- **DebugRoomA**
-- **DebugRoomB**
 - **Exit Players** — *Action.* Returns you back to the main page.
 - **Not in a Room**
 - **Exit PlayerInspect** — *Action.* Returns you back to the players tab.
@@ -2151,12 +2100,10 @@ sound library.
 - **Red** — *Action.* Change the red of the first color of the background.
 - **Green** — *Action.* Change the green of the first color of the background.
 - **Blue** — *Action.* Change the blue of the first color of the background.
-- **PreviewLabel**
 - **Exit Second Color** — *Action.* Returns you back to the background menu.
 - **Red** — *Action.* Change the red of the second color of the background.
 - **Green** — *Action.* Change the green of the second color of the background.
 - **Blue** — *Action.* Change the blue of the second color of the background.
-- **PreviewLabel**
 - **Exit Buttons** — *Action.* Returns you back to the customize menu.
 - **Enabled** — *Action.* Choose what type of button color to modify.
 - **Disabled** — *Action.* Change the color of the second color of the background.
@@ -2170,22 +2117,18 @@ sound library.
 - **Red** — *Action.* Change the red of the first color of the enabled button color.
 - **Green** — *Action.* Change the green of the first color of the enabled button color.
 - **Blue** — *Action.* Change the blue of the first color of the enabled button color.
-- **PreviewLabel**
 - **Exit Second Color** — *Action.* Returns you back to the enabled button menu.
 - **Red** — *Action.* Change the red of the first color of the enabled button color.
 - **Green** — *Action.* Change the green of the first color of the enabled button color.
 - **Blue** — *Action.* Change the blue of the first color of the enabled button color.
-- **PreviewLabel**
 - **Exit First Color** — *Action.* Returns you back to the disabled button menu.
 - **Red** — *Action.* Change the red of the first color of the disabled button color.
 - **Green** — *Action.* Change the green of the first color of the disabled button color.
 - **Blue** — *Action.* Change the blue of the first color of the disabled button color.
-- **PreviewLabel**
 - **Exit Second Color** — *Action.* Returns you back to the disabled button menu.
 - **Red** — *Action.* Change the red of the first color of the disabled button color.
 - **Green** — *Action.* Change the green of the first color of the disabled button color.
 - **Blue** — *Action.* Change the blue of the first color of the disabled button color.
-- **PreviewLabel**
 - **Exit Text** — *Action.* Returns you back to the customize menu.
 - **Title** — *Action.* Change the color of the title.
 - **Enabled** — *Action.* Change the color of the enabled text.
@@ -2194,17 +2137,14 @@ sound library.
 - **Red** — *Action.* Change the red of the title color.
 - **Green** — *Action.* Change the green of the title color.
 - **Blue** — *Action.* Change the blue of the title color.
-- **PreviewLabel**
 - **Exit Second Color** — *Action.* Returns you back to the text menu.
 - **Red** — *Action.* Change the red of the enabled text color.
 - **Green** — *Action.* Change the green of the enabled text color.
 - **Blue** — *Action.* Change the blue of the enabled text color.
-- **PreviewLabel**
 - **Exit Second Color** — *Action.* Returns you back to the text menu.
 - **Red** — *Action.* Change the red of the disabled text color.
 - **Green** — *Action.* Change the green of the disabled text color.
 - **Blue** — *Action.* Change the blue of the disabled text color.
-- **PreviewLabel**
 
 ### Mods/Sound.cs
 
@@ -2215,21 +2155,14 @@ sound library.
 - **Stop All Sounds** — *Action.* Stops all currently playing sounds.
 - **Open Sound Folder** — *Action.* Opens your Sounds folder — drop custom mp3/wav/ogg here.
 - **Reload Sounds** — *Action.* Reloads all of your sounds.
-- **SoundboardFolder** — *Action.* Opens the
-- **SoundboardSound** — Instantly plays "
-- **SoundboardSound** — Plays "
-- **SoundboardSound** — Plays "
-- **SoundboardSound** — *Action.* Plays "
 - **Exit MyInstants** — *Action.* Returns you back to the soundboard.
 - **Search MyInstants** — *Action.* Search MyInstants by name.
 - **Recently Uploaded** — *Action.* Show the newest MyInstants uploads.
 - **Server Library** — *Action.* The original menu sound library, hosted on the menu's own server.
 - **MyInstants Error**
 - **Retry MyInstants** — *Action.* Try the last MyInstants request again.
-- **MyInst** — *Action.*
 - **Exit MyInstants** — *Action.* Returns you back to the soundboard.
 - **Back to MyInstants** — *Action.* Back to the MyInstants browser.
-- **SoundboardDownload** — *Action.* Downloads
 - **Exit MyInstants** — *Action.* Returns you back to the soundboard.
 - **Could not reach the server library.**
 
