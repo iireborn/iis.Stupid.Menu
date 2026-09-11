@@ -107,7 +107,7 @@ Let's bring back the collaboration of modding. No paywalls, no secrets, no malwa
   <summary><b>🗣️ Contact Information</b></summary>
 	
 Need help or want to collaborate? Here are some of my sources of contact:
-- Discord: [@crimsoncauldron](https://discord.gg/iidk)
+- Discord: [iiDK](https://discord.gg/iidk)
 
 </details>
 
@@ -143,7 +143,3 @@ Just Join the Discord for now :3
 > 
 > You should have received a copy of the GNU General Public License
 > along with this program.  If not, see <https://www.gnu.org/licenses>.
-
-<p align="center">
-  <img src="Resources/GitHub/byebye.gif">
-</p>
