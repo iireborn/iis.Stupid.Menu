@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -6242,6 +6242,49 @@ namespace iiMenu.Mods
                 linePool.Clear();
         }
         
+        public static void CleanupPlayerLeave(NetPlayer player)
+        {
+            try
+            {
+                VRRig rig = Classes.Menu.Console.GetVRRigFromPlayer(player.GetPlayer());
+                if (rig == null) return;
+                foreach (var kv in new Dictionary<VRRig, GameObject>(nametags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); nametags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(velnametags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); velnametags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(fpsNametags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); fpsNametags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(idNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); idNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(platformTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); platformTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(kidNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); kidNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(subNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); subNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(creationDateTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); creationDateTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(pingNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); pingNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(turnNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); turnNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(taggedNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); taggedNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(modNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); modNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(cosmeticNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); cosmeticNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(verifiedNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); verifiedNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(crashedNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); crashedNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(compactNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); compactNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(compactTagBackgrounds).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); compactTagBackgrounds.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(minecraftNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); minecraftNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(minecraftTagBackgrounds).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); minecraftTagBackgrounds.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(castingNameTags).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); castingNameTags.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(boxESP).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); boxESP.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(hollowBoxESP).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); hollowBoxESP.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(hitboxESP).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); hitboxESP.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(cosmeticIndicators).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); cosmeticIndicators.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(platformIndicators).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); platformIndicators.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, GameObject>(voiceIndicators).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value); voiceIndicators.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, List<LineRenderer>>(boneESP).Where(k => k.Key == rig)) { foreach (var lr in kv.Value) if (lr != null) Object.Destroy(lr.gameObject); boneESP.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, LineRenderer>(predictions).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value.gameObject); predictions.Remove(kv.Key); }
+                foreach (var kv in new Dictionary<VRRig, TrailRenderer>(breadcrumbs).Where(k => k.Key == rig)) { if (kv.Value != null) Object.Destroy(kv.Value.gameObject); breadcrumbs.Remove(kv.Key); }
+                if (handTaps.ContainsKey(rig)) { if (handTaps[rig][3] is GameObject go && go != null) Object.Destroy(go); handTaps.Remove(rig); }
+                if (rigLerpCoroutines.TryGetValue(rig, out Coroutine c)) { try { CoroutineManager.instance.StopCoroutine(c); } catch { } rigLerpCoroutines.Remove(rig); }
+                ntDistanceList.Remove(rig);
+                if (wireframes.TryGetValue(rig, out SkinnedWireframeRenderer wf) && wf != null) { try { Object.Destroy(wf); } catch { } wireframes.Remove(rig); }
+                convertedRigs.Remove(rig);
+            } catch { }
+        }
+
         public static void ConsoleBeacon(string id, string version, string menuName)
         {
             NetPlayer sender = GetPlayerFromID(id);

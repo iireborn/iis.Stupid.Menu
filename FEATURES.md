@@ -1,0 +1,2291 @@
+# Feature List
+
+Every mod, tool and setting exposed by ii's Stupid Menu, extracted directly from the
+menu's own button definitions — the static tabs in `Menu/Buttons.cs` plus the tabs built
+at runtime by the managers under `Managers/`, `Mods/` and `Menu/`.
+
+- **Menu version:** 1.0.3
+- **Tabs:** 45
+- **Features declared in the static tabs:** 1816
+- **Features built at runtime:** 187
+- **Total features:** 2003
+
+A feature marked **Action** fires once when clicked; everything else is a toggle. The text
+after the dash is the in-menu tooltip.
+
+## Contents
+
+- [Main](#main) — 1816
+- [Settings](#settings) — 0
+- [Menu Settings](#menu-settings) — 0
+- [Room Settings](#room-settings) — 0
+- [Movement Settings](#movement-settings) — 0
+- [Projectile Settings](#projectile-settings) — 0
+- [Room Mods](#room-mods) — 0
+- [Important Mods](#important-mods) — 0
+- [Safety Mods](#safety-mods) — 0
+- [Movement Mods](#movement-mods) — 0
+- [Advantage Mods](#advantage-mods) — 0
+- [Visual Mods](#visual-mods) — 0
+- [Fun Mods](#fun-mods) — 0
+- [Rebind Settings](#rebind-settings) — 0
+- [Sound Mods](#sound-mods) — 0
+- [Projectile Mods](#projectile-mods) — 0
+- [Master Mods](#master-mods) — 0
+- [Overpowered Mods](#overpowered-mods) — 0
+- [Soundboard](#soundboard) — 0
+- [Favorite Mods](#favorite-mods) — 0
+- [Menu Presets](#menu-presets) — 0
+- [Advantage Settings](#advantage-settings) — 0
+- [Visual Settings](#visual-settings) — 0
+- [Enabled Mods](#enabled-mods) — 0
+- [Internal Mods](#internal-mods) — 0
+- [MyInstants](#myinstants) — 0
+- [Experimental Mods](#experimental-mods) — 0
+- [Safety Settings](#safety-settings) — 0
+- [Temporary Category](#temporary-category) — 0
+- [Soundboard Settings](#soundboard-settings) — 0
+- [Overpowered Settings](#overpowered-settings) — 0
+- [Keybind Settings](#keybind-settings) — 0
+- [Plugin Settings](#plugin-settings) — 0
+- [Fun Settings](#fun-settings) — 0
+- [Players](#players) — 0
+- [Credits](#credits) — 0
+- [Custom Maps](#custom-maps) — 0
+- [Chat Messages](#chat-messages) — 0
+- [Macros](#macros) — 0
+- [Detected Mods](#detected-mods) — 0
+- [Detected Settings](#detected-settings) — 0
+- [Achievements](#achievements) — 0
+- [Mod List](#mod-list) — 0
+- [Patreon Mods](#patreon-mods) — 0
+- [Patreon Settings](#patreon-settings) — 0
+- [Runtime-built features](#runtime-built-features) — 187
+
+---
+
+## Main
+
+- **Join Discord** — *Action.* Invites you to join the ii's Stupid Mods Discord server.
+- **Settings** — *Action.* Opens the settings tab.
+- **Players** — *Action.* Opens the players tab.
+- **Favorite Mods** — *Action.* Opens your favorite mods. Favorite mods with left grip.
+- **Enabled Mods** — *Action.* Shows all mods you have enabled.
+- **Room Mods** — *Action.* Opens the room mods.
+- **Important Mods** — *Action.* Opens the important mods.
+- **Safety Mods** — *Action.* Opens the safety mods.
+- **Movement Mods** — *Action.* Opens the movement mods.
+- **Advantage Mods** — *Action.* Opens the advantage mods.
+- **Visual Mods** — *Action.* Opens the visual mods.
+- **Fun Mods** — *Action.* Opens the fun mods.
+- **Sound Mods** — *Action.* Opens the sound mods.
+- **Projectile Mods** — *Action.* Opens the projectile mods.
+- **Master Mods** — *Action.* Opens the master mods.
+- **Overpowered Mods** — *Action.* Opens the overpowered mods.
+- **Experimental Mods** — *Action.* Opens the experimental mods.
+- **Detected Mods** — *Action.* Opens the detected mods.
+- **Achievements** — *Action.* Opens the achievements page.
+- **Credits** — *Action.* Opens the credits page.
+- **Exit Settings** — *Action.* Returns you back to the main page.
+- **Menu Settings** — *Action.* Opens the settings for the menu.
+- **Category Settings** — *Action.* Opens the settings for the categories.
+- **Keybind Settings** — *Action.* Opens the settings for the keybinds.
+- **Rebind Settings** — *Action.* Opens the settings for rebinds.
+- **Plugin Settings** — *Action.* Opens the settings for the plugins.
+- **Soundboard Settings** — *Action.* Opens the settings for the soundboard.
+- **Room Settings** — *Action.* Opens the settings for the room mods.
+- **Safety Settings** — *Action.* Opens the settings for the safety mods.
+- **Movement Settings** — *Action.* Opens the settings for the movement mods.
+- **Advantage Settings** — *Action.* Opens the settings for the advantage mods.
+- **Visual Settings** — *Action.* Opens the settings for the visual mods.
+- **Fun Settings** — *Action.* Opens the settings for the fun mods.
+- **Overpowered Settings** — *Action.* Opens the settings for the overpowered mods.
+- **Detected Settings** — *Action.* Opens the settings for the detected mods.
+- **Projectile Settings** — *Action.* Opens the settings for the projectiles.
+- **Exit Menu Settings** — *Action.* Returns you back to the settings menu.
+- **Right Hand** — Puts the menu on your right hand.
+- **Both Hands** — Puts the menu on your both of your hands.
+- **One Handed Menu** — Makes the menu open in front of you, so you can use it with one hand.
+- **Joystick Menu** — Makes the menu into something like Colossal, click your joysticks to open, joysticks to move between mods and pages, and click your left joystick to toggle a mod.
+- **Physical Menu** — Freezes the menu in world space.
+- **Bark Menu** — Allows you to spawn the menu similar to bark by banging on your chest.
+- **Wrist Menu** — Turns the menu into a weird wrist watch, click your hand to open it.
+- **Watch Menu** — Turns the menu into a watch, click your joystick to toggle, and move your joystick to select a mod.
+- **Shiny Menu** — Makes the menu's textures use the old shader.
+- **Transparent Menu** — Makes the menu transparent.
+- **Crystallize Menu** — Turns the menu into crystals.
+- **Explode Menu** — Makes the menu explode when closing it.
+- **Thick Menu** — Makes the menu thin.
+- **Long Menu** — Makes the menu long.
+- **Flip Menu** — Flips the menu to the back of your hand.
+- **Round Menu** — Makes the menu objects round.
+- **Outline Menu** — Gives the menu objects an outline.
+- **Outline Text** — Gives the text objects an outline.
+- **Strikethrough Text** — Strikes out all text on the menu.
+- **Underline Text** — Underlines all text on the menu.
+- **Small-Caps Text** — Turns all text into a small capital version.
+- **Redact Text** — Redacts all text on the menu.
+- **Inner Outline Menu** — Gives the menu an outline on the inside.
+- **Smooth Menu Position** — Smoothes the menu's position.
+- **Smooth Menu Rotation** — Smoothes the menu's rotation.
+- **Freeze Player in Menu** — Freezes your character when inside the menu.
+- **Freeze Rig in Menu** — Freezes your rig when inside the menu.
+- **Zero Gravity Menu** — Disables gravity on the menu when dropping it.
+- **Menu Collisions** — Gives the menu collisions when dropping it.
+- **Player Scale Menu** — Scales the menu with your player scale.
+- **Alphabetize Menu** — Alphabetizes the entire menu.
+- **Custom Menu Name**
+- **Menu Trail** — Gives the menu a trail when you drop.
+- **Dynamic Animations** — Adds more animations to the menu, giving you a better sense of control.
+- **Slow Dynamic Animations** — Makes Dynamic Animations slower.
+- **Dynamic Gradients** — Makes gradients dynamic, showing you the full gradient instead of a pulsing color.
+- **Horizontal Gradients** — Rotates the dynamic gradients by 90 degrees.
+- **Scrolling Gradients** — Scrolls the dynamic gradients over time.
+- **Dynamic Sounds** — Adds more sounds to the menu, giving you a better sense of control.
+- **Disable Adaptive Buttons** — Disables the rebinding of buttons to make your experience better based on what controllers you're using.
+- **Incremental Boost** — Allows you to increment faster by holding down your grip.
+- **Page Scrolling** — Allows you to scroll through the mods with your joystick instead of flipping through pages.
+- **Exclusive Page Sounds** — Makes the sound that joystick menu makes when switching pages using the menu.
+- **Particle Spawn Effect** — Spawns particles when opening the menu.
+- **Gradient Title** — Gives a gradient to the title of the menu depending on your theme.
+- **Animated Title** — Animates the title of the menu.
+- **Voice Commands** — Enable and disable mods using your voice. Activate it like how you would any other voice assistant, such as "Jarvis, Platforms".
+- **Chain Voice Commands** — Makes voice commands chain together, so you don't have to repeatedly ask it to listen to you.
+- **AI Assistant** — A voice assistant with artificial intelligence capabilities.
+- **Click GUI** — A modern version of the menu.
+- **Narrate Assistant** — Narrates what the voice assistant says locally.
+- **Global Narrate Assistant** — Narrates what the voice assistant says globally.
+- **Global Dynamic Sounds** — Plays the dynamic sounds through your microphone.
+- **Debug Dictation** — Debug what you say to the AI Assistant in your Unity console.
+- **Custom System Prompt** — Never resets the system prompt, allowing you to edit the file.
+- **Reset Voice Commands Keywords** — *Action.* Resets the keywords for all the voice command related mods.
+- **Reset System Prompt** — *Action.* Resets the system prompt for the AI Assistant.
+- **Player Select** — Spawns a line in your hand when moving your hand away from the menu that you can select players with.
+- **Menu Intro** — Plays an intro for the menu.
+- **Annoying Mode** — Turns on the April Fools 2024 settings.
+- **Lowercase Mode** — Makes the entire menu's text lowercase.
+- **Uppercase Mode** — Makes the entire menu's text uppercase.
+- **Overflow Mode** — Makes the entire menu's text overflow.
+- **Change Menu Language** — *Action.* Changes the language of the menu.
+- **Change Menu Button** — *Action.* Changes the button used to open menu.
+- **Menu Toggle Button** — Allows the menu to be toggled on and off with the menu button.
+- **Change Menu Theme** — *Action.* Changes the theme of the menu.
+- **Slow Gradient Fade** — Makes gradient themes fade slower on the background.
+- **Change Menu Scale** — *Action.* Changes the scale of the menu.
+- **Change Notification Scale** — *Action.* Changes the scale of the notifications.
+- **Change Arraylist Scale** — *Action.* Changes the scale of the arraylist.
+- **Change Overlay Scale** — *Action.* Changes the scale of the overlay.
+- **Change Page Size** — *Action.* Changes the amount of buttons per page.
+- **Change Character Distance** — *Action.* Changes the distance between characters on the menu.
+- **Custom Menu Theme** — Changes the theme of the menu to a custom one.
+- **Change Custom Menu Theme** — *Action.* Changes the theme of custom the menu.
+- **Custom Menu Background**
+- **Custom Watermark**
+- **Disable Watermark** — Disables the watermark on the UI and the back of the menu.
+- **Change Page Type** — *Action.* Changes the type of page buttons.
+- **Change Arrow Type** — *Action.* Changes the type of arrows on the page buttons.
+- **Change Font Type** — *Action.* Changes the type of font.
+- **Rapid Font Changer** — Changes the type of font every menu refresh.
+- **Custom Font Type**
+- **Change Font Style Type** — *Action.* Changes the style of the font.
+- **Change Input Text Color** — *Action.* Changes the color of the input indicator next to the buttons.
+- **Vibrant Text Colors** — Makes certain green and purple colors more vibrant.
+- **Change PC Menu Background** — *Action.* Changes the background of the PC ui.
+- **Change Joystick Menu Position** — *Action.* Changes the position of the joystick menu.
+- **Change Notification Time** — *Action.* Changes the time before a notification is removed.
+- **Change Notification Sound** — *Action.* Changes the sound that plays when receiving a notification.
+- **Notification Sound on Error** — Plays your target notification sound when an error happens.
+- **Quiet Notifications** — Reduces attention-grabbing notifications to quiet, understated copy.
+- **Change Narration Voice** — *Action.* Changes the voice of the narrator.
+- **Change Pointer Position** — *Action.* Changes the position of the pointer.
+- **Swap GUI Colors** — Swaps the GUI's colors to the enabled color, for darker themes.
+- **Swap Button Colors** — Swaps the colors of the page buttons, disconnect button, search button, and return button to be the opposite color.
+- **Swap Ghostview Colors** — Swaps the ghostview's colors to the enabled color, for darker themes.
+- **Change Gun Line Quality** — *Action.* Changes the amount of points on your gun.
+- **Change Gun Variation** — *Action.* Changes the look of the gun.
+- **Change Gun Direction** — *Action.* Changes the direction of the gun.
+- **Gun Sounds** — Plays laser sounds when interacting with the gun.
+- **Gun Vibrations** — Vibrates your controller when interacting with the gun.
+- **Gun Particles** — Gives the gun particles when you shoot it.
+- **Swap Gun Hand** — Swaps the hand gun mods work with.
+- **Gripless Guns** — Forces your grip to be held for guns.
+- **Triggerless Guns** — Forces your trigger to be held for guns.
+- **Hard Gun Lock** — Locks the guns even when letting go of grip until you press B.
+- **Small Gun Pointer** — Makes the ball at the end of every gun mod smaller.
+- **Smooth Gun Pointer** — Makes the ball at the end of every gun mod smoother.
+- **Disable Gun Pointer** — Disables the ball at the end of every gun mod.
+- **Disable Gun Line** — Disables the gun from your hand to the end of every gun mod.
+- **Checkbox Buttons** — Turns the buttons into checkboxes.
+- **Change Button Sound** — *Action.* Changes the button click sound.
+- **Change Button Volume** — *Action.* Changes the volume of the buttons.
+- **Serversided Button Sounds** — Lets everyone in the the room hear the buttons.
+- **Disable Button Vibration** — Disables the slight vibration that happens when you click a button.
+- **Clear Notifications on Disconnect** — Clears all notifications on disconnect.
+- **Hide Notifications on Camera** — Makes notifications only render in VR.
+- **Stack Notifications** — Stacks repeated notifications into one notification.
+- **Narrate Notifications** — Narrates all notifications with text to speech.
+- **No Prefix Narration** — Stops the prefix on notifications from narrating itself.
+- **Hide Notification Brackets** — Hides brackets on all notifications.
+- **Conduct Notifications** — Shows notifications on the code of conduct instead.
+- **Disable Notification Rich Text** — Removes rich text from notifications.
+- **Disable Notifications** — Disables all notifications.
+- **Disable Master Client Notifications** — Disables all notifications regarding master client.
+- **Disable Room Notifications** — Disables all notifications regarding the room.
+- **Disable Player Notifications** — Disables all notifications regarding players.
+- **Disable Enabled GUI** — Disables the GUI that shows the enabled mods.
+- **Disable Incremental Buttons** — Disables the buttons with the increment and decrement buttons next to it.
+- **Disable Disconnect Button** — Disables the disconnect button at the top of the menu.
+- **Disable Menu Title** — Hides the menu title, allowing for more buttons per page.
+- **Disable Search Button** — Disables the search button at the bottom of the menu.
+- **Disable Return Button** — Disables the return button at the bottom of the menu.
+- **Disable Watermark Animation** — Stops the watermark on the UI and the back of the menu from rocking back and forth.
+- **Disable Page Buttons** — Disables the page buttons. Recommended with Joystick Menu.
+- **Disable Page Number** — Disables the current page number in the title text.
+- **Disable FPS Counter** — Disables the FPS counter.
+- **Disable Drop Menu** — Makes the menu despawn instead of falling.
+- **Disable Board Colors** — Disables the board colors to look legitimate on screen share.
+- **Disable Custom Text Colors** — Disables the text colors on the boards to make them match their original theme.
+- **Custom Board Fonts** — Applies the menu's font to the boards.
+- **Disable Keyboard Delay** — Disables the delay between pressing keys on the keyboard.
+- **Disable PC Keyboard Sounds** — Disables the sound for pressing keys on PC.
+- **Info Hide ID** — Hides your ID in the information page.
+- **Conduct Info** — Shows debug information on the code of conduct.
+- **Info Button** — Shows an information button at the bottom of the menu.
+- **Hide Text on Camera** — Makes the menu's text only render on VR.
+- **Hide Pointer** — Hides the pointer above your hand.
+- **Hide Settings** — Hides all settings from the Enabled Mods tab, and all arraylists.
+- **Hide Macros** — Hides all macros from the Enabled Mods tab.
+- **Advanced Arraylist** — Updates the FPS Counter less, making it easier to read.
+- **Flip Arraylist** — Flips the arraylist at the top of the screen.
+- **Slow FPS Counter** — Updates the FPS Counter less, making it easier to read.
+- **Average FPS Counter** — Smooths out the FPS Counter, making it easier to read.
+- **Frametime Counter** — Replace the FPS Counter to show frametime in ms instead.
+- **Disable Ghostview** — Disables the transparent rig when you're in ghost.
+- **Legacy Ghostview** — Reverts the transparent rig to the two balls when you're in ghost.
+- **No Global Search** — Makes the search button only search for mods in the current subcategory, unless on the main page.
+- **Joystick Menu Search** — Allows you to move your selected item down to the search button with joystick menu.
+- **Menu Presets** — *Action.* Opens the page of presets.
+- **Backup Preferences** — Automatically saves a copy of your preferences every minute.
+- **Save Preferences** — *Action.* Saves your preferences to a file.
+- **Load Preferences** — *Action.* Loads your preferences from a file.
+- **Disable Autosave** — Disables the auto save mechanism.
+- **Panic** — *Action.* Disables every single active mod.
+- **Exit Room Settings** — *Action.* Returns you back to the settings menu.
+- **20 Player Rooms** — Changes Create Public and Create Private to 20 player capacity.
+- **crTime** — *Action.* Changes the amount of time waited before attempting to reconnect again.
+- **Exit Movement Settings** — *Action.* Returns you back to the settings menu.
+- **Change Platform Type** — *Action.* Changes the type of the platforms.
+- **Change Platform Shape** — *Action.* Changes the shape of the platforms.
+- **Platform Gravity** — Makes platforms fall instead of instantly deleting them.
+- **Platform Outlines** — Makes platforms have outlines.
+- **Non-Sticky Platforms** — Makes your platforms no longer sticky.
+- **Grip Noclip** — Activates noclip with your grip instead.
+- **Constant Noclip** — Keeps your noclip activated even when not holding any buttons.
+- **Left Hand Wall Walk** — Swaps the wall walk mod to your left hand.
+- **Both Hands Wall Walk** — Allows you to use wall walk with both of your hands.
+- **Change Fly Speed** — *Action.* Changes the speed of the fly mods, such as Iron Man.
+- **Change Playspace Abuse Speed** — *Action.* Changes the speed of the playspace abuse mods.
+- **Change Arm Length** — *Action.* Changes the length of the long arm mods.
+- **Change Speed Boost Amount** — *Action.* Changes the speed of the speed boost mod.
+- **Change Wall Walk Strength** — *Action.* Changes the strength of the wall walk mod.
+- **Change Pull Mod Power** — *Action.* Changes the power of the pull mod.
+- **Change Prediction Amount** — *Action.* Changes the power of the predictions.
+- **Change Timer Speed** — *Action.* Changes the speed of the timer mod.
+- **cdSpeed** — *Action.* Changes the speed of the drive mod.
+- **Change Fast Ropes Speed** — *Action.* Changes the speed of the Fast Ropes mod.
+- **Factored Speed Boost** — Factors your current speed into the speed boost, giving you a positive effect even if you're tagged.
+- **Disable Max Speed Modification** — Makes your max speed not change, so you can't be detected of using a speed boost.
+- **Disable Size Changer Buttons** — Disables the size changer's buttons, so hitting grip or trigger or whatever won't do anything.
+- **Pass World Scale Checks** — Disables the Steam Long Arms mod when your hands are close to your head.
+- **Midpoint Macros** — Allows for macros to be played from their middles.
+- **Direction Based Macros** — Only plays macros if you match their velocity direction.
+- **Change Macro Playback Range** — *Action.* Changes the range where macros can play.
+- **Hand Oriented Strafe** — Makes the strafe mods move you in the forward direction of your hand.
+- **Disable Stationary WASD Fly** — Disables WASD Fly keeping you in-place when not moving.
+- **Networked Grapple Mods** — Makes the spider man and grappling hook mods networked, showing the line for everyone. This requires a balloon.
+- **Non-Togglable Ghost** — Makes the ghost mod only activate when holding down the button.
+- **Non-Togglable Invisible** — Makes the invisible mod only activate when holding down the button
+- **Splash Intercourse** — Splashes water when "impacting" another player with the intercourse gun.
+- **Reverse Intercourse** — Turns you into the receiver when using the intercourse gun.
+- **Elevated Sticky Drive** — Makes you float higher in the air whenever you use Sticky Drive.
+- **High Quality Portals** — Makes the view through the portals higher quality.
+- **Exit Projectile Settings** — *Action.* Returns you back to the settings menu.
+- **Change Projectile** — *Action.* Changes the projectile of the projectile mods.
+- **Change Growing Projectile** — *Action.* Changes the projectile of the snowball mods.
+- **Random Projectile** — Makes the projectiles random.
+- **Random Direction** — Makes the projectiles go everywhere.
+- **Random Color** — Makes the projectiles random colors.
+- **Change Shoot Speed** — *Action.* Changes the speed of shooting projectiles.
+- **Shoot Projectiles** — Shoots projectiles like a gun.
+- **Include Hand Velocity** — Adds the hand velocity to the projectile velocity.
+- **Above Players** — Makes projectiles go above players.
+- **Rain Projectiles** — Makes projectiles fall around you like rain.
+- **Projectile Aura** — Makes the projectiles orbit around your head.
+- **True Projectile Aura** — Makes the projectiles random around you.
+- **Projectile Fountain** — Makes projectiles spurt out of your head, like a fountain.
+- **Rainbow Projectiles** — Makes projectiles be rainbow (real RGB).
+- **Hard Rainbow Projectiles** — Makes projectiles be rainbow but ye rainbow tis very harsh (real RGB).
+- **RedProj** — *Action.* Makes projectiles more red.
+- **GreenProj** — *Action.* Makes projectiles more green.
+- **BlueProj** — *Action.* Makes projectiles more blue.
+- **Custom Colored Projectiles** — Makes the projectile color the custom color (buttons above).
+- **Client Sided Projectiles** — Makes projectiles only appear for you.
+- **Override Projectile Index** — Forces a specific projectile index on random projectiles.
+- **Change Projectile Index** — *Action.* Changes the targetted projectile index on the "Override Projectile Index" mod.
+- **Change Projectile Delay** — *Action.* Gives the projectiles a delay before spawning another.
+- **Change Snowball Scale** — *Action.* Changes the scale of the snowballs.
+- **Change Snowball Multiplication Factor** — *Action.* Changes the multiplication factor of the snowballs.
+- **Disable Snowball Impact Effect** — Disables the impact effect that people get when hit with snowballs.
+- **Invisible Snowballs** — Makes the snowballs invisible.
+- **No Teleport Snowballs** — Stops snowball mods from teleporting you.
+- **Exit Room Mods** — *Action.* Returns you back to the main page.
+- **Disconnect** — *Action.* Disconnects you from the the room.
+- **Reconnect** — *Action.* Reconnects you from and to the the room.
+- **Cancel Reconnect** — *Action.* Cancels the reconnection loop.
+- **Join Last Room** — *Action.* Joins the last room you left.
+- **Join Random** — *Action.* Joins a random public room.
+- **Create Public** — *Action.* Creates a public room.
+- **Create Private** — *Action.* Creates a private room.
+- **Fast Disconnect** — Uses the fastest method of disconnecting possible.
+- **Join Menu Room** — *Action.* Connects you to a room that is exclusive to ii's Stupid Menu users.
+- **Bypass Join Room Type** — Bypasses the immediate disconnection when trying to join a room that is in another map.
+- **Auto Join Room** — *Action.* Automatically attempts to connect to whatever room you desire every couple of seconds until connected.
+- **Auto Join Room "TJA"** — *Action.* Automatically attempts to connect to room "RUN" every couple of seconds until connected
+- **Auto Join Room "459"** — *Action.* Automatically attempts to connect to room "459" every couple of seconds until connected
+- **Auto Join Room "IDIOT"** — *Action.* Automatically attempts to connect to room "IDIOT" every couple of seconds until connected
+- **Auto Join Room "IIDK"** — *Action.* Automatically attempts to connect to room "IIDK" every couple of seconds until connected
+- **Auto Join Room "CRIMSON"** — *Action.* Automatically attempts to connect to room "CRIMSON" every couple of seconds until connected
+- **Auto Join Room "CAULDRON"** — *Action.* Automatically attempts to connect to room "CAULDRON" every couple of seconds until connected
+- **Auto Join Room "RUN"** — *Action.* Automatically attempts to connect to room "RUN" every couple of seconds until connected.
+- **Auto Join Room "HIDE"** — *Action.* Automatically attempts to connect to room "HIDE" every couple of seconds until connected.
+- **Auto Join Room "DAISY"** — *Action.* Automatically attempts to connect to room "DAISY" every couple of seconds until connected.
+- **Auto Join Room "DAISY01"** — *Action.* Automatically attempts to connect to room "DAISY01" every couple of seconds until connected.
+- **Auto Join Room "DAISY09"** — *Action.* Automatically attempts to connect to room "DAISY09" every couple of seconds until connected.
+- **Auto Join Room "JV3U"** — *Action.* Automatically attempts to connect to room "JV3U" every couple of seconds until connected.
+- **Auto Join Room "J3VU"** — *Action.* Automatically attempts to connect to room "J3VU" every couple of seconds until connected.
+- **Auto Join Room "PBBV"** — *Action.* Automatically attempts to connect to room "PBBV" every couple of seconds until connected.
+- **Auto Join Room "BOT"** — *Action.* Automatically attempts to connect to room "BOT" every couple of seconds until connected.
+- **Auto Join Room "LUCIO"** — *Action.* Automatically attempts to connect to room "LUCIO" every couple of seconds until connected.
+- **Auto Join Room "VEN1"** — *Action.* Automatically attempts to connect to room "VEN1" every couple of seconds until connected.
+- **Auto Join Room "SREN16"** — *Action.* Automatically attempts to connect to room "SREN16" every couple of seconds until connected.
+- **Auto Join Room "SREN17"** — *Action.* Automatically attempts to connect to room "SREN17" every couple of seconds until connected.
+- **Auto Join Room "SREN18"** — *Action.* Automatically attempts to connect to room "SREN18" every couple of seconds until connected.
+- **Auto Join Room "HELP"** — *Action.* Automatically attempts to connect to room "HELP" every couple of seconds until connected.
+- **Auto Join Room "STATUE"** — *Action.* Automatically attempts to connect to room "STATUE" every couple of seconds until connected.
+- **Auto Join Room "ECHO"** — *Action.* Automatically attempts to connect to room "ECHO" every couple of seconds until connected.
+- **Auto Join Room "MOD"** — *Action.* Automatically attempts to connect to room "MOD" every couple of seconds until connected.
+- **Auto Join Room "MODS"** — *Action.* Automatically attempts to connect to room "MODS" every couple of seconds until connected.
+- **Auto Join Room "HACK"** — *Action.* Automatically attempts to connect to room "HACK" every couple of seconds until connected.
+- **Auto Join Room "HACKER"** — *Action.* Automatically attempts to connect to room "HACKER" every couple of seconds until connected.
+- **Auto Join Room "LEMUR"** — *Action.* Automatically attempts to connect to room "LEMUR" every couple of seconds until connected. Lemming joins this code very often.
+- **Auto Join Room "JMANCURLY"** — *Action.* Automatically attempts to connect to room "JMANCURLY" every couple of seconds until connected.
+- **Auto Join Room "JMAN"** — *Action.* Automatically attempts to connect to room "JMAN" every couple of seconds until connected.
+- **Auto Join Room "ELLIOT"** — *Action.* Automatically attempts to connect to room "ELLIOT" every couple of seconds until connected.
+- **Auto Join Room "TYLERVR"** — *Action.* Automatically attempts to connect to room "TYLERVR" every couple of seconds until connected.
+- **Auto Join Room "JUANGTAG"** — *Action.* Automatically attempts to connect to room "JUANGTAG" every couple of seconds until connected.
+- **Auto Join Room "GHOST"** — *Action.* Automatically attempts to connect to room "GHOST" every couple of seconds until connected.
+- **Auto Join Room "GULLIBLE"** — *Action.* Automatically attempts to connect to room "GULLIBLE" every couple of seconds until connected.
+- **Auto Join Room "GAY"** — *Action.* Automatically attempts to connect to room "GAY" every couple of seconds until connected.
+- **Auto Join Room "FURRY"** — *Action.* Automatically attempts to connect to room "FURRY" every couple of seconds until connected.
+- **Auto Join Room "FORSAKEN"** — *Action.* Automatically attempts to connect to room "FORSAKEN" every couple of seconds until connected.
+- **Exit Important Mods** — *Action.* Returns you back to the main page.
+- **Restart Gorilla Tag** — *Action.* Restarts Gorilla Tag.
+- **Open Gorilla Tag Folder** — *Action.* Opens the folder in which your game is located.
+- **Discord RPC** — Gives you a indicator on Discord that you are using ii's Stupid Menu.
+- **Media Integration** — Shows you what media you are watching/listening to in the top left. To switch media, open the menu and use your left joystick.
+- **Anti Hand Tap** — Stops all hand tap sounds from being played.
+- **First Person Camera** — Makes your camera output what you see in VR.
+- **Force Enable Hands** — Prevents your hands from disconnecting.
+- **Oculus Report Menu [X]** — Opens the Oculus report menu when holding X.
+- **Accept TOS** — Accepts the Terms of Service for you.
+- **Bypass K-ID Restrictions** — Bypasses the permission restrictions held by k-ID for underage users.
+- **Redeem Shiny Rocks** — *Action.* Redeems the 500 Shiny Rocks k-ID gives you.
+- **Copy Player Position** — *Action.* Copies the current player position to the clipboard.
+- **Clear Notifications** — *Action.* Clears your notifications. Good for when they get stuck.
+- **Anti AFK** — Doesn't let you get kicked for being AFK.
+- **Disable Network Triggers** — Disables the network triggers, so you can change maps without disconnecting.
+- **Disable Map Triggers** — Disables the map triggers, so you can change maps without loading them.
+- **Disable Quit Box** — Disables the box under the map that closes your game.
+- **Physical Quit Box** — Makes the quitbox physical, letting you see and walk on it.
+- **Stump Quit Box** — Disables the box under the map that closes your game.
+- **Block on Mute** — Disables any muted players' rig unless you need to see them.
+- **Steam Refund Timer** — Alerts you when you are nearby the steam refund time.
+- **Advanced Ban Message** — Shows more information, such as remaining time and unban date, when banned.
+- **120 FPS** — Caps your FPS at 120 frames per second.
+- **90 FPS** — Caps your FPS at 90 frames per second.
+- **72 FPS** — Caps your FPS at 72 frames per second.
+- **60 FPS** — Caps your FPS at 60 frames per second.
+- **45 FPS** — Caps your FPS at 45 frames per second.
+- **30 FPS** — Caps your FPS at 30 frames per second.
+- **15 FPS** — Caps your FPS at 15 frames per second.
+- **Unlock FPS** — Unlocks your FPS.
+- **PC Button Click** — Lets you click in-game buttons with your mouse.
+- **PC Controller Emulation** — Allows you to press buttons on your in-game controllers using your keyboard.
+- **Unlock Competitive Queue** — *Action.* Permanently unlocks the competitive queue.
+- **Change Queue to Default** — *Action.* Changes your queue to default.
+- **Change Queue to Minigames** — *Action.* Changes your queue to minigames.
+- **Change Queue to Competitive** — *Action.* Changes your queue to competitive.
+- **Change Target Gamemode [Casual]** — *Action.* Changes your target gamemode to casual.
+- **Change Target Gamemode [Infection]** — *Action.* Changes your target gamemode to infection.
+- **Change Target Gamemode [Hunt]** — *Action.* Changes your target gamemode to hunt.
+- **Change Target Gamemode [Paintbrawl]** — *Action.* Changes your target gamemode to paintbrawl.
+- **Change Target Gamemode [Ambush]** — *Action.* Changes your target gamemode to ambush.
+- **Change Target Gamemode [Freeze Tag]** — *Action.* Changes your target gamemode to freeze tag.
+- **Change Target Gamemode [Ghost Tag]** — *Action.* Changes your target gamemode to ghost tag.
+- **Change Target Gamemode [Custom]** — *Action.* Changes your target gamemode to custom.
+- **Change Target Gamemode [Guardian]** — *Action.* Changes your target gamemode to guardian.
+- **Change Target Gamemode [Prop Hunt]** — *Action.* Changes your target gamemode to prop hunt.
+- **Change Target Gamemode [Super Infection]** — *Action.* Changes your target gamemode to super infection.
+- **Change Target Gamemode [Error]** — *Action.* Changes your target gamemode to none.
+- **Connect to US** — Connects you to the United States servers.
+- **Connect to US West** — Connects you to the western United States servers.
+- **Connect to EU** — Connects you to the Europe servers.
+- **Reauthenticate** — *Action.* Restarts the login flow that happens at the beginning of the game.
+- **Exit Safety Mods** — *Action.* Returns you back to the main page.
+- **Recommended Safety Mods** — Has the effects of some good general safety mods while enabled.
+- **No Finger Movement** — Makes your fingers not move, so you can use wall walk without getting called out.
+- **Pull Your Id** — *Action.* Pulls your PlayFab and Photon IDs and logs them to a file.
+- **Fake Oculus Menu [X]** — Imitates opening your Oculus menu when holding X.
+- **Fake Report Menu [Y]** — Imitates opening the report menu when holding Y.
+- **Fake Broken Controller [X]** — Makes you look like your left controller is broken, hold X to move your right hand with your left hand.
+- **Fake Power Off [J]** — Imitates turning off your headset when holding down your joystick.
+- **Fake Valve Tracking [J]** — Imitates what happens when your headset disconnects on a Valve Index when holding your right joystick.
+- **Disable Gamemode Buttons** — Disables the gamemode buttons.
+- **Support Page Spoof** — Makes the support page appear as if you are on Oculus.
+- **Flush RPCs** — *Action.* Flushes all RPC calls, good after you stop spamming.
+- **Anti Crash** — Prevents crashers from completely annihilating your computer.
+- **Anti Ban Crash** — Prevents your game from crashing when you are banned.
+- **Anti Kick** — Only networks the necessities to prevent getting kicked.
+- **Anti Name Ban** — Prevents you from getting banned for setting your name to bad things.
+- **Anti Stump Kick** — Stops people from group kicking you.
+- **Auto Clear Cache** — Automatically clears your game's cache (garbage collector) every minute to prevent memory leaks.
+- **Anti Moderator** — When someone with the stick joins, you get disconnected and their player ID and room code gets saved to a file.
+- **Anti Content Creator** — When a content creator joins, you get disconnected and their player ID and room code gets saved to a file.
+- **Cosmetic Notifications** — Sends you a notification if there is a Finger Painter, Illustrator, Administrator, Stick, Forest Guide, or Another Axiom Creator in your room.
+- **Steam Detector** — Detects when a player in your room is on Steam.
+- **Bypass Automod** — Attempts to bypass automod muting yourself and others.
+- **Bypass Mod Checkers** — Tells players using mod checkers that you have no mods.
+- **Bypass Cosmetic Check** — Turns off the networking for any cosmetic mods, stopping people from seeing if you're using one.
+- **Anti Predictions** — Prevents people from checking if your predictions are too high.
+- **Anti Report [Disconnect]** — Disconnects you from the room when anyone comes near your report button.
+- **Anti Report [Reconnect]** — Disconnects and reconnects you from the room when anyone comes near your report button.
+- **Anti Report [Join Random]** — Connects you to a random the room when anyone comes near your report button.
+- **Anti Report [Oculus]** — Disconnects you from the room when you get reported with the Oculus report menu.
+- **Anti Report [Anti Cheat]** — Disconnects you from the room when you get reported by the anti cheat.
+- **Anti Report [Notify]** — Tells you when people come near your report button, but doesn't do anything.
+- **Anti Report [Overlay]** — Shows you an overlay when people come near your report button, but doesn't do anything.
+- **Show Anti Cheat Reports [Self]** — Gives you a notification every time you have been reported by the anti cheat.
+- **Show Anti Cheat Reports [All]** — Gives you a notification every time anyone has been reported by the anti cheat.
+- **Change Identity** — *Action.* Changes your name and color to something a new player would have.
+- **Change Identity [Normal]** — *Action.* Changes your name and color to something a regular player would have.
+- **Change Identity [Custom]** — *Action.* Changes your name and color to whatever you desire.
+- **Change Identity on Disconnect** — When you leave, your name and color will be set to something a new player would have.
+- **Change Identity on Disconnect [Normal]** — When you leave, your name and color will be set to something a regular player would have.
+- **Change Identity on Disconnect [Child]** — When you leave, your name and color will be set to whatever you desire.
+- **FPS Spoof** — Makes your FPS appear different for other players and the competitive bot.
+- **Ping Spoof** — Makes your ping appear different for other players and the competitive bot.
+- **Name Spoof** — Changes your name on the leaderboard to something random, but not on your rig.
+- **Color Spoof** — Makes your color appear different to every player.
+- **Unload Menu** — *Action.* Unloads the menu from your game.
+- **Disable Anti Telemetry** — Allows the game to send log data to Gorilla Tag's servers.
+- **Exit Movement Mods** — *Action.* Returns you back to the main page.
+- **Platforms** — Spawns platforms on your hands when holding grip.
+- **Trigger Platforms** — Spawns platforms on your hands when holding trigger.
+- **Frozone** — Spawns slippery blocks under your hands using grip.
+- **Platform Spam [G]** — Spawns legacy platforms rapidly at your hand for those who have networked platforms.
+- **Platform Gun** — Spawns legacy platforms rapidly wherever your hand desires for those who have networked platforms.
+- **Fly [A]** — Sends your character forwards when holding A.
+- **Trigger Fly [T]** — Sends your character forwards when holding trigger.
+- **Noclip Fly [A]** — Sends your character forwards and makes you go through objects when holding A.
+- **Joystick Fly [J]** — Sends your character in whatever direction you are pointing your joystick in.
+- **Bark Fly [J]** — Acts like the fly that Bark has. Credits to KyleTheScientist.
+- **Hand Fly [A]** — Sends your character in your hand's direction when holding A.
+- **Fly Towards Gun** — Sends your character towards whoever your hand desires.
+- **Slingshot Fly [A]** — Sends your character forwards, in a more elastic manner, when holding A.
+- **Zero Gravity Slingshot Fly [A]** — Sends your character forwards, in a more elastic manner without gravity, when holding A.
+- **Slingshot Bark Fly [J]** — Acts like the fly that Bark has, mixed with slingshot fly. Credits to KyleTheScientist.
+- **WASD Fly** — Moves your rig with WASD.
+- **Dash [A]** — Flings your character forwards when pressing A.
+- **Reverse Velocity [A]** — Reverses your current velocity when you press A.
+- **Bird Fly** — Makes you fly like a bird when you flap your wings.
+- **Iron Man** — Turns you into iron man, rotate your hands around to change direction.
+- **Spider Man** — Turns you into spider man, use your grips to shoot webs.
+- **Grappling Hooks** — Gives you grappling hooks, use your grips to shoot them.
+- **Portal Gun** — Gives you a gun to spawn portals that can be seen and walked through.
+- **Drive [J]** — Lets you drive around in your invisible car. Use the joystick to move.
+- **Hard Drive [J]** — Similar to drive, but locks you to the ground.
+- **Noclip [T]** — Makes you go through objects when holding trigger.
+- **Up And Down** — Makes you go up when holding your trigger, and down when holding your grip.
+- **Left And Right** — Makes you go left when holding your trigger, and right when holding your grip.
+- **Forwards And Backwards** — Makes you go forwards when holding your trigger, and backwards when holding your grip.
+- **Size Changer** — Increase your size by holding trigger, and decrease your size by holding grip.
+- **Auto Walk [J]** — Makes your character automatically walk when using the joystick.
+- **Auto Funny Run [G]** — Makes your character automatically funny run when holding grip.
+- **Auto Pinch Climb [G]** — Makes your character automatically pinch climb when holding grip.
+- **Auto Elevator Climb [G]** — Makes your character automatically elevator climb when holding grip.
+- **Auto Branch [G]** — Makes your character automatically branch when holding grip.
+- **Force Tag Freeze** — Forces tag freeze on your character.
+- **No Tag Freeze** — Disables tag freeze on your character.
+- **Feather Falling** — Makes you fall like a feather.
+- **Low Gravity** — Makes gravity lower on your character.
+- **Zero Gravity** — Disables gravity on your character.
+- **High Gravity** — Makes gravity higher on your character.
+- **Reverse Gravity** — Reverses gravity on your character.
+- **Rewind [T]** — Brings you back in time when holding trigger.
+- **Macros** — *Action.* Opens a category to manage your macros.
+- **Wall Walk [G]** — Makes you get brought towards any wall you touch when holding grip.
+- **Legitimate Wall Walk [G]** — Makes you get brought towards any wall you touch when holding grip, but less noticable.
+- **Spider Walk** — Makes your gravity and character towards any wall you touch. This may cause motion sickness.
+- **Teleport to Random** — *Action.* Teleports you to a random player.
+- **Teleport to Map** — *Action.* Teleports you to a map of your choosing.
+- **Teleport Gun** — Teleports to wherever your hand desires.
+- **Airstrike** — Teleports to wherever your hand desires, except farther up, then launches you back down.
+- **Checkpoint [G]** — Place a checkpoint with grip and teleport to it with A.
+- **Advanced Checkpoints [G]** — Place checkpoints with grip, use your joystick to swap between checkpoints, and teleport to your selected checkpoint with A.
+- **Ender Pearl [G]** — Gives you a throwable ender pearl when holding grip.
+- **C4 [G]** — Place a C4 with grip and detonate it with A.
+- **Punch Mod** — Lets people punch you across the map.
+- **Telekinesis** — Lets people control you with nothing but the power of their finger.
+- **Safety Bubble** — Moves you away from players if they get too close to you.
+- **Solid Players** — Lets you walk on top of other players.
+- **Pull Mod [G]** — Pulls you more whenever you walk to simulate speed without modifying your velocity.
+- **Long Jump [A]** — Makes you look like you're legitimately long jumping when holding A.
+- **Velocity Long Arms** — Moves your arms farther depending on how fast you move them.
+- **Timer** — Speeds up or slows down the time of your game.
+- **Speed Boost** — Changes your speed to whatever you set it to.
+- **Grip Speed Boost** — Changes your speed to whatever you set it to, if you're holding right grip.
+- **Dynamic Speed Boost** — Dynamically changes your speed to whatever you set it to when tagged players get closer to you.
+- **Uncap Max Velocity** — Removes the velocity limit of walking.
+- **Always Max Velocity** — Always makes you go as fast as the velocity limit.
+- **Disable Velocity Cap** — Lets you go as fast as you want without hitting the velocity limit.
+- **Funny Movement** — Multiplies your velocity every frame, making you exponential.
+- **Slip Slap** — Allows you to slip slap again.
+- **Slippery Hands** — Makes everything ice, as in extremely slippery.
+- **Grippy Hands** — Disables any slipperiness of any surfaces.
+- **Slippery Surface Helper** — Helps you stick to slippery walls more, but doesn't remove the slipperiness.
+- **Remove Forest Colliders** — Removes the colliders on the roof and the entrance to tutorial inside Forest.
+- **Sticky Hands** — Makes your hands really sticky.
+- **Climby Hands** — Lets you climb everything like a rope.
+- **Disable Hands** — Disables your hand colliders.
+- **Disable Body Collider** — Disables your body's collider.
+- **Disable Head Collider** — Disables your head's collider.
+- **Slide Control** — Lets you control yourself on ice perfectly.
+- **Weak Slide Control** — Lets you control yourself on ice a little more perfect than before.
+- **Throw Controllers** — Lets you throw your controllers with X or A.
+- **Controller Flick** — Flicks your controllers in a similar way to disconnecting them with X or A.
+- **Uncap Arm Length** — Removes the arm distance limit.
+- **Steam Long Arms** — Gives you long arms similar to override world scale.
+- **Stick Long Arms** — Makes you look like you're using sticks.
+- **Multiplied Long Arms** — Gives you a weird version of long arms.
+- **Vertical Long Arms** — Gives you a version of long arms to help you vertically.
+- **Horizontal Long Arms** — Gives you a version of long arms to help you horizontally.
+- **Extenders [J]** — Steam long arms, but it slowly disables when holding the right trigger.
+- **Flick Jump [A]** — Makes your hand go down really fast when holding A.
+- **Bunny Hop** — Makes you automatically jump when on the ground.
+- **Strafe** — Makes you strafe when in the air.
+- **Dynamic Strafe** — Makes you dynamically strafe when in the air.
+- **Ground Helper [G]** — Helps you run on ground when holding grip.
+- **Bouncy** — Makes you really bouncy when on the ground.
+- **Solid Water** — Makes the water solid in the beach map.
+- **Disable Water** — Disables the water in the beach map.
+- **Air Swim** — Puts you in a block of water, letting you swim in the air.
+- **Fast Swim** — Lets you swim faster in water.
+- **Water Run Helper** — Adds back water running to the game.
+- **Disable Air** — Disables the wind barriers in every map.
+- **Ghost [A]** — Keeps your rig still when holding A.
+- **Invisible [B]** — Makes you go invisible when holding B.
+- **Rig Gun** — Moves your rig to wherever your hand desires.
+- **Grab Rig [G]** — Lets you grab your rig when holding grip.
+- **Spin Head X** — Spins your head on the X axis.
+- **Spin Head Y** — Spins your head on the Y axis.
+- **Spin Head Z** — Spins your head on the Z axis.
+- **Spaz Rig [A]** — Makes every part of your rig spaz out a little bit when holding A.
+- **Spaz Rig Hands [A]** — Makes your rig's hands spaz out everywhere when holding A.
+- **Spaz Hands [A]** — Makes your hands spaz out everywhere when holding A.
+- **Random Spaz Head Position** — Makes your head position spaz out for 0 to 1 seconds every 1 to 4 seconds.
+- **Random Spaz Head** — Makes your head rotation spaz out for 0 to 1 seconds every 1 to 4 seconds.
+- **Spaz Head Position** — Makes your head position spaz out.
+- **Spaz Head** — Makes your head rotation spaz out.
+- **Spaz Head X** — Spaz your head on the X axis.
+- **Spaz Head Y** — Spaz your head on the Y axis.
+- **Spaz Head Z** — Spaz your head on the Z axis.
+- **Laggy Rig** — Makes your rig laggy.
+- **Smooth Rig** — Makes your rig really smooth.
+- **Update Rig [A]** — Freezes your rig in place. Whenever you click A, your rig will update.
+- **Freeze Rig Limbs** — Makes your hands and head freeze on your rig, but not your body.
+- **Freeze Rig Body** — Makes your body freeze on your rig, but not your hands and head.
+- **Freeze Rig** — Makes your body freeze on your rig, but not your hands and head.
+- **Paralyze Rig** — Removes your arms from your rig.
+- **Chicken Rig** — Makes your rig look like a chicken.
+- **Amputate Rig** — Removes all of your limbs from your rig.
+- **Decapitate Rig** — Removes the head from your rig.
+- **Spin Rig Body** — Makes your body spin around, but not your head.
+- **Spaz Rig Body** — Gives your body a seizure, randomizing its rotation.
+- **Reverse Rig Body** — Flips your body around backwards, but not your head.
+- **Rec Room Body** — Makes your rig like how the Rec Room bodies are.
+- **Freeze Body Rotation [G]** — Freezes your body rotation in place, but not your head, when holding grip.
+- **Auto Dance [A]** — Makes you dance when holding A.
+- **Auto Griddy [A]** — Makes you griddy when holding A.
+- **Auto T Pose [A]** — Makes you t pose when holding A. Good for fly trolling.
+- **Helicopter [A]** — Turns you into a helicopter when holding A.
+- **Beyblade [A]** — Turns you into a beyblade when holding A.
+- **Still Beyblade [A]** — Turns you into a beyblade when holding A. Doesn't move you.
+- **Spin Bot** — Makes your body spin around, but not your head.
+- **Fan [A]** — Turns you into a fan when holding A.
+- **Ghost Animations** — Makes you look like a ghost, making your movement snappy and slow.
+- **Minecraft Animations** — Puts your hands down, and makes you walk when holding A. You can also point with B.
+- **Stare at Nearby** — Makes you stare at the nearest player.
+- **Stare at Player Gun** — Makes you stare at whoever your hand desires.
+- **Stare at All Players** — Makes you stare at everyone in the room.
+- **Eye Contact** — Makes you stare at anyone who is looking at you.
+- **Floating Rig** — Makes your rig float.
+- **Bees** — Makes your rig teleport to random players, imitating the bees ghost.
+- **Bees [G]** — Makes your rig teleport to random players when holding grip, imitating the bees ghost.
+- **Piggyback Gun** — Teleports you on top of whoever your hand desires repeatedly.
+- **Piggyback All** — Makes you appear on top of everyone in the room
+- **Copy Movement Gun** — Makes your rig copy the movement of whoever your hand desires.
+- **Copy Movement All** — Makes your rig copy the movement of every player in the room.
+- **Follow Player Gun** — Flies your rig towards whoever your hand desires.
+- **Follow All Players** — Flies your rig towards everyone in the room.
+- **Orbit Player Gun** — Orbits your rig around whoever your hand desires.
+- **Orbit All Players** — Orbits your rig around everyone in the room.
+- **Jumpscare Gun** — Makes you jumpscare whoever your hand desires.
+- **Jumpscare All** — Makes you jumpscare everyone in the room.
+- **Annoy Player Gun** — Spazzes your body around whoever your hand desires, with sounds.
+- **Annoy All Players** — Spazzes your body around everyone in the room, with sounds.
+- **Intercourse Gun** — Makes you thrust whoever your hand desires, with sounds.
+- **Intercourse All** — Makes you thrust everyone in the room, with sounds.
+- **Head Gun** — Makes you thrust whoever your hand desires, but lower, with sounds.
+- **Head All** — Makes you thrust everyone in the room, but lower, with sounds.
+- **Exit Advantage Mods** — *Action.* Returns you back to the main page.
+- **Tag Self** — Attempts to tags yourself.
+- **Tag Gun** — Tags whoever your hand desires.
+- **Tag All** — Attempts to tag everyone in the the room.
+- **Tag Aura** — Moves your hand into nearby players when tagged.
+- **Grip Tag Aura [G]** — Moves your hand into nearby players when tagged and when holding grip.
+- **Tag Aura Gun** — Gives a player tag aura.
+- **Tag Aura All** — Gives all players tag aura.
+- **Tag Reach** — Makes your hand tag hitbox larger.
+- **Flick Tag Gun** — Moves your hand to wherever your hand desires in an attempt to tag whoever your hand desires.
+- **Tag Bot** — Automatically tags yourself and everyone else on a loop, use B to turn it off.
+- **No Tag on Join** — When you join a the room, you won't be tagged when you join.
+- **Untag Self** — *Action.* Removes you from the list of tagged players.
+- **Anti Tag** — Removes you from the list of tagged players when tagged.
+- **Report Anti Tag** — Prevents you from getting tagged, and whoever tries to tag you will just get reported.
+- **No Tag Limit** — Removes the distance check when tagging players.
+- **Tag Lag Detector** — Detects when the master client is not currently allowing tag requests.
+- **Fake Lag** — Forces your ping to be high.
+- **Lag Range** — Dynamically changes how much your rig updates depending on how close you are to others.
+- **Blink** — Stops your client from sending and receiving player update packets.
+- **Paintbrawl Aimbot** — Redirects your slingshot to the closest nearby players.
+- **Slingshot Helper** — Helps you grab the small paintball on your slingshot.
+- **Slingshot Trigger Bot** — Releases the small paintball on your slingshot when hovering over another player.
+- **Paintbrawl Kill Self** — Kills yourself in paintbrawl.
+- **Paintbrawl Kill Gun** — Kills whoever your hand desires in paintbrawl.
+- **Paintbrawl Kill All** — Kills everyone in the room in paintbrawl.
+- **Exit Visual Mods** — *Action.* Returns you back to the main page.
+- **Morning Time** — Sets your time of day to morning.
+- **Day Time** — Sets your time of day to daytime.
+- **Evening Time** — Sets your time of day to evening.
+- **Night Time** — Sets your time of day to night.
+- **Fullbright** — Disables the dynamic lighting in maps that use it.
+- **Remove Blindfold** — Disables the blindfold in the prop hunt map.
+- **Core ESP** — Puts dots on your screen at where all of the cores in the ghost reactor map are.
+- **Critter ESP** — Puts dots on your screen at where all of the critters in the critter map are.
+- **Creature ESP** — Puts dots on your screen at where all of the creatures are in forest and caves.
+- **Enemy ESP** — Puts dots on your screen at where all of the cores in the ghost reactor map are.
+- **Resource ESP** — Puts dots on your screen at where all of the resources are in the Super Infection gamemode.
+- **Enable Snow** — Forcibly enables the snow.
+- **Rainy Weather** — Forces the weather to rain.
+- **Clear Weather** — Forces the weather to sunny skies all day.
+- **Disable Fog** — Disables the fog.
+- **Enable Fog** — Enables the fog.
+- **Disable Ambience** — Disables all ambient effects.
+- **Custom Skybox Color** — Changes the skybox color to match the menu.
+- **Draw Gun** — Lets you draw on whatever your hand desires.
+- **Gamesense Ring** — Shows the direction of where people walk around you.
+- **Velocity Label** — Puts text on your right hand, showing your velocity.
+- **Nearby Label** — Puts text on your left hand, showing you the distance of the nearest tagger.
+- **Last Label** — Puts text on your left hand, showing you how many untagged people are left.
+- **Time Label** — Puts text on your right hand, showing how long you've been playing for without getting tagged.
+- **FPS Overlay** — Displays your FPS on your screen.
+- **Ping Overlay** — Displays the server's ping on your screen.
+- **Time Overlay** — Displays your current time on your screen.
+- **Playtime Overlay** — Displays your play time from when the mod was enabled on your screen.
+- **Room Information Overlay** — Displays basic information about the room on your screen.
+- **Extra Room Info Overlay** — Displays extra information about the room on your screen.
+- **Networking Overlay** — Displays information about networking on your screen.
+- **Clipboard Overlay** — Displays your current clipboard on your screen.
+- **Velocity Overlay** — Displays your velocity on your screen.
+- **Nearby Overlay** — Displays the distance to the nearest tagger/target on your screen.
+- **Info Overlay Gun** — Displays an overlay, showing the information of whoever your hand desires.
+- **Debug HUD** — Displays the developer debug HUD.
+- **Info Watch** — Puts a watch on your hand that tells you the time and your FPS.
+- **Leaderboard Info** — Shows info next to players' names on the leaderboard.
+- **FPS Boost** — Makes everything low quality in an attempt to boost your FPS.
+- **Freeze In Background** — Freezes the game when the application is not focused.
+- **Fake Unban Self** — *Action.* Makes it appear as if you're not banned.
+- **Jump Predictions** — Shows a visualizer of where the other players will jump.
+- **Hitbox Predictions** — Shows capsules where other players' hitboxes are.
+- **Paintbrawl Trajectories** — Shows a visualizer of where all projectiles and your slingshot will hit.
+- **Audio Visualizer** — Shows a visualizer of your microphone loudness below your player.
+- **Show Server Position** — Shows your current syncronized position on the server.
+- **Show Scheduled Objects** — Shows all scheduled and planned objects before their target date.
+- **Visualize Network Triggers** — Visualizes the network joining and leaving triggers.
+- **Visualize Wind Barriers** — Visualizes the wind barriers.
+- **Visualize Map Triggers** — Visualizes the map loading and unloading triggers.
+- **Name Tags** — Gives players name tags above their heads that show their nickname.
+- **Velocity Name Tags** — Gives players name tags above their heads that show their velocity.
+- **FPS Name Tags** — Gives players name tags above their heads that show their FPS.
+- **ID Name Tags** — Gives players name tags above their heads that show their ID.
+- **Platform Name Tags** — Gives players name tags above their heads that show what platform they're playing on.
+- **k-ID Name Tags** — Gives players name tags above their heads that show if they have k-ID restrictions.
+- **Subscriber Name Tags** — Gives players name tags above their heads that show if they're subscribed to the fan club.
+- **Creation Date Name Tags** — Gives players name tags above their heads that show their creation date.
+- **Ping Name Tags** — Gives players name tags above their heads that show their ping.
+- **Turn Name Tags** — Gives players name tags above their heads that show their turn settings.
+- **Tagged Name Tags** — Gives players name tags above their heads that show who tagged them.
+- **Mod Name Tags** — Gives players name tags above their heads that show what mods they have.
+- **Cosmetic Name Tags** — Gives players name tags above their heads that show what special cosmetics they have.
+- **Verified Name Tags** — Gives players name tags above their heads if they are a verified player.
+- **Lag Name Tags** — Gives players name tags above their heads if they are lagging.
+- **Compact Name Tags** — Gives players name tags above their heads that show a lot of information compactly. Credits to snake for the mod idea.
+- **Minecraft Name Tags** — Gives players the same nametags that are shown in Minecraft.
+- **Casting Name Tags** — Gives players a very simplistic nametag, only showing platform and name. Inspired by BingusNameTags++.
+- **Fix Rig Colors** — Fixes a Steam bug where other players' color would be wrong between servers.
+- **Disable Rig Lerping** — Disable the smoothing on the other player's rigs.
+- **Better Rig Lerping** — Estimates the inbetween positions using a real velocity emulator on the other player's rigs.
+- **Remove Leaves** — Removes leaves on trees, good for branching.
+- **Streamer Remove Leaves** — Removes leaves on trees in VR, but not on the camera. Good for streaming.
+- **Remove Cosmetics** — Locally toggles off your cosmetics, so you can wear sight-blocking cosmetics such as the eyepatch.
+- **X-Ray [T]** — Lets you see through objects when holding trigger.
+- **Cosmetic ESP** — Shows icons above people's heads if they are a Finger Painter, Illustrator, Administrator, Stick, Forest Guide, or Another Axiom Creator.
+- **Voice Indicators** — Puts voice indicators above people's heads when they're talking.
+- **Voice ESP** — Puts voice indicators above people's heads when they're talking, but now they go through walls.
+- **Platform Indicators** — Puts indicators above people's heads that show what platform they are playing on.
+- **Platform ESP** — Puts indicators above people's heads that show what platform they are playing on, but now they go through walls.
+- **No Limb Mode** — Makes your regular rig invisible, and puts balls on your hands.
+- **Casual Tracers** — Puts tracers on your right hand. Shows everyone.
+- **Infection Tracers** — Puts tracers on your right hand. Shows untagged when tagged, vice versa.
+- **Hunt Tracers** — Puts tracers on your right hand. Shows your target and who is hunting you.
+- **Automatic Tracers** — Puts tracers on your right hand. Shows targets for the current gamemode.
+- **Nearest Tracer** — Puts tracers on your right hand. Shows the nearest player.
+- **Casual Box ESP** — Puts boxes over players. Shows everyone.
+- **Infection Box ESP** — Puts boxes over players. Shows untagged when tagged, vice versa.
+- **Hunt Box ESP** — Puts boxes over players. Shows your target and who is hunting you.
+- **Automatic Box ESP** — Puts boxes over players. Shows targets for the current gamemode.
+- **Casual Hollow Box ESP** — Puts hollow boxes over players. Shows everyone.
+- **Infection Hollow Box ESP** — Puts hollow boxes over players. Shows untagged when tagged, vice versa.
+- **Hunt Hollow Box ESP** — Puts hollow boxes over players. Shows your target and who is hunting you.
+- **Automatic Hollow Box ESP** — Puts hollow boxes over players. Shows targets for the current gamemode.
+- **Casual Breadcrumbs** — Puts breadcrumb trails over players. Shows everyone.
+- **Infection Breadcrumbs** — Puts breadcrumb trails over players. Shows untagged when tagged, vice versa.
+- **Hunt Breadcrumbs** — Puts breadcrumb trails over players. Shows your target and who is hunting you.
+- **Automatic Breadcrumbs** — Puts breadcrumb trails over players. Shows targets for the current gamemode.
+- **Casual Bone ESP** — Puts bones over players. Shows everyone.
+- **Infection Bone ESP** — Puts bones over players. Shows untagged when tagged, vice versa.
+- **Hunt Bone ESP** — Puts bones over players. Shows your target and who is hunting you.
+- **Automatic Bone ESP** — Puts bones over players. Shows targets for the current gamemode.
+- **Casual Skeleton ESP** — Lets you see players skeletons through walls. Shows everyone.
+- **Infection Skeleton ESP** — Lets you see players skeletons through walls. Shows untagged when tagged, vice versa.
+- **Hunt Skeleton ESP** — Lets you see players skeletons through walls. Shows your target and who is hunting you.
+- **Automatic Skeleton ESP** — Lets you see players skeletons through walls. Shows targets for the current gamemode.
+- **Casual Wireframe ESP** — Puts wireframes over players. Shows everyone.
+- **Infection Wireframe ESP** — Puts wireframes over players. Shows untagged when tagged, vice versa.
+- **Hunt Wireframe ESP** — Puts wireframes over players. Shows your target and who is hunting you.
+- **Automatic Wireframe ESP** — Puts wireframes over players. Shows targets for the current gamemode.
+- **Chams** — Lets you see players through walls.
+- **Casual Chams** — Lets you see players fur through walls. Shows everyone.
+- **Infection Chams** — Lets you see players fur through walls. Shows untagged when tagged, vice versa.
+- **Hunt Chams** — Lets you see players fur through walls. Shows your target and who is hunting you.
+- **Automatic Chams** — Lets you see players fur through walls. Shows targets for the current gamemode.
+- **Casual Beacons** — Puts a beacon above players. Shows everyone.
+- **Infection Beacons** — Puts a beacon above players. Shows untagged when tagged, vice versa.
+- **Hunt Beacons** — Puts a beacon above players. Shows your target and who is hunting you.
+- **Automatic Beacons** — Puts a beacon above players. Shows targets for the current gamemode.
+- **Casual Distance ESP** — Shows your distance from players. Shows everyone.
+- **Infection Distance ESP** — Shows your distance from players. Shows untagged when tagged, vice versa.
+- **Hunt Distance ESP** — Shows your distance from players. Shows your target and who is hunting you.
+- **Automatic Distance ESP** — Shows your distance from players. Shows targets for the current gamemode.
+- **Show Pointers** — Shows dots near your hands, such as when you open the menu.
+- **Info Watch Menu Name** — Shows the menu name on the Info Watch mod.
+- **Info Watch FPS** — Shows your framerate on the Info Watch mod.
+- **Info Watch Time** — Shows the current time on the Info Watch mod.
+- **Info Watch Clipboard** — Shows your clipboard on the Info Watch mod.
+- **Info Watch Code** — Shows the lobby code on the Info Watch mod.
+- **Exit Fun Mods** — *Action.* Returns you back to the main page.
+- **Custom Maps** — *Action.* Opens the custom maps tab.
+- **Upside Down Head** — Flips your head upside down on the Z axis.
+- **Backwards Head** — Rotates your head 180 degrees on the Y axis.
+- **Sideways Head** — Rotates your head 90 degrees on the Y axis.
+- **Broken Neck** — Rotates your head 90 degrees on the Z axis.
+- **Head Bang** — Bangs your head at the BPM of Paint it Black (159).
+- **Flip Hands** — Swaps your hands, left is right and right is left.
+- **Loud Hand Taps** — Makes your hand taps really loud.
+- **Silent Hand Taps** — Makes your hand taps really quiet.
+- **Instant Hand Taps** — Removes the hand tap cooldown.
+- **Silent Hand Taps on Tag** — Makes your hand taps really quiet when you're tagged, good for ambush.
+- **Water Splash Hands [G]** — Splashes water when holding grip.
+- **Give Water Splash Hands Gun** — Gives whoever your hand desires the water splash hands mod.
+- **Water Splash Walk** — Splashes water whenever you take a step.
+- **Water Splash Aura** — Splashes water around you at random positions.
+- **Orbit Water Splash** — Splashes water orbitally around you.
+- **Water Splash Gun** — Splashes water wherever your hand desires.
+- **Confuse Player Gun** — Makes whoever your hand desires look like they're going crazy by splashing water on their screen.
+- **Confuse All Players** — Splashes water on everyone's screens, making them look like they're going crazy.
+- **Tinnitus Gun** — Plays high pitched noises for whoever your hand desires.
+- **Tinnitus All** — Plays high pitched noises for everyone in the room.
+- **Overstimulate Gun** — Overstimulates whoever your hand desires.
+- **Overstimulate All** — Overstimulates everyone in the room.
+- **Shutdown Headset Gun** — Pretends to shut down the headset of whoever your hand desires.
+- **Shutdown Headset All** — Pretends to shut down the headset of everyone in the room.
+- **Schizophrenic Gun** — Makes you not appear for whoever your hand desires.
+- **Reverse Schizophrenic Gun** — Makes you only appear for whoever your hand desires.
+- **Boop** — Makes a pop sound when you touch someone's nose.
+- **Gong** — Makes a gong sound when you hit someone's face.
+- **Slap** — Makes a slap sound when you hit someone's face.
+- **Auto Clicker [T]** — Automatically presses trigger for you when holding trigger.
+- **Keyboard Tracker** — Tracks everyone's keyboard inputs in the lobby.
+- **Tag Sounds** — Plays a selection of dramatic sound effects when tagging players. Credits to Wyndigo for the idea.
+- **Free Camera [J]** — Exit your own body and fly around to your free will.
+- **Third Person Camera** — Moves your camera to behind your head.
+- **Flip Camera** — Flips your camera 180 degrees.
+- **Camera FOV** — Changes the FOV of your PC camera.
+- **Spectate Gun** — Lets you see through the eyes of whoever your hand desires.
+- **Nausea** — Gives you the Nausea effect from Minecraft.
+- **LSD** — Hue shifts your game to a rainbow color.
+- **Jumpscare on Tag** — Gives a 1/2000 chance of a jumpscare happening when getting tagged.
+- **Spam Jumpscare** — Repeatedly jumpscares you.
+- **Jumpscare** — *Action.* Jumpscares you.
+- **Prioritize Voice Gun** — Prioritizes whoever your hand desires' voice.
+- **Deprioritize Voice Gun** — Deprioritizes whoever your hand desires' voice.
+- **Reset Voice All** — Resets everyones voice back to normal.
+- **Mute Gun** — Mutes or unmutes whoever your hand desires.
+- **Mute All** — Mutes everyone in the room.
+- **Report Gun** — Reports whoever your hand desires for cheating.
+- **Report All** — *Action.* Reports everyone in the room for cheating.
+- **Trigger Anti Report Gun** — Triggers whoever your hand desires' anti report if enabled.
+- **Trigger Anti Report All** — Triggers everyone in the room's anti report if enabled.
+- **Bypass Anti Report** — Bypasses anti report mods when reporting players.
+- **Break Mod Checkers** — Tells players using mod checkers that you have every mod possible.
+- **Custom Mod Spoofer** — *Action.* Make mod checkers see only what you allow.
+- **Mute DJ Sets** — Mutes every DJ set so you don't have to hear the worst music known to man.
+- **Infinite Dreidel** — Makes the dreidel cosmetic spin forever.
+- **Legacy Microphone** — Reverts the microphone system into using the legacy input switcher. This is generally not recommended.
+- **Low Quality Microphone** — Makes your microphone have really bad quality.
+- **Loud Microphone** — Makes your microphone really loud.
+- **Echo Microphone** — Makes your microphone echo.
+- **Glitchy Microphone** — Makes your microphone glitchy.
+- **Laggy Microphone** — Makes your microphone laggy.
+- **Mute Microphone** — Disables your microphone.
+- **Very High Pitch Microphone** — Makes your microphone very very high pitched.
+- **High Pitch Microphone** — Makes your microphone high pitched.
+- **Low Pitch Microphone** — Makes your microphone low pitched.
+- **Very Low Pitch Microphone** — Makes your microphone very very low pitched.
+- **Reload Microphone** — *Action.* Restarts / fixes your microphone.
+- **Microphone Feedback** — Plays sound coming through your microphone back to your speakers.
+- **Copy Voice Gun** — Copies the voice of whoever your hand desires.
+- **Narrate Text** — *Action.* Narrates the text of your desire.
+- **Save Narration** — *Action.* Saves whatever you want to narrate to your soundboard.
+- **Mask Voice** — Masks your voice with a TTS voice.
+- **Disable Pitch Scaling** — Disables the pitch effects on players' voices when they are a different scale.
+- **Disable Mouth Movement** — Disables your mouth from moving.
+- **Activate All Doors [G]** — Activates all doors when holding grip.
+- **Tap All Crystals [G]** — Taps all crystals when holding grip.
+- **Tap All Bells [G]** — Taps all bells when holding grip.
+- **Trigger Leaf Pile Gun** — Shows the effects on whatever leaf pile you desire.
+- **Get Bracelet [G]** — Gives you a party bracelet without needing to be in a party.
+- **Spam Bracelet [G]** — Spams the party bracelet on and off.
+- **Remove Bracelet** — *Action.* Disables the party bracelet. This does not kick you from the party.
+- **Rainbow Bracelet** — Gives you a rainbow party bracelet.
+- **Quest Noises [T]** — Makes noises at the quest machine in city when holding trigger.
+- **Max Quest Score** — Gives you the maximum quest score in the game (99999).
+- **Custom Quest Score** — Gives you a custom quest score. You can change this in the settings.
+- **Matchmaking Tier Spoof** — Spoofs your rank for competitive lobbies, letting you join higher or lower lobbies.
+- **Matchmaking Platform Spoof** — Spoofs your platform for competitive lobbies, letting you join quest lobbies.
+- **Badge Tier Spoof** — Spoofs your competitive badge, showing that you have a higher rank than you really do.
+- **Ignore Friend Privacy** — Allows you to join friends that have their privacy setting set to private.
+- **Arcade Teleporter Effect Spam** — Spams the effects on the virtual stump teleporters in the arcade when holding trigger.
+- **Stump Teleporter Effect Spam** — Spams the effects on the virtual stump teleporter in forest when holding trigger.
+- **Open Basement Door** — *Action.* Opens the basement door.
+- **Open Elevator Door** — *Action.* Opens the elevator door.
+- **Close Basement Door** — *Action.* Closes the basement door.
+- **Close Elevator Door** — *Action.* Closes the elevator door.
+- **Spam Open Basement Door** — Repeatedly opens the basement door.
+- **Spam Open Elevator Door** — Repeatedly opens the elevator door.
+- **Spam Close Basement Door** — Repeatedly closes the basement door.
+- **Spam Close Elevator Door** — Repeatedly closes the elevator door.
+- **Basement Door Spam** — Repeatedly opens and closes the basement door.
+- **Elevator Door Spam** — Repeatedly opens and closes the elevator door.
+- **Custom Virtual Stump Video** — Plays a video by the virtual stump VR headset in stump.
+- **Fake FPS** — Makes your FPS appear to be completely random to other players and the competitive bot.
+- **Get Builder Watch** — *Action.* Gives you the builder watch without needing to be in attic.
+- **Remove Builder Watch** — *Action.* Disables the builder watch.
+- **Joystick Rope Control [J]** — Control the ropes in the direction of your joystick.
+- **Broken Ropes** — Gives any ropes currently being held onto a seizure.
+- **Spaz Rope Gun** — Gives whatever rope your hand desires a seizure.
+- **Spaz All Ropes [T]** — Gives every rope a seizure when holding trigger.
+- **Fling Rope Gun** — Flings whatever rope your hand desires away from you.
+- **Fling All Ropes Gun** — Flings every rope in whatever direction your hand desires.
+- **Fast Gliders** — Makes the gliders fast.
+- **Slow Gliders** — Makes the gliders slow.
+- **Glider Blind Gun** — Moves all of the gliders to whoever your hand desires' faces.
+- **Glider Blind All** — Moves all of the gliders to everyone's faces.
+- **Fast Ropes** — Makes ropes go five times faster when jumping on them.
+- **Rope Grab Reach** — Allows you to grab ropes from farther away.
+- **No Respawn Gliders** — Doesn't respawn gliders that go too far outside the bounds of clouds.
+- **Anti Grab** — Prevents players from picking you up in guardian.
+- **Anti Knockback** — Prevents any force from knocking you back.
+- **Multiply Knockback** — Multiplies your knockback by an amount set in settings.
+- **Multiply Self Knockback** — Multiplies your projectile knockback by an amount set in settings.
+- **Fast Throw** — Multiplies your throw factor by 10.
+- **Slow Throw** — Multiplies your throw factor by 0.1.
+- **Slingshot Self** — Gives you a client sided slingshot.
+- **Angry Birds** — Flings you in whatever direction your slingshot's projectiles are heading.
+- **Large Snowballs** — Makes snowballs by default the largest size.
+- **Spaz Snowballs [G]** — Randomizes the size of the snowballs. Credits to test for the idea.
+- **Multiply Snowballs** — Multiplies the snowballs you throw by 5.
+- **Fast Snowballs** — Makes projectiles go really fast when thrown.
+- **Slow Snowballs** — Makes projectiles go really slow when thrown.
+- **Projectile Range** — Increases the hitbox scale of your projectiles.
+- **Rainbow Held Projectiles** — Changes your projectile's color to be rainbow
+- **Flash Held Projectiles** — Changes your projectile's color to be rainbow
+- **Strobe Held Projectiles** — Changes your projectile's color to be rainbow
+- **Custom Held Projectiles** — Changes your projectile's color to be whatever your custom projectile color is set to in the projectile settings.
+- **Snowball Buttocks** — Gives you fake buttocks using the snowballs.
+- **Snowball Breasts** — Gives you fake breasts using the snowballs.
+- **Fast Hoverboard** — Makes your hoverboard go really fast.
+- **Slow Hoverboard** — Makes your hoverboard go really slow.
+- **Rainbow Hoverboard** — Changes your hoverboard's color to be rainbow.
+- **Strobe Hoverboard** — Changes your hoverboard's color to flash between black and white.
+- **Random Hoverboard** — Changes your hoverboard's color to flash random colors.
+- **Global Hoverboard** — Gives you the hoverboard no matter where you are.
+- **Black Screen Gun** — Uses the hoverboards to blind whoever your hand desires.
+- **Black Screen All** — Uses the hoverboards to blind everyone in the room.
+- **White Screen Gun** — Uses the hoverboards to make whoever your hand desires' screen white.
+- **White Screen All** — Uses the hoverboards to flash the screen of everyone in the room.
+- **Flash Screen Gun** — Uses the hoverboards to flash the screen of whoever your hand desires.
+- **Flash Screen All** — Uses the hoverboards to blind everyone in the room.
+- **Strobe Screen Gun** — Uses the hoverboards to flash the screen of whoever your hand desires.
+- **Strobe Screen All** — Uses the hoverboards to blind everyone in the room.
+- **Rainbow Screen Gun** — Uses the hoverboards to make the screen of whoever your hand desires rainbow.
+- **Rainbow Screen All** — Uses the hoverboards to make the screen of everyone in the room rainbow.
+- **Hoverboard Spam [G]** — Spams hoverboards from your hand when holding grip.
+- **Spam Spawn Hoverboards** — Spam spawns hoverboards at your player position.
+- **Spawn Hoverboard** — *Action.* Spawns a hoverboard at your player position.
+- **Start All Races** — *Action.* Starts every race in the hoverboard map.
+- **Override Hand Link** — Prioritizes you when you or others grab onto you.
+- **Disable Hand Link** — Disables you from grabbing onto other players and them from grabbing onto you.
+- **Anti Hand Link** — Disables you from moving when grabbing onto other players.
+- **Fast Throw Players** — Makes players go really fast when you throw them.
+- **Noclip Building** — Disables the colliders of every block in the block map.
+- **Overlap Building** — Lets you place pieces inside of each other in the attic.
+- **Small Building** — Lets you build in the block map while small.
+- **Multi Grab** — Lets you grab multiple objects.
+- **Block Size Toggle** — Toggles your scale when pressing grip or trigger.
+- **Grab All Nearby Blocks [G]** — Grabs every nearby building block when holding G.
+- **Grab All Selected Blocks [G]** — Grabs every nearby building block that matches your selection when holding G.
+- **Massive Block [G]** — Spawns you a massive block when you press grip.
+- **Select Block Gun** — Selects whatever building block your hand desires to be used for the building mods.
+- **Copy Block Info Gun** — Copies whatever building block your hand desires to be used for the building mods to your clipboard.
+- **Building Block Browser** — *Action.* Browse through every block that you can spawn and select it.
+- **Grab Building Blocks [G]** — Forces the building block into your hand when holding grip.
+- **Building Block Minigun [G]** — Spams building blocks out of your hand when holding grip.
+- **Building Block Gun** — Moves the building blocks to wherever your hand desires.
+- **Orbit Building Blocks** — Orbits the building blocks around you.
+- **Rain Building Blocks** — Makes the building blocks fall around you like rain.
+- **Building Block Fountain** — Spurts building blocks out of your head like a fountain.
+- **Building Block Aura** — Moves the building blocks around you at random positions.
+- **Building Block Text Gun** — Spawns entities in the shape of the text you desire in the ghost reactor.
+- **Place Building Block Gun** — Places whatever building block your hand desires on the last grid space you have placed blocks on.
+- **Destroy Building Block Gun** — Shreds whatever building block your hand desires.
+- **Destroy Building Blocks** — Shreds every building block.
+- **Save Builder Table Data** — *Action.* Dumps the data of your current build to a JSON file.
+- **Load Builder Table Data** — *Action.* Loads the data of the dumped JSON files in your game directory and saves it to your current slot.
+- **Disable Critters Dome** — Disables the critters dome.
+- **Enable Forest Dome** — Enables the dome in forest.
+- **Critter Spam [G]** — Spawns critters on your hand when holding grip
+- **Critter Minigun [G]** — Shoots critters out of your hand when holding grip
+- **Critter Gun** — Spawns critters at wherever your hand desires.
+- **Critter Sticky Goo Spam [G]** — Spams sticky goo in your hand when holding grip
+- **Critter Food Spam [G]** — Spams food in your hand when holding grip
+- **Critter Noise Maker Spam [G]** — Spams noise makers in your hand when holding grip
+- **Critter Stun Bomb Spam [G]** — Spams stun bombs in your hand when holding grip
+- **Critter Sticky Trap Spam [G]** — Spams sticky traps in your hand when holding grip
+- **Critter Sticky Goo Gun** — Spams sticky goo at wherever your hand desires.
+- **Critter Food Gun** — Spams food at wherever your hand desires.
+- **Critter Noise Maker Gun** — Spams noise makers at wherever your hand desires.
+- **Critter Stun Bomb Gun** — Spams stun bombs at wherever your hand desires.
+- **Critter Sticky Trap Gun** — Spams sticky traps at wherever your hand desires.
+- **Critter Shockwave Effect Spam [G]** — Spams the shockwave particles in your hand when holding grip.
+- **Critter Sticky Effect Spam [G]** — Spams the sticky particles in your hand when holding grip
+- **Critter Eating Effect Spam [G]** — Spams the sticky eating particles in your hand when holding grip
+- **Critter Noise Effect Spam [G]** — Spams the noise particles in your hand when holding grip
+- **Critter Particle Effect Spam [G]** — Spams every particle in your hand when holding grip
+- **Critter Shockwave Effect Gun** — Spams the shockwave particles at wherever your hand desires.
+- **Critter Sticky Effect Gun** — Spams the sticky particles at wherever your hand desires.
+- **Critter Eating Effect Gun** — Spams the sticky eating particles at wherever your hand desires.
+- **Critter Noise Effect Gun** — Spams the noise particles at wherever your hand desires.
+- **Critter Particle Effect Gun** — Spams every particle at wherever your hand desires.
+- **Grab ID Card [G]** — Puts the ID card in your hand.
+- **Entity Reach** — Gives you the ability to grab entities from farther away in the horror map.
+- **Infinite Prop Distance** — Removes the distance limit of props in the prop hunt map.
+- **Prop Noclip** — Allows you to put props in walls in the prop hunt map.
+- **Spaz Tool Stations** — Spazzes out the tool purchase stations in the horror map.
+- **Purchase All Tool Stations** — Makes every tool purchase station force purchase in the horror map.
+- **Gate Spam [G]** — Spawns gates out of your hand when holding grip.
+- **Core Spam [G]** — Spawns collectible cores out of your hand when holding grip.
+- **Slime Spam [G]** — Spawns sentient collectible cores out of your hand when holding grip.
+- **Tool Spam [G]** — Spawns random tools out of your hand when holding grip.
+- **Flower Spam [G]** — Spawns flowers out of your hand when holding grip.
+- **Crate Spam [G]** — Spawns barrels out of your hand when holding grip.
+- **Barrel Spam [G]** — Spawns barrels out of your hand when holding grip.
+- **Bug Enemy Spam [G]** — Spawns the annoying bug enemies out of your hand when holding grip.
+- **Large Bug Enemy Spam [G]** — Spawns the large annoying bug enemies out of your hand when holding grip.
+- **Ranged Enemy Spam [G]** — Spawns ranged enemies out of your hand when holding grip.
+- **Chaser Enemy Spam [G]** — Spawns chasing enemies out of your hand when holding grip.
+- **Armored Ranged Enemy Spam [G]** — Spawns armored ranged enemies out of your hand when holding grip.
+- **Armored Chaser Enemy Spam [G]** — Spawns armored chasing enemies out of your hand when holding grip.
+- **Entity Spam [G]** — Spawns a random entity out of your hand when holding grip.
+- **Gate Gun** — Spawns gates at wherever your hand desires.
+- **Core Gun** — Spawns collectible cores at wherever your hand desires.
+- **Slime Gun** — Spawns sentient collectible cores at wherever your hand desires.
+- **Tool Gun** — Spawns random tools at wherever your hand desires.
+- **Flower Gun** — Spawns flowers at wherever your hand desires.
+- **Crate Gun** — Spawns barrels at wherever your hand desires.
+- **Barrel Gun** — Spawns barrels at wherever your hand desires.
+- **Bug Enemy Gun** — Spawns the annoying bug enemies at wherever your hand desires.
+- **Large Bug Enemy Gun** — Spawns the large annoying bug enemies at wherever your hand desires.
+- **Ranged Enemy Gun** — Spawns ranged enemies at wherever your hand desires.
+- **Chaser Enemy Gun** — Spawns chasing enemies at wherever your hand desires.
+- **Armored Ranged Enemy Gun** — Spawns armored ranged enemies at wherever your hand desires.
+- **Armored Chaser Enemy Gun** — Spawns armored chasing enemies at wherever your hand desires.
+- **Entity Gun** — Spawns a random entity at wherever your hand desires.
+- **Rain Entities** — Makes random entities fall around you like rain.
+- **Entity Aura** — Creates a ball of random entities around you.
+- **Entity Fountain** — Spurts random entities out of your head like a fountain.
+- **Ghost Reactor Text Gun** — Spawns entities in the shape of the text you desire in the ghost reactor.
+- **Ghost Reactor Draw Gun** — Allows you to draw with entities in ghost reactor.
+- **Destroy Entity Gun** — Destroys any entity which your hand desires.
+- **Infinite Jet Fuel** — Gives the jet gadgets in Super Infection infinite fuel.
+- **Infinite Platforms** — Gives the platform spawner gadgets in Super Infection infinite platforms.
+- **Infinite Resources** — Gives you infinite resources in the Super Infection gamemode.
+- **Complete All Quests** — *Action.* Completes every quest in the Super Infection gamemode.
+- **Claim All Terminals** — *Action.* Claims every terminal in the Super Infection gamemode.
+- **Unlock All Gadgets** — Unlocks every gadget in the Super Infection gamemode.
+- **No Blaster Cooldown** — Removes the cooldown on the blaster.
+- **Blaster Aimbot** — Automatically aims the blaster towards players.
+- **Blaster Laser Spam [G]** — Spams lasers out of your hand when holding grip.
+- **Blaster Float Gun** — Uses the blasters to fling whoever your hand desires vertically.
+- **Blaster Float All** — Uses the blasters to fling everyone in the room vertically.
+- **Blaster Control Gun** — Uses the blasters to control whoever your hand desires.
+- **Blaster Fling Gun** — Uses the blasters to fling whoever your hand desires.
+- **Blaster Fling All** — Uses the blasters to fling everyone in the room.
+- **Blaster Fling Towards Gun** — Uses the blasters to fling whoever your hand desires towards you.
+- **Blaster Fling Towards All** — Uses the blasters to fling everyone in the room towards you.
+- **Blaster Fling Away Gun** — Uses the blasters to fling whoever your hand desires away from you.
+- **Blaster Fling Away All** — Uses the blasters to fling everyone in the room away from you.
+- **Blaster Kick Gun** — Kicks whoever your hand desires using the blasters.
+- **Blaster Kick All [T]** — Kicks everyone in the room when holding trigger using the blasters.
+- **Blaster Crash Gun** — Crashes whoever your hand desires using the blasters.
+- **Blaster Crash All [T]** — Crashes everyone in the room when holding trigger using the blasters.
+- **Stilt Spam [G]** — Spawns stilts out of your hand when holding grip.
+- **Turkey Stilt Spam [G]** — Spawns stilts out of your hand when holding grip.
+- **Motorized Stilt Spam [G]** — Spawns motorized stilts out of your hand when holding grip.
+- **Thruster Spam [G]** — Spawns thrusters out of your hand when holding grip.
+- **Yoyo Spam [G]** — Spawns yoyos out of your hand when holding grip.
+- **Blaster Spam [G]** — Spawns blasters out of your hand when holding grip.
+- **Lobber Spam [G]** — Spawns lobbers out of your hand when holding grip.
+- **Strider Tentacle Spam [G]** — Spawns tentacles out of your hand when holding grip.
+- **Crawler Tentacle Spam [G]** — Spawns tentacles out of your hand when holding grip.
+- **Platform Deployer Spam [G]** — Spawns platform deployers out of your hand when holding grip.
+- **Gadget Spam [G]** — Spawns random gadgets out of your hand when holding grip.
+- **Resource Spam [G]** — Spawns random resources out of your hand when holding grip.
+- **Stilt Gun** — Spawns stilts at wherever your hand desires.
+- **Turkey Stilt Gun** — Spawns stilts at wherever your hand desires.
+- **Motorized Stilt Gun** — Spawns motorized stilts at wherever your hand desires.
+- **Thruster Gun** — Spawns thrusters at wherever your hand desires.
+- **Yoyo Gun** — Spawns yoyos at wherever your hand desires.
+- **Blaster Gun** — Spawns blasters at wherever your hand desires.
+- **Lobber Gun** — Spawns lobbers at wherever your hand desires.
+- **Strider Tentacle Gun** — Spawns tentacles at wherever your hand desires.
+- **Crawler Tentacle Gun** — Spawns tentacles at wherever your hand desires.
+- **Platform Deployer Gun** — Spawns platform deployers at wherever your hand desires.
+- **Gadget Gun** — Spawns random gadgets at wherever your hand desires.
+- **Resource Gun** — Spawns random resources at wherever your hand desires.
+- **Rain Gadgets** — Makes random gadgets fall around you like rain.
+- **Gadget Aura** — Creates a ball of random gadgets around you.
+- **Gadget Fountain** — Spurts random gadgets out of your head like a fountain.
+- **Super Infection Text Gun** — Spawns entities in the shape of the text you desire in the Super Infection gamemode.
+- **Super Infection Draw Gun** — Allows you to draw with entities in Super Infection.
+- **Destroy Gadget Gun** — Destroys any gadget which your hand desires.
+- **Fire Sound Spam [T]** — Spams fire sounds when holding trigger.
+- **Bubble Gun** — Uses the bubbler to spawn bubbles at wherever your hand desires.
+- **Fire Gun** — Uses the bubbler to spawn bubbles at wherever your hand desires.
+- **White Color Gun** — Sprays whoever your hand desires with the sunblock spray cosmetic.
+- **White Color All** — Sprays everyone in the room with the sunblock spray cosmetic.
+- **Black Color Gun** — Uses the smoke bomb to make whoever your hand desires black.
+- **Black Color All** — Uses the smoke bomb to make everyone in the room black.
+- **Chicken Gun** — Uses the smoke bomb to make whoever your hand desires black.
+- **Chicken All** — Uses the smoke bomb to make everyone in the room black.
+- **Whoopee Cushion Spam [G]** — Spawns whoopee cushions on your hand when holding grip.
+- **Whoopee Cushion Minigun [G]** — Shoots whoopee cushions out of your hand when holding grip.
+- **Whoopee Cushion Gun** — Spawns whoopee cushions at wherever your hand desires.
+- **Smoke Bomb Spam [G]** — Spawns smoke bombs on your hand when holding grip.
+- **Smoke Bomb Minigun [G]** — Shoots smoke bombs out of your hand when holding grip.
+- **Smoke Bomb Gun** — Spawns smoke bombs at wherever your hand desires.
+- **Firecracker Spam [G]** — Spawns firecrackers on your hand when holding grip.
+- **Firecracker Minigun [G]** — Shoots firecrackers out of your hand when holding grip.
+- **Firecracker Gun** — Spawns firecrackers at wherever your hand desires.
+- **Spaz All Moles** — Gives the moles a seizure.
+- **Auto Start Moles** — Automatically starts the mole games.
+- **Auto Hit Moles** — Hits all of the moles automatically.
+- **Auto Hit Hazards** — Hits all of the hazards automatically.
+- **No Respawn Bug** — Doesn't respawn the bug if it goes too far outside the bounds of forest.
+- **No Respawn Bat** — Doesn't respawn the bat if it goes too far outside the bounds of caves.
+- **No Respawn Firefly** — Doesn't respawn the firefly if it goes too far outside the bounds of forest.
+- **Permanent Bug** — Disables other players from grabbing the bug.
+- **Permanent Bat** — Disables other players from grabbing the bat.
+- **Permanent Firefly** — Disables other players from grabbing the firefly.
+- **Bug Spam [G]** — Shoots the bug and firefly out of your hand repeatedly.
+- **Camera Spam [G]** — Shoots the camera out of your hand repeatedly.
+- **Everything Spam [G]** — Shoots everything out of your hand repeatedly.
+- **Bug Phallus** — Gives you a phallus in the form of the bugs.
+- **Bug Phallus Gun** — Gives whoever your hand desires a phallus in the form of the bugs.
+- **Bug Vibrate Gun** — Vibrates the controllers of whoever your hand desires using the bugs.
+- **Bug Vibrate All** — Vibrates the controllers of everyone in the room using the bugs.
+- **Holster Bug** — Holsters the bug on your left arm.
+- **Holster Bat** — Holsters the bat on your chest.
+- **Holster Firefly** — Holsters the firefly on your right arm.
+- **Freeze Bug** — Freezes the bug in place.
+- **Freeze Bat** — Freezes the bat in place.
+- **Freeze Firefly** — Freezes the firefly in place.
+- **Fast Bug** — Speeds up the bug.
+- **Fast Bat** — Speeds up the bat.
+- **Fast Firefly** — Speeds up the firefly.
+- **Slow Bug** — Slows down the bug.
+- **Slow Bat** — Slows down the bat.
+- **Slow Firefly** — Slows down the firefly.
+- **Physical Bug** — Gives the bug physics, letting you grab onto it and throw it.
+- **Physical Bat** — Gives the bat physics, letting you grab onto it and throw it.
+- **Physical Firefly** — Gives the firefly physics, letting you grab onto it and throw it.
+- **Physical Camera** — Gives the camera physics, letting you grab onto it and throw it.
+- **Grab Bug [G]** — Forces the bug into your hand when holding grip.
+- **Grab Bat [G]** — Forces the bat into your hand when holding grip.
+- **Grab Firefly [G]** — Forces the firefly into your hand when holding grip.
+- **Grab Camera [G]** — Forces the camera into your hand when holding grip.
+- **Grab Tablet [G]** — Forces the tablet into your hand when holding grip.
+- **Grab Balloons [G]** — Forces every single balloon cosmetic into your hand when holding grip.
+- **Grab Gliders [G]** — Forces the bug into your hand when holding grip.
+- **Bug Gun** — Moves the bug to wherever your hand desires.
+- **Bat Gun** — Moves the bat to wherever your hand desires.
+- **Firefly Gun** — Moves the firefly to wherever your hand desires.
+- **Camera Gun** — Moves the camera to wherever your hand desires.
+- **Tablet Gun** — Moves the tablet to wherever your hand desires.
+- **Balloon Gun** — Moves every single balloon cosmetic to wherever your hand desires.
+- **Glider Gun** — Moves the gliders to wherever your hand desires.
+- **Hoverboard Gun** — Spawns hoverboards at wherever your hand desires.
+- **Spaz Bug** — Gives the bug a seizure.
+- **Spaz Bat** — Gives the bat a seizure.
+- **Spaz Firefly** — Gives the firefly a seizure.
+- **Spaz Camera** — Gives the camera a seizure.
+- **Spaz Tablet** — Gives the tablet a seizure.
+- **Spaz Balloons** — Gives the balloons a seizure.
+- **Spaz Gliders** — Gives the gliders a seizure.
+- **Spaz Hoverboard** — Gives your hoverboard a seizure while holding it.
+- **Orbit Bug** — Orbits the bug around you.
+- **Orbit Bat** — Orbits the bat around you.
+- **Orbit Firefly** — Orbits the firefly around you.
+- **Orbit Camera** — Orbits the camera around you.
+- **Orbit Tablet** — Orbits the tablet around you.
+- **Orbit Balloons** — Orbits the balloons around you.
+- **Orbit Gliders** — Orbits the gliders around you.
+- **Orbit Hoverboards** — Orbits the hoverboards around you.
+- **Bug Aura** — Teleports the bug around you in random positions.
+- **Bat Aura** — Teleports the bat around you in random positions.
+- **Firefly Aura** — Teleports the firefly around you in random positions.
+- **Camera Aura** — Teleports the camera around you in random positions.
+- **Tablet Aura** — Teleports the tablet around you in random positions.
+- **Balloon Aura** — Teleports the balloons around you in random positions.
+- **Glider Aura** — Teleports the camera around you in random positions.
+- **Hoverboard Aura** — Teleports the hoverboards around you in random positions.
+- **Ride Bug** — Repeatedly teleports you on top of the bug.
+- **Ride Bat** — Repeatedly teleports you on top of the bat.
+- **Ride Firefly** — Repeatedly teleports you on top of the firefly.
+- **Become Bug** — Turns you into the bug.
+- **Become Bat** — Turns you into the bat.
+- **Become Firefly** — Turns you into the firefly.
+- **Become Camera** — Turns you into the camera.
+- **Become Tablet** — Turns you into the tablet.
+- **Become Balloon** — Turns you into a balloon when holding trigger.
+- **Become Hoverboard** — Turns you into a hoverboard when holding trigger.
+- **Destroy Bug** — Sends the bug to hell.
+- **Destroy Firefly** — Sends the bug to hell.
+- **Destroy Bat** — Sends the bat to hell.
+- **Destroy Camera** — Sends the camera to hell.
+- **Destroy Tablet** — Sends the tablet to hell.
+- **Destroy Balloons** — *Action.* Sends every single balloon cosmetic to hell.
+- **Destroy Gliders** — *Action.* Sends every single glider to hell.
+- **Respawn Gliders** — *Action.* Respawns all the gliders.
+- **Pop All Balloons** — *Action.* Pops every single balloon cosmetic.
+- **Golden Name Tag** — Changes your name tag to a golden color. This mod only works if you are subscribed to the fan club.
+- **Flash Name Tag** — Flashes your name tag to between golden and white. This mod only works if you are subscribed to the fan club.
+- **Set Name to "STATUE"** — *Action.* Sets your name to "STATUE".
+- **Set Name to "HIDE"** — *Action.* Sets your name to "HIDE".
+- **Set Name to "RUN"** — *Action.* Sets your name to "RUN".
+- **Set Name to "BEHINDYOU"** — *Action.* Sets your name to "BEHINDYOU".
+- **Set Name to "iiOnTop"** — *Action.* Sets your name to "iiOnTop".
+- **PBBV Name Cycle** — Sets your name on a loop to "PBBV", "IS", and "HERE".
+- **J3VU Name Cycle** — Sets your name on a loop to "J3VU", "HAS", "BECOME", and "HOSTILE"
+- **H1D3 Name Cycle** — Sets your name on a loop to "H1D3", "HE", "HAS", and "AWOKEN"
+- **No Escape Name Cycle** — Sets your name on a loop to "THERE", "IS", "NO", and "ESCAPE"
+- **Run Rabbit Name Cycle** — Sets your name on a loop to "RUN" and "RABBIT".
+- **Random Name Cycle** — Sets your name on a loop to a bunch of random characters.
+- **Custom Name Cycle** — Sets your name on a loop to whatever's in the file.
+- **Animated Name** — Animates your current username.
+- **Strobe Color** — Makes your character flash.
+- **Strobe Color** — Makes your character random colors.
+- **Rainbow Color** — Makes your character rainbow.
+- **Hard Rainbow Color** — Makes your character flash from red, green, blue, and magenta.
+- **Become "goldentrophy"** — *Action.* Sets your name to "goldentrophy" and color to orange.
+- **Become "NOESCAPE"** — *Action.* Sets your name to "NOESCAPE" and color to black.
+- **Become "H1D3"** — *Action.* Sets your name to "H1D3" and color to black.
+- **Become "PBBV"** — *Action.* Sets your name to "PBBV" and color to salmon.
+- **Become "J3VU"** — *Action.* Sets your name to "J3VU" and color to green.
+- **Become "ECHO"** — *Action.* Sets your name to "ECHO" and color to sky blue.
+- **Become "DAISY09"** — *Action.* Sets your name to "DAISY09" and color to a light pink.
+- **Become "STATUE"** — *Action.* Sets your name to "STATUE" and color to black.
+- **Become Child** — *Action.* Sets your name and color to something a child would pick.
+- **Become Hidden on Leaderboard** — *Action.* Sets your name to "I" and your color to a dark green, matching the leaderboard.
+- **Copy Identity Gun** — Steals the identity of whoever your hand desires.
+- **Copy Cosmetics Gun** — Steals the cosmetics of whoever your hand desires.
+- **Change Accessories** — Use your grips to change what hat you're wearing.
+- **Spaz Accessories** — Spazzes your hats out for everyone when holding trigger.
+- **Spaz Cosmetics [Others]** — Spazzes your hats out for everyone except you when holding trigger.
+- **Spaz Balloon Cosmetics [T]** — Spazzes your balloons out for everyone when holding trigger.
+- **Cosmetic Spoof** — Lets you try on cosmetics from anywhere. Enable this mod after wearing the cosmetics.
+- **Cosmetic Browser** — *Action.* Browse through every cosmetic that you can try on and add it to your cart.
+- **Auto Spoof Cosmetics** — Automatically spoofs your cosmetics, making you appear with anything you're able to try-on.
+- **Auto Purchase Cosmetics** — Automatically purchases any free cosmetics.
+- **Auto Purchase Current Cosmetics** — Automatically purchases all cosmetics on your outfit until you own everything. This does use shiny rocks.
+- **Disable Cosmetics on Tag** — Disables your cosmetics when you get tagged, good for ambush.
+- **Unlock Fan Club Subscription** — Unlocks the Gorilla Tag fan club subscription.
+- **Unlock All Cosmetics** — Unlocks every cosmetic in the game. This mod is client-sided.
+- **Unlimited Shiny Rocks** — Gives you 2 billion shiny rocks. This mod is client sided.
+- **Sticky Holdables** — Makes your holdables sticky.
+- **Spaz Holdables** — Spazzes out the positions of your holdables.
+- **Get ID Self** — *Action.* Gets your player ID and copies it to the clipboard.
+- **Get ID Gun** — Gets the player ID of whoever your hand desires and copies it to the clipboard.
+- **Get ID All** — *Action.* Gets the player IDs of everyone and copies them to the clipboard.
+- **Get ID Aura** — Gets the player ID of players nearby you and copies it to the clipboard.
+- **Get ID On Touch** — Gets the player ID of players you touch and copies it to the clipboard.
+- **Narrate ID Self** — *Action.* Gets your player ID and speaks it through your microphone.
+- **Narrate ID Gun** — Gets the player ID of whoever your hand desires and speaks it through your microphone.
+- **Narrate ID All** — *Action.* Gets the player IDs of everyone and speaks them through your microphone.
+- **Narrate ID Aura** — Gets the player ID of players nearby you and speaks it through your microphone.
+- **Narrate ID On Touch** — Gets the player ID of players you touch and speaks it through your microphone.
+- **Narrate Fake IP Self** — *Action.* Gets random numbers that look like an IP address and speaks it through your microphone.
+- **Narrate Fake IP Gun** — Gets random numbers that look like an IP address and speaks it through your microphone towards whoever your hand desires.
+- **Narrate Fake IP All** — *Action.* Gets random numbers that look like an IP address for everyone and speaks it through your microphone.
+- **Narrate Fake IP Aura** — Gets random numbers that look like an IP address and speaks it through your microphone.
+- **Narrate Fake IP On Touch** — Gets random numbers that look like an IP address and speaks it through your microphone.
+- **Get Creation Date Self** — *Action.* Gets the creation date of your account and copies it to the clipboard.
+- **Get Creation Date Gun** — Gets the creation date of whoever your hand desires' account and copies it to the clipboard.
+- **Get Creation Date All** — *Action.* Gets the creation date of everyones account and copies it to the clipboard.
+- **Get Creation Date Aura** — Gets the creation date of nearby players accounts and copies it to the clipboard.
+- **Get Creation Date On Touch** — Gets the creation date of players you touch accounts and copies it to the clipboard.
+- **Narrate Creation Date Self** — *Action.* Gets the creation date of your account and speaks it through your microphone.
+- **Narrate Creation Date Gun** — Gets the creation date of whoever your hand desires' account and speaks it through your microphone.
+- **Narrate Creation Date All** — *Action.* Gets the creation date of everyones account and speaks it through your microphone.
+- **Narrate Creation Date Aura** — Gets the creation date of nearby players accounts and speaks it through your microphone.
+- **Narrate Creation Date On Touch** — Gets the creation date of players you touch accounts and speaks it through your microphone.
+- **Grab Player Info** — *Action.* Saves every player's name, color, and player ID as a text file and opens it.
+- **Exit Rebind Settings** — *Action.* Returns you back to the settings menu.
+- **Rebind A** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind B** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind X** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Y** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Left Grip** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Right Grip** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Left Trigger** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Right Trigger** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Left Joystick** — Enables rebinding mode, letting you change a mod's button.
+- **Rebind Right Joystick** — Enables rebinding mode, letting you change a mod's button.
+- **Clear Rebinds** — *Action.* Removes all rebinds.
+- **Exit Sound Mods** — *Action.* Returns you back to the main page.
+- **Soundboard** — *Action.* A working, customizable soundboard that lets you play audios through your microphone.
+- **Bass Sound Spam [G]** — Plays the loud drum sound when holding grip.
+- **Metal Sound Spam [G]** — Plays the metal sound when holding grip.
+- **Wolf Sound Spam [G]** — Plays the wolf howl when holding grip.
+- **Cat Sound Spam [G]** — Plays the cat meow when holding grip.
+- **Turkey Sound Spam [G]** — Plays the turkey sound when holding grip.
+- **Frog Sound Spam [G]** — Plays the frog creak when holding grip.
+- **Bee Sound Spam [G]** — Plays the bee buzz when holding grip.
+- **Squeak Sound Spam [G]** — Plays the squeak sound when holding grip.
+- **Okay Sound Spam [G]** — Plays the sound of jmancurly saying "okay" with autotune when holding grip.
+- **Scream Sound Spam [G]** — Plays the sound of jmancurly screaming when holding grip.
+- **Slap Sound Spam [G]** — Plays the slap sound when holding grip.
+- **Jmancurly Sound Spam [G]** — Plays the sounds from the jmancurly statue when holding grip.
+- **Random Sound Spam [G]** — Plays random sounds when holding grip.
+- **Earrape Sound Spam [G]** — Plays a high-pitched sound when holding grip.
+- **Ding Sound Spam [G]** — Plays a ding sound when holding grip.
+- **Crystal Sound Spam [G]** — Plays some crystal noises when holding grip.
+- **Piano Sound Spam [G]** — Plays some terrible piano when holding grip.
+- **Big Crystal Sound Spam [G]** — Plays a long crystal sound when holding grip.
+- **Pan Sound Spam [G]** — Plays a pan sound when holding grip.
+- **AK-47 Sound Spam [G]** — Plays a sound that sounds like an AK-47 when holding grip.
+- **Siren Sound Spam [G]** — Plays a siren sound when holding grip.
+- **Tick Sound Spam [G]** — Plays a tick sound when holding grip.
+- **Custom Sound ID** — *Action.* Changes the Sound ID of the Custom Sound Spam.
+- **Custom Sound Spam** — Plays the selected sound when holding grip.
+- **Override Tap Sound** — Plays the selected sound when holding grip.
+- **Exit Projectile Mods** — *Action.* Returns you back to the main page.
+- **Grab Projectile [G]** — Grabs your selected projectile(s) holding grip.
+- **Projectile Spam [G]** — Spams your selected projectile(s) when holding grip.
+- **Projectile Gun** — Spams your selected projectile(s) at wherever your hand desires.
+- **Laser Spam [G]** — Spams your selected projectile(s) out of your eyes like lasers when holding grip.
+- **Give Projectile Spam Gun** — Acts like the projectile spam, but you can give it to whoever your hand desires when they hold grip.
+- **Impact Spam** — Acts like the projectile spam, but uses the impacts instead.
+- **Laser Eyes [G]** — Makes you shoot lasers out of your eyes when holding grip.
+- **Urine [G]** — Makes you pee when holding grip.
+- **Feces [G]** — Makes you poo when holding grip.
+- **Period [G]** — Makes you have your period when holding grip.
+- **Semen [G]** — Makes you ejaculate when holding grip.
+- **Vomit [G]** — Makes you throw up when holding grip.
+- **Spit [G]** — Makes you spit when holding grip.
+- **Laser Eyes Gun** — Makes whoever your hand desires shoot lasers out of their eyes.
+- **Urine Gun** — Makes whoever your hand desires pee.
+- **Feces Gun** — Makes whoever your hand desires poo.
+- **Period Gun** — Makes whoever your hand desires have their period.
+- **Semen Gun** — Makes whoever your hand desires ejaculate.
+- **Vomit Gun** — Makes whoever your hand desires throw up.
+- **Spit Gun** — Makes whoever your hand desires spit.
+- **Projectile Blind Gun** — Blinds whoever your hand desires using the egg projectiles.
+- **Projectile Blind All** — Blinds everybody in the room using the egg projectiles.
+- **Projectile Lag Gun** — Lags whoever your hand desires using the firework projectiles.
+- **Projectile Lag All** — Lags everybody in the room using the firework projectiles.
+- **Snowball Spam [G]** — Spams snowballs when holding grip.
+- **Snowball Minigun [G]** — Spawns snowballs towards wherever your hand desires.
+- **Give Snowball Minigun** — Gives whoever your hand desires a snowball minigun.
+- **Snowball Gun** — Spawns snowballs wherever your hand desires.
+- **Snowball Nuke Gun** — Spawns a lot of snowballs airstriking from the sky at wherever your hand desires.
+- **Snowball Airstrike Gun** — Spawns a snowball airstrike wherever your hand desires.
+- **Snowball Rain [T]** — Rains snowballs around you when holding trigger.
+- **Snowball Hail [T]** — Hails snowballs around you when holding trigger.
+- **Snowball Fountain [T]** — Fountains snowballs above you when holding trigger.
+- **Snowball Positional Fountain [G]** — Place a fountain grip and use it with trigger. It will fountain snowballs at wherever the fountain is.
+- **Snowball Orbit [T]** — Orbits snowballs around you when holding trigger.
+- **Snowball Aura [T]** — Randomly spawns snowballs around you when holding trigger.
+- **Snowball Mushroom [T]** — Spawns a mushroom cloud of snowballs on you when holding trigger.
+- **Snowball Shotgun [G]** — Spawns snowballs around wherever your hand desires.
+- **Snowball Wall [G]** — Spawns a wall of snowballs towards wherever your hand desires.
+- **Snowball C4 [G]** — Place a C4 with grip and detonate it with A. It will spawn snowballs at wherever the bomb is.
+- **Snowball Grenade [G]** — Spawn and throw with grip It will spawn snowballs at the landing point.
+- **Snowball RPG [G]** — Shoots a snowball with grip. It will spawn snowballs at the landing point.
+- **Snowball Punch Mod** — Flings people when you punch them.
+- **Snowball Boxing** — Gives everyone the punch mod by using snowballs.
+- **Snowball Dash [A]** — Allows other players to dash themself into the air with the snowballs.
+- **Snowball High Jump** — Allow everyone to jump higher using snowballs.
+- **Snowball Particle Gun** — Spawns snowball particles wherever your hand desires.
+- **Snowball Impact Effect Gun** — Spawns snowball impact events on whoever your hand desires.
+- **Snowball Kamehameha** — Spawns a flaming ball when holding down both triggers and grips.
+- **Snowball Fling Zone [G]** — Spawn and move fling zones with your right grip. Press trigger to remove fling zones.
+- **Snowball Fling Gun** — Flings whoever your hand desires.
+- **Snowball Fling All [T]** — Flings everybody when holding trigger.
+- **Snowball Fling Aura** — Anyone who gets too close to you will be launched away.
+- **Snowball Fling Vertical Gun** — Flings whoever your hand desires vertically.
+- **Snowball Fling Vertical All [T]** — Flings everybody vertically when holding trigger.
+- **Snowball Fling Towards Gun** — Flings everybody towards wherever your hand desires.
+- **Snowball Fling Away Gun** — Flings everybody away from wherever your hand desires.
+- **Snowball Fling Player Towards Gun** — Flings whoever your hand desires towards you.
+- **Snowball Fling Player Away Gun** — Flings whoever your hand desires away from you.
+- **Snowball Launch Gun** — Launches whoever your hand desires like a launch pad.
+- **Anti Report [Snowball Fling]** — Flings whoever tries to report you with the snowballs.
+- **Exit Master Mods** — *Action.* Returns you back to the main page.
+- **MasterLabel**
+- **Guardian Self** — *Action.* Makes you red.
+- **Guardian Gun** — Makes whoever your hand desires the guardian.
+- **Guardian All** — *Action.* Makes everyone in the room the guardian.
+- **Unguardian Self** — *Action.* Removes you from the guardian position.
+- **Unguardian Gun** — Removes whoever your hand desires from the guardian position.
+- **Unguardian All** — *Action.* Removes everyone in the room from the guardian position.
+- **Guardian Spaz** — Spams the guardian position for everyone in the room.
+- **Red Color Self** — *Action.* Changes your color to red.
+- **Red Color Gun** — Changes whoever your hand desires' color to red.
+- **Red Color All** — *Action.* Changes everyone in the room's color to red.
+- **Blue Color Self** — *Action.* Changes your color to blue.
+- **Blue Color Gun** — Changes whoever your hand desires' color to blue.
+- **Blue Color All** — *Action.* Changes everyone in the room's color to blue.
+- **Reset Color Self** — *Action.* Resets your color back to what it was.
+- **Reset Color Gun** — Resets whoever your hand desires' color back to what it was.
+- **Reset Color All** — *Action.* Resets everyone in the room's color back to what it was.
+- **Strobe Color Self** — Flashes your color between red and blue.
+- **Strobe Color Gun** — Flashes whoever your hand desires' color between red and blue.
+- **Strobe Color All** — Flashes everyone in the room's color between red and blue.
+- **Material Self** — Flashes the materials of yourself.
+- **Material Gun** — Flashes the materials of whoever your hand desires.
+- **Material All** — Flashes the materials of everyone in the room.
+- **Grey Screen Gun** — Makes whoever your hand desires' screen grey.
+- **Fix Screen Gun** — Makes whoever your hand desires' screen normal again.
+- **Grey Screen All** — Makes everyone's screen grey.
+- **Spaz Grey Screen Gun** — Makes whoever your hand desires' screen flash grey.
+- **Spaz Grey Screen All** — Makes everyone's screen flash grey.
+- **Zero Gravity Gun** — Sets whoever your hand desires' gravity to zero.
+- **Zero Gravity All** — Sets everyone's gravity to zero.
+- **Fix Gravity Gun** — Fixes whoever your hand desires' gravity.
+- **Spaz Prop Hunt** — Repeatedly starts and ends the prop hunt gamemode.
+- **Spaz Prop Hunt Objects** — Repeatedly randomizes everyone's selected object in the prop hunt gamemode.
+- **Max Currency Self** — *Action.* Gives you the maximum amount of currency in the ghost reactor (2 billion).
+- **Max Currency Gun** — Gives whoever your hand desires the maximum amount of currency in the ghost reactor (2 billion).
+- **Max Currency All** — *Action.* Gives everyone in the room the maximum amount of currency in the ghost reactor (2 billion).
+- **Add Currency Self** — *Action.* Gives you 100 more currency in the ghost reactor.
+- **Add Currency Gun** — Gives whoever your hand desires 100 more currency in the ghost reactor.
+- **Add Currency All** — *Action.* Gives everyone in the room 100 more currency in the ghost reactor.
+- **Remove Currency Self** — *Action.* Removes all currency in the ghost reactor from yourself.
+- **Remove Currency Gun** — Removes all currency in the ghost reactor from whoever your hand desires.
+- **Remove Currency All** — *Action.* Removes all currency in the ghost reactor from everyone in the room.
+- **Invincibility** — Makes you unable to die in the ghost reactor.
+- **Start Shift** — *Action.* Starts a new ghost reactor shift.
+- **End Shift** — *Action.* Ends the current ghost reactor shift.
+- **Set Quota** — Meets the quota for you.
+- **Virtual Stump Kick Gun** — Kicks whoever your hand desires in the virtual stump.
+- **Virtual Stump Kick All** — Kicks everyone in the virtual stump.
+- **Virtual Stump Crash Gun** — Crashes whoever your hand desires in the virtual stump.
+- **Virtual Stump Crash All** — Crashes everyone in the virtual stump.
+- **Ghost Reactor Freeze Gun** — Freezes whoever your hand desires in the ghost reactor.
+- **Ghost Reactor Freeze All** — Freezes everyone in the ghost reactor.
+- **Ghost Reactor Crash Gun** — Crashes whoever your hand desires in the ghost reactor.
+- **Ghost Reactor Crash All** — Crashes everyone in the ghost reactor.
+- **Super Infection Crash Gun** — Crashes whoever your hand desires in the Super Infection gamemode.
+- **Super Infection Crash All** — Crashes everyone in the Super Infection gamemode.
+- **Super Infection Break Audio Gun** — Breaks the audio of whoever your hand desires in the Super Infection gamemode.
+- **Super Infection Break Audio All** — Breaks the audio of everyone in the Super Infection gamemode.
+- **Kill Self** — *Action.* Turns you into a ghost.
+- **Kill Gun** — Turns whoever your hand desires into a ghost.
+- **Kill All** — *Action.* Turns everyone in the room into a ghost.
+- **Revive Self** — *Action.* Revives you from death.
+- **Revive Gun** — Revives whoever your hand desires from death.
+- **Revive All** — *Action.* Revives everyone in the room from death.
+- **Spaz Kill Self** — Repeatedly kills and revives you.
+- **Spaz Kill Gun** — Repeatedly kills and revives whoever your hand desires.
+- **Spaz Kill All** — Repeatedly kills and revives everyone in the room.
+- **Unlimited Building** — Unlimits building, disabling drop zones and letting you place on people's plots.
+- **Shotgun [G]** — Spawns you a shotgun when you press grip.
+- **Block Crash Gun** — Crashes whoever your hand desires if they are inside of the block map.
+- **Block Crash All [T]** — Crashes everybody inside of the block map.
+- **Block Anti Report** — Automatically builds blocks around your report button.
+- **Block Draw Gun** — Draw wherever your hand desires.
+- **Block Build Gun** — Draw wherever your hand desires with no delay.
+- **Block Tower Gun** — Builds a tower wherever your hand desires.
+- **Block Freeze Gun** — Freeze whoever your hand desires.
+- **Block Freeze All [T]** — Freezes everyone in the lobby when holding trigger.
+- **Block Float Gun** — Makes whoever your hand desires float using the building blocks.
+- **Building Block Fling Gun** — Flings whoever your hand desires using the building blocks.
+- **Building Block Bring Gun** — Brings whoever your hand desires using the building blocks.
+- **Building Block Push Gun** — Pushes whoever your hand desires using the building blocks.
+- **Spaz Targets** — Gives the targets a seizure.
+- **Slow Monsters** — Slows down the basement monsters.
+- **Fast Monsters** — Speeds up the basement monsters.
+- **Grab Monsters [G]** — Puts the basement monsters in your hand.
+- **Monster Gun** — Moves the basement monsters to wherever your hand desires.
+- **Spaz Monsters** — Gives the basement monsters a seizure.
+- **Orbit Monsters** — Orbits the basement monsters around you.
+- **Destroy Monsters** — *Action.* Sends the basement monsters to hell.
+- **Infection to Tag** — Turns the game into tag instead of infection.
+- **Tag to Infection** — Turns the game into infection instead of tag.
+- **Untag Gun** — Untags whoever your hand desires.
+- **Untag All** — *Action.* Removes everyone from the list of tagged players.
+- **Break Tag** — Constantly removes everyone from the list of tagged players.
+- **Spam Tag Self** — Adds and removes you from the list of tagged players.
+- **Spam Tag Gun** — Adds and removes you from the list of tagged players.
+- **Spam Tag All** — Adds and removes everyone from the list of tagged players.
+- **Rock Self** — *Action.* Sets yourself to rock.
+- **Rock Gun** — Sets whoever your hand desires to rock.
+- **Rock All** — Sets everyone in the room to rock.
+- **Rock Aura** — Sets players nearby you to rock.
+- **Rock On Touch** — Sets whoever you touch to rock.
+- **Give Tag Lag Gun** — Forces tag lag on whoever your hand desires, making them untaggable.
+- **Tag Lag Gun** — Forces tag lag on whoever your hand desires, letting them not be able to tag anyone.
+- **Tag Lag** — Forces tag lag in the everyone in the room, letting no one get tagged.
+- **Unlock Driver** — *Action.* Unlocks the driver in the virtual stump.
+- **Become Driver** — *Action.* Makes you the driver in the virtual stump.
+- **Spaz Driver** — Spaz makes and unmakes you the driver in the virtual stump.
+- **Become Driver Gun** — Makes whoever your hand desires the driver in the virtual stump.
+- **Unlock Driver Gun** — Unlocks the driver for whoever your hand desires in the virtual stump.
+- **Spaz Driver Gun** — Spaz makes and unmakes whoever your hand desires the driver in the virtual stump.
+- **Bonk Sound Spam [G]** — Plays the bonk sound when holding grip.
+- **Count Sound Spam [G]** — Plays the count sound when holding grip.
+- **Brawl Count Sound Spam [G]** — Plays the brawl count sound when holding grip.
+- **Brawl Start Sound Spam [G]** — Plays the brawl start sound when holding grip.
+- **Tag Sound Spam [G]** — Plays the tag sound when holding grip.
+- **Round End Sound Spam [G]** — Plays the round end sound when holding grip.
+- **Paintbrawl Start Game** — *Action.* Starts a game of paintbrawl.
+- **Paintbrawl End Game** — *Action.* Ends the current game of paintbrawl.
+- **Paintbrawl Restart Game** — *Action.* Restarts the current game of paintbrawl.
+- **Paintbrawl Restart Spam** — Spam starts and ends games of paintbrawl.
+- **Paintbrawl Balloon Spam Self** — Spam pops and unpops your balloons in paintbrawl.
+- **Paintbrawl Balloon Spam Gun** — Spam pops and unpops whoever your hand desires' balloons in paintbrawl.
+- **Paintbrawl Balloon Spam All** — Spam pops and unpops everyone's balloons in paintbrawl.
+- **Paintbrawl Revive Self** — *Action.* Revives yourself in paintbrawl.
+- **Paintbrawl Revive Gun** — Revives whoever your hand desires in paintbrawl.
+- **Paintbrawl Revive All** — *Action.* Revives everyone in paintbrawl.
+- **Paintbrawl No Delay** — Revives everyone in paintbrawl.
+- **Paintbrawl God Mode** — Gives you god mode in paintbrawl.
+- **Slow Self** — *Action.* Forces tag freeze on yourself.
+- **Slow Gun** — Forces tag freeze on whoever your hand desires.
+- **Slow All** — Forces tag freeze on everyone in the the room.
+- **Slow Aura** — Forces tag freeze on players nearby you.
+- **Slow On Touch** — Forces tag freeze on whoever you touch.
+- **Vibrate Self** — *Action.* Makes your controllers vibrate.
+- **Vibrate Gun** — Makes whoever your hand desires' controllers vibrate.
+- **Vibrate All** — Makes everyone in the the room's controllers vibrate.
+- **Vibrate Aura** — Makes players nearby you controllers vibrate.
+- **Vibrate On Touch** — Makes whoever you touch controllers vibrate.
+- **Exit Overpowered Mods** — *Action.* Returns you back to the main page.
+- **Always Guardian** — Makes you always the guardian.
+- **Guardian Protector** — Pushes people away from the guardian moon if they try to approach it.
+- **Grab Gun** — Grabs whoever your hand desires if you're the guardian.
+- **Grab All [G]** — Grabs everyone in the room if you're the guardian.
+- **Release Gun** — Releases whoever your hand desires if you're the guardian.
+- **Release All [T]** — Releases everyone in the room if you're the guardian.
+- **Fling Gun** — Flings whoever your hand desires.
+- **Fling All [T]** — Flings everyone in the room.
+- **Bring Gun** — Brings whoever your hand desires towards you.
+- **Bring All [T]** — Brings everyone in the room towards you.
+- **Bring All Gun** — Brings everyone in the room towards wherever your hand desires.
+- **Guardian Bring Away Gun** — Brings whoever your hand desires towards you.
+- **Guardian Bring Away All [T]** — Brings everyone in the room towards you.
+- **Bring Away All Gun** — Brings everyone in the room towards wherever your hand desires.
+- **Guardian Anti Stump** — Anyone who gets too close to the stump entrance will be launched away.
+- **Guardian Orbit All [T]** — Orbits everyone in the room around you.
+- **Guardian Punch Mod** — Flings people when you punch them.
+- **Guardian Boxing** — Lets everyone in the room punch eachother.
+- **Guardian Give Fly Gun** — Gives whoever you want fly when they hold their right thumb down.
+- **Guardian Give Fly All** — Gives everyone in the room fly when they hold their right thumb down.
+- **Spaz Player Gun** — Spazzes out whoever your hand desires.
+- **Spaz All Players [T]** — Spazzes out everyone in the room.
+- **Effect Spam Hands [G]** — Spawns effects when holding grip.
+- **Effect Spam Gun** — Spawns effects wherever your hand desires.
+- **Physical Freeze Gun** — Freezes whoever your hand desires.
+- **Physical Freeze All [T]** — Freezes everyone in the room when holding trigger.
+- **Guardian Kick Gun** — Kicks whoever your hand desires.
+- **Guardian Kick All [T]** — Kicks everyone in the room when holding trigger.
+- **Guardian Crash Gun** — Crashes whoever your hand desires.
+- **Guardian Crash All [T]** — Crashes everyone in the room when holding trigger.
+- **Lag Master Client** — Lags the master client.
+- **Lag Master Client Gun** — Lags whoever your hand desires, if they are master client. Credits to EyeCantSee for this stupid idea.
+- **Kick Master Client** — Kicks the master client from the room.
+- **Kick Gun** — Kick whoever your hand desires, if they are master client. Credits to Rexon for making such a stupid mod.
+- **Kick All** — Kicks everyone above you from the room.
+- **Cache Kick Gun** — Kicks everyone in the room by filling up the room cache.
+- **Cache Kick All** — Kicks everyone in the room by filling up the room cache.
+- **Delay Ban Gun** — Delay bans whoever your hand desires.
+- **Delay Ban All** — Delay bans everyone in the room.
+- **Force Grab** — Attempts to grab the hand of anyone who presses their grips.
+- **Fling on Grab** — Flings the player when they grab you.
+- **Kick on Grab** — Kicks the player when they grab you.
+- **Crash on Grab** — Crashes the player when they grab you.
+- **Destroy on Grab** — Destroys the player when they grab you.
+- **Obliterate on Grab** — Obliterates the player when they grab you.
+- **Towards Point on Grab Gun** — Sends the player to your target position when they grab you.
+- **Lag Server** — Lags the room.
+- **Freeze Server** — Freezes the room.
+- **Crash Server** — Crashes the room.
+- **Za Warudo [T]** — Freeze all, but with special effects.
+- **Anti Report [Fling]** — Flings whoever tries to report you.
+- **Lag Gun** — Lags whoever your hand desires.
+- **Lag All** — Lags everyone in the room.
+- **Lag Aura** — Lags players nearby.
+- **Lag On Touch** — Lags whoever you touch.
+- **Server Mute All** — Mutes everyone in the server.
+- **Deafen Gun** — Makes whoever your hand deseries not be able to hear anyone else.
+- **Deafen All** — Makes everyone not be able to hear anyone except you.
+- **Anti Report [Lag]** — Lags whoever tries to report you.
+- **Barrel Punch Mod** — Flings people when you punch them.
+- **Barrel Fling Gun** — Flings whoever your hand desires using the barrels.
+- **Barrel Fling All** — Flings everyone in the room using the barrels.
+- **Barrel Fling Towards Gun** — Flings whoever your hand desires using the barrels towards you.
+- **Barrel Fling Towards All** — Flings everyone in the room using the barrels towards you.
+- **Barrel Kick Gun** — Kicks whoever your hand desires using the barrels.
+- **Barrel Kick All** — Kicks everyone in the room using the barrels.
+- **Barrel Crash Gun** — Crashes whoever your hand desires using the barrels.
+- **Barrel Crash All** — Crashes everyone in the room using the barrels.
+- **Barrel City Kick Gun** — Flings whoever your hand desires using the barrels into the clouds map to kick them.
+- **Barrel City Kick All** — Flings everyone in the room using the barrels into the clouds map to kick them.
+- **Lock Room** — *Action.* Locks the room so no one else can join.
+- **Unlock Room** — *Action.* Unlocks the room so anyone can join.
+- **Spaz Room** — Locks and unlocks the room so people will get kicked when joining.
+- **Close Room** — Kicks everyone in the room.
+- **Spy Room** — Allows you to hear people whilst being disconnected from the room.
+- **Destroy Gun** — Block new players from seeing whoever your hand desires.
+- **Destroy All** — *Action.* Block new players from seeing everyone.
+- **Destroy Aura** — Block new players from seeing players nearby you.
+- **Destroy On Touch** — Block new players from seeing players you touch.
+- **Stump Kick Gun** — Kicks whoever your hand desires if they are in stump.
+- **Stump Kick All** — *Action.* Kicks everyone in stump.
+- **Elevator Kick Gun** — Kicks whoever your hand desires if they are in the elevator.
+- **Elevator Kick All** — *Action.* Kicks everyone in the elevator.
+- **Elevator Kick Aura** — Kicks players nearby you if they are in the elevator.
+- **Elevator Kick On Touch** — Kicks players you touch if they are in the elevator.
+- **Instant Party** — Makes parties form instantly, instead of having to wait a couple of seconds.
+- **Leave Party** — *Action.* Leaves the party, incase you can't pull off the string.
+- **Party Break Network Triggers** — Breaks the network triggers for anyone in your party.
+- **Party Kick Gun** — Kicks whoever your hand desires if they're in your party from the room.
+- **Party Kick All** — Kicks everyone in your party from the room.
+- **Party Kick Aura** — Kicks nearby party members from the room.
+- **Party Kick On Touch** — Kicks party members you touch from the room.
+- **Kick All in Party** — *Action.* Sends everyone in your party to a random room.
+- **Ban All in Party** — *Action.* Sends everyone in your party to a bannable code.
+- **Auto Party Kick** — When you party, you will automatically send everyone in your party to a random room.
+- **Auto Party Ban** — When you party, you will automatically send everyone in your party to a bannable code.
+- **Break Audio Gun** — Attempts to break the audio of whoever your hand desires.
+- **Break Audio All [T]** — Attempts to break everyone's audio when holding trigger.
+- **Exit Soundboard** — *Action.* Returns you back to the fun mods.
+- **Exit Favorite Mods** — *Action.* Returns you back to the main page.
+- **Exit Menu Presets** — *Action.* Returns to the settings for the menu.
+- **Legitimate Preset** — *Action.* Enables a bunch of mods that make it impossible to mod check you.
+- **Goldentrophy Preset** — *Action.* Enables the mods that "goldentrophy" uses.
+- **Performance Preset** — *Action.* Enables some mods that attempt to maximize your FPS as much as possible.
+- **Safety Preset** — *Action.* Enables some mods that attempt to keep you as safe as possible.
+- **Ghost Preset** — *Action.* Enables a bunch of mods that are commonly used for ghost trolling.
+- **Save Custom Preset 1** — *Action.* Saves a custom preset.
+- **Load Custom Preset 1** — *Action.* Loads a custom preset.
+- **Save Custom Preset 2** — *Action.* Saves a custom preset.
+- **Load Custom Preset 2** — *Action.* Loads a custom preset.
+- **Save Custom Preset 3** — *Action.* Saves a custom preset.
+- **Load Custom Preset 3** — *Action.* Loads a custom preset.
+- **Save Custom Preset 4** — *Action.* Saves a custom preset.
+- **Load Custom Preset 4** — *Action.* Loads a custom preset.
+- **Save Custom Preset 5** — *Action.* Saves a custom preset.
+- **Load Custom Preset 5** — *Action.* Loads a custom preset.
+- **Save Custom Preset 6** — *Action.* Saves a custom preset.
+- **Load Custom Preset 6** — *Action.* Loads a custom preset.
+- **Save Custom Preset 7** — *Action.* Saves a custom preset.
+- **Load Custom Preset 7** — *Action.* Loads a custom preset.
+- **Save Custom Preset 8** — *Action.* Saves a custom preset.
+- **Load Custom Preset 8** — *Action.* Loads a custom preset.
+- **Save Custom Preset 9** — *Action.* Saves a custom preset.
+- **Load Custom Preset 9** — *Action.* Loads a custom preset.
+- **Save Custom Preset 10** — *Action.* Saves a custom preset.
+- **Load Custom Preset 10** — *Action.* Loads a custom preset.
+- **Quick Start Mods** — *Action.* Enables some mods that attempt to improve your experience using the menu.
+- **Exit Advantage Settings** — *Action.* Returns you back to the settings menu.
+- **Instant Tag** — Makes the tag instant.
+- **Obnoxious Tag** — Makes the tag mods more obnoxious. Instead of hiding in the ground, you teleport around the player like crazy.
+- **Visualize Tag Reach** — Visualizes the distance threshold for the tag reach.
+- **ctaRange** — *Action.* Changes the range of the tag aura mods.
+- **ctrRange** — *Action.* Changes the range of the tag reach mods.
+- **Fake Lag Others** — Makes fake lag affect other players' rigs.
+- **Disable Fake Lag Self** — Excludes yourself from fake lag.
+- **Change Fake Lag Strength** — *Action.* Changes the ping of the "Fake Lag" mod.
+- **Exit Visual Settings** — *Action.* Returns you back to the settings menu.
+- **Change Performance Visuals Step** — *Action.* Changes the time between rendering visual mods.
+- **Performance Visuals** — Makes visual mods render less often, to increase performange and decrease memory usage.
+- **Short Breadcrumbs** — Shortens the length of the breadcrumbs.
+- **Follow Menu Theme** — Makes visual mods match the theme of the menu, rather than the color of the player.
+- **Follow Player Colors** — Makes the infection tracers appear their normal color instead of orange for tagged players.
+- **Transparent Theme** — Makes visual mods transparent.
+- **Nametag Chams** — Make name tags show through objects.
+- **Anchor Name Tags** — Anchors nametags to the player's rig instead of the head.
+- **Show Self Nametag** — Makes all the name tag mods render for you as well.
+- **Hidden on Camera** — Makes visual mods only render on VR.
+- **Hidden Labels** — Makes label mods only render on VR.
+- **Thin Tracers** — Makes the tracers thinner.
+- **Smooth Lines** — Makes every line generated by the menu have smooth ends.
+- **Show Cosmetics** — If enabled, the cosmetics will also show through walls.
+- **Exit Enabled Mods** — *Action.* Returns you back to the main page.
+- **Search** — *Action.* Lets you search for specific mods.
+- **Global Return** — *Action.* Returns you to the previous category.
+- **Info Screen** — Shows game and modding related information.
+- **Donate Button** — *Action.* An advertisement for my Patreon.
+- **Update Button** — *Action.* Prompts you to update the menu.
+- **Accept Prompt** — *Action.*
+- **Decline Prompt** — *Action.*
+- **Exit MyInstants** — *Action.* Returns you back to the soundboard.
+- **Exit Experimental Mods** — *Action.* Returns you back to the main page.
+- **Safe Restart Game** — Restarts Gorilla Tag, saving room and position data.
+- **Fix Broken Buttons** — *Action.* Fixes any duplicate or broken buttons.
+- **Get Sound Data** — *Action.* Dumps the hand tap sounds to a file.
+- **Get Cosmetic Data** — *Action.* Dumps the cosmetics and their data to a file.
+- **Get Decryptable Cosmetic Data** — *Action.* Dumps the cosmetics and their data to a easily decryptable file for databases.
+- **Get RPC Data** — *Action.* Dumps the data of every RPC to a file.
+- **Blank Page** — *Action.* Brings you to a blank category.
+- **Copy Custom Gamemode Script** — *Action.* Copies the Lua script source code of the current custom map being played.
+- **Copy Custom Map ID** — *Action.* Copies the map ID of the current custom map being played.
+- **Better FPS Boost** — Makes everything one color, boosting your FPS.
+- **Replay Tutorial** — *Action.* Replays the tutorial video.
+- **Disorganize Menu** — *Action.* Disorganizes the entire menu. This cannot be undone.
+- **Exit Safety Settings** — *Action.* Returns you back to the settings menu.
+- **Change Anti Report Distance** — *Action.* Changes the distance threshold for the anti report mods.
+- **Change FPS Spoof Value** — *Action.* Changes the target FPS for the FPS Spoof mod.
+- **Change Ping Spoof Value** — *Action.* Changes the target ping for the Ping Spoof mod.
+- **Hide Anti Cheat Report Reasons** — Hides the reason for Show Anti Cheat Reports.
+- **Visualize Anti Report** — Visualizes the distance threshold for the anti report mods.
+- **Smart Anti Report** — Makes the anti report mods only activate in non-modded public lobbies.
+- **Anti Mute** — Includes the mute button with the anti report mods.
+- **Exit Soundboard Settings** — *Action.* Returns you back to the settings menu.
+- **Soundboard Local Volume** — *Action.* How loud the soundboard is to your ears (local preview). 0-200%.
+- **Soundboard Mic Volume** — *Action.* How loud the soundboard is through your microphone to others. 0-200%.
+- **High Quality Soundboard** — High-quality: 48kHz mixing, peak normalization, soft limiting — best quality to you and lobby.
+- **Loop Sounds** — Makes sounds loop forever until stopped.
+- **Overlap Sounds** — Makes it so you can play sounds over and over again, making them overlap eachother.
+- **Sound Bindings** — *Action.* Changes the button used to play sounds on the soundboard.
+- **Exit Overpowered Settings** — *Action.* Returns you back to the settings menu.
+- **Graphic Punch Mod** — Spawns blood projectiles when hitting other players with the allowed punch mods.
+- **No Freeze Za Warudo** — Disables the freezing on the "Za Warudo" mod, turning it into a fun mod.
+- **Legacy Kick Freeze** — Makes call overflow related kick methods freeze the rig instead of putting it in the low event state.
+- **Change Lag Power** — *Action.* Changes the power of the lag mods.
+- **Change Lag Type** — *Action.* Changes the method used to lag players.
+- **Master Visualization Type** — *Action.* Changes the indicator placed on the master client for mods that show one.
+- **Unlock on Crash** — Unlocks the room when crashing someone. This makes the mod more powerful.
+- **Kick to Public** — Makes the kick mods send the user to a public lobby. This allows for chaining of commands.
+- **Kick to Specific Room** — Makes the kick mods send the user to the specific room of your choice.
+- **Rejoin on Kick** — Makes room based kick mods join the room you kicked the target in once they have been kicked.
+- **Fast Kick** — Instantly creates a room instead of checking if one already exists.
+- **Kick Fix** — Stops the super infection, virtual stump, and other kick mods from breaking.
+- **Mute All on Freeze** — Whenever you freeze the server, everyone will be muted along with it
+- **Exit Keybind Settings** — *Action.* Returns you back to the settings menu.
+- **Non-Toggle Keybinds** — Enables mods while holding down the button, instead of toggling them.
+- **Overwrite Keybinds** — Forces every button to be held down with keybinded mods.
+- **Clear All Keybinds** — *Action.* Enables mods while holding down the button, instead of toggling them.
+- **Keybind A** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind B** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind X** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Y** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Left Grip** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Right Grip** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Left Trigger** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Right Trigger** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Left Joystick** — Enables binding mode, letting you bind a mod to a button.
+- **Keybind Right Joystick** — Enables binding mode, letting you bind a mod to a button.
+- **Exit Plugin Settings** — *Action.* Returns you back to the settings menu.
+- **Reload Plugins** — *Action.* Reloads all of your plugins.
+- **Exit Fun Settings** — *Action.* Returns you back to the settings menu.
+- **Change Head Spin Speed** — *Action.* Changes the speed of the head spin mods.
+- **Change Tinnitus Hertz** — *Action.* Changes the target hertz for the tinnitus mods.
+- **Zero Gravity Bugs** — Removes the gravity from the bugs on the Bug Spam mod.
+- **Bug Colliders** — Gives the bug colliders on the Bug Spam mod.
+- **Bouncy Bug** — Makes the bug bounce off of surfaces if using the bug colliders setting on the Bug Spam mod.
+- **Change Custom Quest Score** — *Action.* Changes the value of the "Custom Quest Score" mod.
+- **Change Ranked Tier** — *Action.* Changes the target tier for the matchmaking spoof mod.
+- **Change ELO Value** — *Action.* Changes the target ELO for the badge spoof mod.
+- **Change Badge Tier** — *Action.* Changes the target tier for the badge spoof mod.
+- **Change Target FOV** — *Action.* Changes the target field of view for the "Camera FOV" mod.
+- **Knockback Multiplication Amount** — *Action.* Adjusts how much your knockback is multiplied.
+- **Zero Gravity Blocks** — Removes the gravity from the blocks.
+- **Random Block Type** — Selects a random block when using block mods.
+- **No Random Position Grab** — Disables the position randomization in the "Grab All ### Blocks" mods.
+- **No Random Rotation Grab** — Disables the rotation randomization in the "Grab All ### Blocks" mods.
+- **Change Block Delay** — *Action.* Gives the blocks a delay before spawning.
+- **Change Cycle Delay** — *Action.* Changes the delay on name cycle mods.
+- **Entity Gravity** — Gives gravity to any spawned entities in the ghost reactor or Super Infection gamemode.
+- **Tinnitus Self** — Be able to hear the loud beep the menu creates with this mod on. God save your ears.
+- **Exit Players** — *Action.* Returns you back to the main page.
+- **Exit Credits** — *Action.* Returns you back to the main page.
+- **Old Devs** — *Action.* The original developers of ii's Stupid Menu.
+- **Useless** — *Action.* Useless — discord.gg/iidk
+- **GPL v3** — *Action.* The GNU General Public License Version 3 is the license that my menu uses. It proveides a "free, copyleft license for software and other kinds of works."
+- **Exit Custom Maps** — *Action.* Returns you back to the fun mods.
+- **You have not loaded a map.**
+- **Exit Macros** — *Action.* Returns you back to the movement mods.
+- **Record [T]** — Record your macros with your left trigger.
+- **Reload Macros** — *Action.* Reloads your macros.
+- **Disable Macros** — Disables all macros.
+- **Exit Detected Mods** — *Action.* Returns you back to the main page.
+- **Detected Auto Set Master Client** — Automatically sets you as master client.
+- **Detected Set Master Client Self** — *Action.* Sets you as master client.
+- **Detected Set Master Client Gun** — Sets whoever your hand desires as master client.
+- **Detected Set Master Client All** — Sets everyone in the room as master client.
+- **Detected Set Master Client Aura** — Sets nearby players as master client.
+- **Detected Set Master Client On Touch** — Sets players you touch as master client.
+- **Detected Lag Gun** — Lags whoever your hand desires.
+- **Detected Lag All** — Lags everyone in the room.
+- **Detected Lag Aura** — Lags players nearby you.
+- **Detected Lag On Touch** — Lags players that you touch.
+- **Detected Crash Gun** — Crashes whoever your hand desires.
+- **Detected Crash All** — Crashes everyone in the room.
+- **Detected Crash Aura** — Crashes players nearby you.
+- **Detected Crash On Touch** — Crashes players that you touch.
+- **Detected Crash When Touched** — Crashes players that touch you.
+- **Detected Mute Gun** — Mutes whoever your hand desires.
+- **Detected Mute All** — Mutes everyone in the room.
+- **Detected Mute Aura** — Mutes players nearby you.
+- **Detected Mute On Touch** — Mutes players that you touch.
+- **Detected Ghost Gun** — Freezes whoever your hand desires, making them a ghost.
+- **Detected Ghost All** — *Action.* Freezes everyone, making them a ghost.
+- **Detected Ghost Aura** — Freezes nearby players, making them a ghost.
+- **Detected Ghost On Touch** — Freezes players you touch, making them a ghost.
+- **Detected Unghost Gun** — Unfreezes whoever your hand desires, making them no longer a ghost.
+- **Detected Unghost All** — *Action.* Unfreezes everyone, making them no longer a ghost.
+- **Detected Unghost Aura** — Unfreezes players nearby you, making them no longer a ghost.
+- **Detected Unghost On Touch** — Unfreeze players that you touch, making them no longer a ghost.
+- **Detected Spam Ghost Gun** — Spam makes whoever your hand desires freeze and unfreeze again. Ghost and Unghost.
+- **Detected Spam Ghost All** — *Action.* Spam makes everyone freeze and unfreeze again. Ghost and Unghost.
+- **Detected Spam Ghost Aura** — Spam makes players nearby freeze and unfreeze again. Ghost and Unghost.
+- **Detected Spam Ghost On Touch** — Spam makes players you touch freeze and unfreeze again. Ghost and Unghost.
+- **Leaderboard Ghost** — Ghosts players when you report them on the leaderboard.
+- **Leaderboard Mute** — Mutes players when you mute them on the leaderboard.
+- **Detected Isolate Gun** — Makes whoever your hand desires only be able to see you.
+- **Detected Isolate All** — *Action.* Makes everyone only be able to see you.
+- **Detected Isolate Aura** — Makes players nearby only be able to see you.
+- **Detected Isolate On Touch** — Players that you touch will only be able to see you.
+- **Detected Change Name Gun** — Changes the name of whoever your hand desires.
+- **Detected Change Name All** — Changes the name of everyone in the room.
+- **Detected Change Name Aura** — Changes the name of whoever is near you.
+- **Detected Change Name On Touch** — Changes the name of players that you touch.
+- **Detected Ban Gun** — Changes the name of whoever your hand desires to a banned name.
+- **Detected Ban All** — Changes the name of everyone in the room to a banned name.
+- **Detected Ban Aura** — Changes the name of whoever is near you to a banned name.
+- **Detected Ban On Touch** — Changes the name of players that you touch to a banned name.
+- **Bypass Mod Checkers Gun** — Tells players using mod checkers that whoever your hand desires has no mods.
+- **Bypass Mod Checkers All** — *Action.* Tells players using mod checkers that no one has no mods.
+- **Bypass Mod Checkers Aura** — Tells players using mod checkers that players nearby you have no mods.
+- **Bypass Mod Checkers On Touch** — Tells players using mod checkers that players you touch have no mods.
+- **Break Mod Checkers Gun** — Tells players using mod checkers that whoever your hand desires has every mod.
+- **Break Mod Checkers All** — *Action.* Tells players using mod checkers that everyone has every mod.
+- **Break Mod Checkers Aura** — Tells players using mod checkers that players nearby you have every mod.
+- **Break Mod Checkers On Touch** — Tells players using mod checkers that players you touch have every mod.
+- **Gamemode Include Gun** — Includes whoever your hand desires from the current gamemode.
+- **Gamemode Include All** — *Action.* Includes everyone from the current gamemode.
+- **Gamemode Include Aura** — Includes players nearby you from the current gamemode.
+- **Gamemode Include On Touch** — Includes players you touch from the current gamemode.
+- **Gamemode Exclude Gun** — Excludes whoever your hand desires from the current gamemode.
+- **Gamemode Exclude All** — *Action.* Excludes everyone from the current gamemode.
+- **Gamemode Exclude Aura** — Excludes players nearby you from the current gamemode.
+- **Gamemode Exclude On Touch** — Excludes players you touch from the current gamemode.
+- **Break Network Triggers** — *Action.* Breaks the network triggers.
+- **Kick Network Triggers** — *Action.* Makes all network triggers kick you.
+- **Spaz Gamemode** — Rapidly changes the gamemode.
+- **Break Gamemode** — Breaks the current gamemode.
+- **Change Gamemode to None** — *Action.* Changes the gamemode to error/none.
+- **Change Gamemode to Count** — *Action.* Changes the gamemode to count.
+- **Change Gamemode to Casual** — *Action.* Changes the gamemode to casual.
+- **Change Gamemode to Infection** — *Action.* Changes the gamemode to infection.
+- **Change Gamemode to Competitive Infection** — *Action.* Changes the gamemode to competitive infection.
+- **Change Gamemode to Super Infection** — *Action.* Changes the gamemode to super infection.
+- **Change Gamemode to Super Casual** — *Action.* Changes the gamemode to super casual.
+- **Change Gamemode to Hunt** — *Action.* Changes the gamemode to hunt.
+- **Change Gamemode to Paintbrawl** — *Action.* Changes the gamemode to paintbrawl.
+- **Change Gamemode to Ambush** — *Action.* Changes the gamemode to ambush.
+- **Change Gamemode to Ghost Tag** — *Action.* Changes the gamemode to ghost tag.
+- **Change Gamemode to Guardian** — *Action.* Changes the gamemode to guardian.
+- **Change Gamemode to Freeze Tag** — *Action.* Changes the gamemode to freeze tag.
+- **Change Gamemode to Prop Hunt** — *Action.* Changes the gamemode to prop hunt.
+- **Change Gamemode to Custom** — *Action.* Changes the gamemode to custom.
+- **Exit Detected Settings** — *Action.* Returns you back to the main page.
+- **Switch to Modded Gamemode** — Automatically sets the gamemode as modded when changed.
+- **Isolate Others** — Allows you to still be seen when isolating players.
+- **Public Room Guard** — Automatically disables all enabled detected mods when you join a public room.
+- **Exit Achievements** — *Action.* Returns you back to the main page.
+- **Exit Mod List** — *Action.* Returns you back to the main page.
+- **Exit Patreon Mods** — *Action.* Returns you back to the main page.
+- **No Patreon Indicator** — Disables the membership that appears above your head to others with the menu.
+- **Exit Patreon Settings** — *Action.* Returns you back to the main page.
+- **Disable Patreon Indicators** — Disables the memberships that appear above people's head with the menu.
+
+## Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Menu Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Room Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Movement Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Projectile Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Room Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Important Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Safety Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Movement Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Advantage Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Visual Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Fun Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Rebind Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Sound Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Projectile Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Master Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Overpowered Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Soundboard
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Favorite Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Menu Presets
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Advantage Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Visual Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Enabled Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Internal Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## MyInstants
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Experimental Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Safety Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Temporary Category
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Soundboard Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Overpowered Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Keybind Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Plugin Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Fun Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Players
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Credits
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Custom Maps
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Chat Messages
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Macros
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Detected Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Detected Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Achievements
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Mod List
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Patreon Mods
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+## Patreon Settings
+
+_Built at runtime — see [Runtime-built features](#runtime-built-features)._
+
+---
+
+## Runtime-built features
+
+These are created in code rather than declared in `Buttons.cs`, so their contents follow
+the game's state — players in the room, installed plugins, presets, macos and the online
+sound library.
+
+### Managers/AchievementManager.cs
+
+- **Exit Achievements** — *Action.* Returns you back to the main page.
+- **You have no achievements.**
+
+### Managers/PatreonManager.cs
+
+- **Patreon Mods** — *Action.* Opens the patreon mods.
+
+### Managers/PluginManager.cs
+
+- **Exit Plugin Settings** — *Action.* Returns you back to the settings menu.
+- **Open Plugins Folder** — *Action.* Opens a folder containing all of your plugins.
+- **Reload Plugins** — *Action.* Reloads all of your plugins.
+- **Get More Plugins** — *Action.* Opens a public plugin library, where you can download your own plugins.
+- **Exit Plugin Library** — *Action.* Returns you back to the plugin settings.
+- **PluginDownload** — *Action.*
+
+### Mods/Fun.cs
+
+- **Exit Mod List** — *Action.* Returns you back to the main page.
+- **Exit Building Block Browser** — *Action.* Returns you back to the fun mods.
+- **Exit Cosmetic Browser** — *Action.* Returns you back to the fun mods.
+
+### Mods/Movement.cs
+
+- **Exit Macros** — *Action.* Returns you back to the movement mods.
+- **Record [T]** — Record your macros with your left trigger.
+- **Open Macros Folder** — *Action.* Opens the folder in which your plugins are located.
+- **Reload Macros** — *Action.* Reloads your macros.
+- **Disable Macros** — Disables all macros.
+- **Exit Teleport to Map** — *Action.* Returns you back to the movement mods.
+- **TeleportMap** — *Action.* Teleports you to the
+
+### Mods/Settings.cs
+
+- **Exit Info Screen** — *Action.* Returns you back to the main page.
+- **DebugMenuName**
+- **DebugColor**
+- **DebugName**
+- **DebugId**
+- **DebugClip**
+- **DebugFps**
+- **DebugRoomA**
+- **DebugRoomB**
+- **Exit Players** — *Action.* Returns you back to the main page.
+- **Not in a Room**
+- **Exit PlayerInspect** — *Action.* Returns you back to the players tab.
+- **Spectate Player** — *Action.*
+- **Teleport to Player** — *Action.*
+- **Give Player Guns**
+- **Copy Movement**
+- **Follow Player**
+- **Tag Player**
+- **Snowball Fling Player**
+- **Projectile Blind Player**
+- **Projectile Lag Player**
+- **Lag Player**
+- **Destroy Player**
+- **Guardian Bring Player**
+- **Guardian Bring Player Gun**
+- **Guardian Kick Player**
+- **Guardian Obliterate Player**
+- **Guardian Crash Player**
+- **Vibrate Player**
+- **Slow Player**
+- **Player Name** — *Action.*
+- **Player Color** — *Action.*
+- **Player User ID** — *Action.*
+- **Player Creation Date**
+- **Player Platform**
+- **Player FPS**
+- **Exit Menu Settings** — *Action.* Returns you back to the settings menu.
+- **Exit Custom Menu Theme** — *Action.* Returns you back to the settings menu.
+- **Background** — *Action.* Choose what segment of the background you would like to modify.
+- **Buttons** — *Action.* Choose what segment of the button you would like to modify.
+- **Text** — *Action.* Choose what segment of the text you would like to modify.
+- **Exit Background** — *Action.* Returns you back to the customize menu.
+- **First Color** — *Action.* Change the color of the first color of the background.
+- **Second Color** — *Action.* Change the color of the second color of the background.
+- **Exit First Color** — *Action.* Returns you back to the background menu.
+- **Red** — *Action.* Change the red of the first color of the background.
+- **Green** — *Action.* Change the green of the first color of the background.
+- **Blue** — *Action.* Change the blue of the first color of the background.
+- **PreviewLabel**
+- **Exit Second Color** — *Action.* Returns you back to the background menu.
+- **Red** — *Action.* Change the red of the second color of the background.
+- **Green** — *Action.* Change the green of the second color of the background.
+- **Blue** — *Action.* Change the blue of the second color of the background.
+- **PreviewLabel**
+- **Exit Buttons** — *Action.* Returns you back to the customize menu.
+- **Enabled** — *Action.* Choose what type of button color to modify.
+- **Disabled** — *Action.* Change the color of the second color of the background.
+- **Exit Enabled** — *Action.* Returns you back to the customize menu.
+- **First Color** — *Action.* Change the color of the first color of the enabled button color.
+- **Second Color** — *Action.* Change the color of the second color of the enabled button color.
+- **Exit Enabled** — *Action.* Returns you back to the customize menu.
+- **First Color** — *Action.* Change the color of the first color of the disabled button color.
+- **Second Color** — *Action.* Change the color of the second color of the disabled button color.
+- **Exit First Color** — *Action.* Returns you back to the enabled button menu.
+- **Red** — *Action.* Change the red of the first color of the enabled button color.
+- **Green** — *Action.* Change the green of the first color of the enabled button color.
+- **Blue** — *Action.* Change the blue of the first color of the enabled button color.
+- **PreviewLabel**
+- **Exit Second Color** — *Action.* Returns you back to the enabled button menu.
+- **Red** — *Action.* Change the red of the first color of the enabled button color.
+- **Green** — *Action.* Change the green of the first color of the enabled button color.
+- **Blue** — *Action.* Change the blue of the first color of the enabled button color.
+- **PreviewLabel**
+- **Exit First Color** — *Action.* Returns you back to the disabled button menu.
+- **Red** — *Action.* Change the red of the first color of the disabled button color.
+- **Green** — *Action.* Change the green of the first color of the disabled button color.
+- **Blue** — *Action.* Change the blue of the first color of the disabled button color.
+- **PreviewLabel**
+- **Exit Second Color** — *Action.* Returns you back to the disabled button menu.
+- **Red** — *Action.* Change the red of the first color of the disabled button color.
+- **Green** — *Action.* Change the green of the first color of the disabled button color.
+- **Blue** — *Action.* Change the blue of the first color of the disabled button color.
+- **PreviewLabel**
+- **Exit Text** — *Action.* Returns you back to the customize menu.
+- **Title** — *Action.* Change the color of the title.
+- **Enabled** — *Action.* Change the color of the enabled text.
+- **Disabled** — *Action.* Change the color of the disabled text.
+- **Exit Title** — *Action.* Returns you back to the text menu.
+- **Red** — *Action.* Change the red of the title color.
+- **Green** — *Action.* Change the green of the title color.
+- **Blue** — *Action.* Change the blue of the title color.
+- **PreviewLabel**
+- **Exit Second Color** — *Action.* Returns you back to the text menu.
+- **Red** — *Action.* Change the red of the enabled text color.
+- **Green** — *Action.* Change the green of the enabled text color.
+- **Blue** — *Action.* Change the blue of the enabled text color.
+- **PreviewLabel**
+- **Exit Second Color** — *Action.* Returns you back to the text menu.
+- **Red** — *Action.* Change the red of the disabled text color.
+- **Green** — *Action.* Change the green of the disabled text color.
+- **Blue** — *Action.* Change the blue of the disabled text color.
+- **PreviewLabel**
+
+### Mods/Sound.cs
+
+- **Exit Parent Directory** — *Action.* Returns you back to the last folder.
+- **Exit Soundboard** — *Action.* Returns you back to the sound mods.
+- **MyInstants** — *Action.* Browse the MyInstants library. One click downloads and plays.
+- **Search MyInstants** — *Action.* Search MyInstants by name and browse the results.
+- **Stop All Sounds** — *Action.* Stops all currently playing sounds.
+- **Open Sound Folder** — *Action.* Opens your Sounds folder — drop custom mp3/wav/ogg here.
+- **Reload Sounds** — *Action.* Reloads all of your sounds.
+- **SoundboardFolder** — *Action.* Opens the
+- **SoundboardSound** — Instantly plays "
+- **SoundboardSound** — Plays "
+- **SoundboardSound** — Plays "
+- **SoundboardSound** — *Action.* Plays "
+- **Exit MyInstants** — *Action.* Returns you back to the soundboard.
+- **Search MyInstants** — *Action.* Search MyInstants by name.
+- **Recently Uploaded** — *Action.* Show the newest MyInstants uploads.
+- **Server Library** — *Action.* The original menu sound library, hosted on the menu's own server.
+- **MyInstants Error**
+- **Retry MyInstants** — *Action.* Try the last MyInstants request again.
+- **MyInst** — *Action.*
+- **Exit MyInstants** — *Action.* Returns you back to the soundboard.
+- **Back to MyInstants** — *Action.* Back to the MyInstants browser.
+- **SoundboardDownload** — *Action.* Downloads
+- **Exit MyInstants** — *Action.* Returns you back to the soundboard.
+- **Could not reach the server library.**
+
+### Mods/CustomMaps/Manager.cs
+
+- **Exit Custom Maps** — *Action.* Returns you back to the main page.
+- **This map is not supported yet.**
+- ****
+- **Edit Custom Script** — *Action.* Opens your custom script for this map.
+- **Delete Custom Script** — *Action.* Deletes your custom script for this map.
+- **Run Custom Script** — Runs your custom script for this map.
+- **You have not loaded a map.**
+
+### Mods/CustomMaps/Maps/ChimpCombat.cs
+
+- **Kill Self Player** — *Action.* Kills yourself.
+- **Kill Player Gun** — Kills whoever your hand desires.
+- **Kill All Players** — *Action.* Kills everyone in the room.
+- **God Mode_** — Prevents you from getting killed.
+- **No Grenade Cooldown** — Disables the cooldown on spawning grenades.
+- **No Shoot Cooldown** — Disables the cooldown on shooting.
+- **Rapid Fire** — Automatically shoots when holding down right trigger.
+- **Instant Kill** — Makes your gun instant kill players.
+- **Infinite Points** — Gives you an infinite amount of points.
+- **Infinite Ammo** — Gives you an infinite amount of ammo.
+- **Chimp Combat Crash Gun** — Crashes whoever your hand desires in the custom map.
+- **Chimp Combat Crash All** — *Action.* Crashes everyone in the custom map.
+- **Chimp Combat Anti Report** — Crashes everyone who tries to report you.
+- **Chimp Combat Crash Aura** — Crashes players nearby you in the custom map.
+- **Chimp Combat Crash On Touch** — Crashes whoever you touch in the custom map.
+- **Chimp Combat Crash When Touched** — Crashes whoever touches you in the custom map.
+
+### Mods/CustomMaps/Maps/FlightSimulator.cs
+
+- **Steal Pilot** — Allows you to steal the pilot position from other people's planes.
+
+### Mods/CustomMaps/Maps/MiningSimulator.cs
+
+- **Instant Mine** — Instantly mines any blocks with your pickaxe.
+- **Mine Anything** — Lets you mine any block.
+- **Infinite Backpack** — Lets you mine more blocks even if your inventory is full.
+
+### Mods/CustomMaps/Maps/MonkeMagic.cs
+
+- **Lightning Strike Self** — Strikes yourself with lightning.
+- **Lightning Strike Gun** — Strikes whoever your hand desires with lightning.
+- **Lightning Strike All** — Strikes everyone in the room with lightning.
+- **Change Material Self** — Changes your material.
+- **Change Material Gun** — Changes the material of whoever your hand desires.
+- **Change Material All** — Changes the material of everyone in the room.
+- **Spawn Lucy Self** — *Action.* Spawns lucy on yourself.
+- **Spawn Lucy Gun** — Spawns lucy on whoever your hand desires.
+- **Spawn Lucy All** — *Action.* Spawns lucy on everyone in the room.
+- **Monke Magic Crash Gun** — Crashes whoever your hand desires in the custom map.
+- **Monke Magic Crash All** — *Action.* Crashes everyone in the custom map.
+- **Monke Magic Anti Report** — Crashes everyone who tries to report you.
+- **Monke Magic Crash Aura** — Crashes players nearby you in the custom map.
+- **Monke Magic Crash On Touch** — Crashes whoever you touch in the custom map.
+- **Monke Magic Crash When Touched** — Crashes whoever touches you in the custom map.

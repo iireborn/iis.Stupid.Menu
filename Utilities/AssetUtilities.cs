@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,6 +62,9 @@ namespace iiMenu.Utilities
         }
 
         public static readonly Dictionary<string, AudioClip> audioFilePool = new Dictionary<string, AudioClip>();
+
+        public const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
         public static AudioClip LoadSoundFromFile(string fileName) // Thanks to ShibaGT for help with loading the audio from file
         {
             AudioClip sound;
@@ -69,12 +72,14 @@ namespace iiMenu.Utilities
             {
                 string filePath = $"{GetGamePath()}/{PluginInfo.BaseDirectory}/{fileName}";
 
-                UnityWebRequest actualrequest = UnityWebRequestMultimedia.GetAudioClip($"file://{filePath}", GetAudioType(GetFileExtension(fileName)));
-                UnityWebRequestAsyncOperation newvar = actualrequest.SendWebRequest();
-                while (!newvar.isDone) { }
-
-                AudioClip actualclip = DownloadHandlerAudioClip.GetContent(actualrequest);
-                sound = Task.FromResult(actualclip).Result;
+                using (UnityWebRequest actualrequest = UnityWebRequestMultimedia.GetAudioClip($"file://{filePath}", GetAudioType(GetFileExtension(fileName))))
+                {
+                    UnityWebRequestAsyncOperation newvar = actualrequest.SendWebRequest();
+                    while (!newvar.isDone) { }
+                    AudioClip actualclip = DownloadHandlerAudioClip.GetContent(actualrequest);
+                    sound = Task.FromResult(actualclip).Result;
+                    actualrequest.Dispose();
+                }
 
                 audioFilePool.Add(fileName, sound);
             }
@@ -97,6 +102,7 @@ namespace iiMenu.Utilities
             try
             {
                 using WebClient stream = new WebClient();
+                stream.Headers[HttpRequestHeader.UserAgent] = BrowserUserAgent;
                 stream.DownloadFile(resourcePath, filePath);
             }
             catch (System.Exception e)
@@ -144,17 +150,33 @@ namespace iiMenu.Utilities
                 // ReSharper disable once AssignNullToNotNullAttribute
                 Directory.CreateDirectory(directory);
 
-            if (!File.Exists(filePath))
+            Texture2D texture;
+            if (!TryLoadTextureFile(filePath, out texture))
             {
-                LogManager.Log("Downloading " + fileName);
-                WebClient stream = new WebClient();
-                stream.DownloadFile(resourcePath, filePath);
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+
+                try
+                {
+                    LogManager.Log("Downloading " + fileName);
+                    using (WebClient client = new WebClient())
+                    {
+                        byte[] bytes = client.DownloadData(resourcePath);
+                        if (!TryCreateTexture(bytes, out texture))
+                            throw new InvalidDataException("The response was not a valid image.");
+
+                        File.WriteAllBytes(filePath, bytes);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    LogManager.LogError($"Failed to download texture {fileName} from {resourcePath}: {ex.Message}");
+                    texture = CreateFallbackTexture();
+                }
             }
 
-            Texture2D texture = LoadTextureFromFile(fileName);
-
             textureUrlDictionary[resourcePath] = texture;
-
+            textureFileDirectory[fileName] = texture;
             return texture;
         }
 
@@ -165,18 +187,64 @@ namespace iiMenu.Utilities
                 return existingTexture;
 
             string filePath = $"{PluginInfo.BaseDirectory}/{fileName}";
-            string directory = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            Texture2D texture = new Texture2D(2, 2);
-
-            byte[] bytes = File.ReadAllBytes(filePath);
-            texture.LoadImage(bytes);
+            if (!TryLoadTextureFile(filePath, out Texture2D texture))
+            {
+                LogManager.LogError("Failed to load texture file: " + fileName);
+                texture = CreateFallbackTexture();
+            }
 
             textureFileDirectory[fileName] = texture;
-
             return texture;
+        }
+
+        private static bool TryLoadTextureFile(string filePath, out Texture2D texture)
+        {
+            texture = null;
+            try
+            {
+                if (!File.Exists(filePath))
+                    return false;
+
+                return TryCreateTexture(File.ReadAllBytes(filePath), out texture);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryCreateTexture(byte[] bytes, out Texture2D texture)
+        {
+            texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (bytes == null || bytes.Length == 0 || !texture.LoadImage(bytes))
+            {
+                Object.Destroy(texture);
+                texture = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static Texture2D CreateFallbackTexture()
+        {
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            texture.SetPixels(new[] { Color.white, Color.white, Color.white, Color.white });
+            texture.Apply();
+            return texture;
+        }
+
+        public static void ReleaseAll()
+        {
+            foreach (var kv in audioFilePool) { if (kv.Value != null) Object.Destroy(kv.Value); }
+            audioFilePool.Clear();
+            foreach (var kv in textureResourceDictionary) { if (kv.Value != null) Object.Destroy(kv.Value); }
+            textureResourceDictionary.Clear();
+            foreach (var kv in textureUrlDictionary) { if (kv.Value != null) Object.Destroy(kv.Value); }
+            textureUrlDictionary.Clear();
+            foreach (var kv in textureFileDirectory) { if (kv.Value != null && !textureUrlDictionary.ContainsValue(kv.Value)) Object.Destroy(kv.Value); }
+            textureFileDirectory.Clear();
+            if (assetBundle != null) { try { assetBundle.Unload(false); } catch { } assetBundle = null; }
         }
     }
 }

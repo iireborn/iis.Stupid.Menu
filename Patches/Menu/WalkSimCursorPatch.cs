@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,6 +113,20 @@ namespace iiMenu.Patches.Menu
             // While the keyboard-opened menu owns the cursor, never let it be locked or hidden
             if (value && Main.MenuWantsCursor)
                 value = false;
+        }
+
+        public static void Uninstall()
+        {
+            if (!installed) return;
+            try
+            {
+                Type headDriver = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(TryGetTypes)
+                    .FirstOrDefault(type => HeadDriverTypeNames.Contains(type.FullName));
+                if (headDriver != null)
+                    PatchHandler.RemovePatch(headDriver, "set_LockCursor");
+            } catch { }
+            installed = false;
         }
     }
 }

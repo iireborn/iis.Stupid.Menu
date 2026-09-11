@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,16 @@ namespace iiMenu.Managers
             public float Position;
             public float Step;
             public bool MuteMicrophone;
+            public float Volume = 1f;
         }
+
+        private float soundboardVolume = 1f;
+        public float SoundboardVolume
+        {
+            get => soundboardVolume;
+            set => soundboardVolume = Mathf.Clamp(value, 0f, 2f);
+        }
+        public bool HighQualityMode { get; set; } = true;
 
         private readonly List<Clip> audioClips = new List<Clip>();
 
@@ -202,10 +211,12 @@ namespace iiMenu.Managers
         /// <param name="clip"><see cref="UnityEngine.AudioClip"/> to play.</param>
         /// <param name="disableMicrophone">Whether to mute the microphone while the clip plays.</param>
         /// <returns><see cref="System.Guid"/></returns>
-        public Guid AudioClip(AudioClip clip, bool disableMicrophone = false)
+        public Guid AudioClip(AudioClip clip, bool disableMicrophone = false, float volume = 1f)
         {
             if (clip == null)
                 return Guid.Empty;
+
+            volume = Mathf.Clamp(volume, 0f, 2f);
 
             if (clip.frequency != OutputRate)
                 clip = Resample(clip, OutputRate);
@@ -232,6 +243,16 @@ namespace iiMenu.Managers
                 }
             }
 
+            float peak = 0f;
+            for (int i = 0; i < mono.Length; i++)
+                peak = Mathf.Max(peak, Mathf.Abs(mono[i]));
+            if (peak > 0.98f && peak > 0f)
+            {
+                float scale = 0.98f / peak;
+                for (int i = 0; i < mono.Length; i++)
+                    mono[i] *= scale;
+            }
+
             var id = Guid.NewGuid();
             audioClips.Add(new Clip
             {
@@ -240,7 +261,8 @@ namespace iiMenu.Managers
                 Samples = mono,
                 Position = 0f,
                 Step = clip.frequency / (float)OutputRate,
-                MuteMicrophone = disableMicrophone
+                MuteMicrophone = disableMicrophone,
+                Volume = volume
             });
 
             return id;
@@ -394,6 +416,7 @@ namespace iiMenu.Managers
                 return 0f;
 
             float mixed = 0f;
+            float master = soundboardVolume;
 
             for (int i = audioClips.Count - 1; i >= 0; i--)
             {
@@ -407,20 +430,43 @@ namespace iiMenu.Managers
                     continue;
                 }
 
+                float sample;
                 int nextIndex = index + 1;
                 if (nextIndex >= clip.Samples.Length)
                 {
-                    mixed += clip.Samples[index];
+                    sample = clip.Samples[index];
                     audioClips.RemoveAt(i);
-                    continue;
+                }
+                else
+                {
+                    float frac = clip.Position - index;
+                    sample = Mathf.Lerp(clip.Samples[index], clip.Samples[nextIndex], frac);
+                    clip.Position += clip.Step;
                 }
 
-                float frac = clip.Position - index;
-                mixed += Mathf.Lerp(clip.Samples[index], clip.Samples[nextIndex], frac);
+                sample *= clip.Volume * master;
 
-                clip.Position += clip.Step;
+                if (HighQualityMode)
+                {
+                    float abs = Mathf.Abs(sample);
+                    if (abs > 1f)
+                        sample = Mathf.Sign(sample) * (1f - 1f / (1f + abs));
+                }
+
+                mixed += sample;
+                if (i >= 0 && nextIndex < clip.Samples.Length)
+                    continue;
             }
 
+            if (HighQualityMode)
+            {
+                if (mixed > 1f) mixed = 1f - 1f / (1f + mixed);
+                else if (mixed < -1f) mixed = -1f + 1f / (1f - mixed);
+            }
+            else
+            {
+                mixed = Mathf.Clamp(mixed, -1f, 1f);
+            }
             return mixed;
         }
 

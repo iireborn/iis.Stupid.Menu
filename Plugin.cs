@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +58,10 @@ namespace iiMenu
     Compiled {PluginInfo.BuildTimestamp}
     
     This program comes with ABSOLUTELY NO WARRANTY;
-    for details see `https://github.com/iiDk-the-actual/iis.Stupid.Menu/GPL/WARRANTY`
+    for details see `https://github.com/iireborn/iis.Stupid.Menu/GPL/WARRANTY`
     
     This is free software, and you are welcome to redistribute it under certain conditions;
-    see `https://github.com/iiDk-the-actual/iis.Stupid.Menu/GPL/REDISTRIBUTION` for details.
+    see `https://github.com/iireborn/iis.Stupid.Menu/GPL/REDISTRIBUTION` for details.
 ");
 
             FirstLaunch = !Directory.Exists(PluginInfo.BaseDirectory);
@@ -102,8 +102,11 @@ namespace iiMenu
             GorillaTagger.OnPlayerSpawned(LoadMenu);
         }
 
-        private void OnDestroy() =>
+        private void OnDestroy()
+        {
             Main.UnloadMenu();
+            try { Utilities.AssetUtilities.ReleaseAll(); } catch { }
+        }
 
         private static void LoadMenu()
         {

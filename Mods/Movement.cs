@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -609,34 +609,22 @@ namespace iiMenu.Mods
                 if (DownArrow)
                     parentTransform.eulerAngles += new Vector3(turnSpeed, 0, 0) * Time.deltaTime;
                 
-                if (Mouse.current.rightButton.isPressed)
+                Mouse mouse = Mouse.current;
+                if (mouse?.rightButton.isPressed ?? false)
                 {
-                    Quaternion currentRotation = parentTransform.rotation;
-                    Vector3 euler = currentRotation.eulerAngles;
+                    const float mouseLookSensitivity = 0.2f;
+                    Vector2 delta = mouse.delta.ReadValue();
+                    Vector3 euler = parentTransform.eulerAngles;
+                    float pitch = euler.x > 180f ? euler.x - 360f : euler.x;
+                    float yaw = euler.y + delta.x * mouseLookSensitivity;
 
-                    if (startX < 0)
-                    {
-                        startX = euler.y;
-                        subThingy = Mouse.current.position.value.x / Screen.width;
-                    }
-                    if (startY < 0)
-                    {
-                        startY = euler.x;
-                        subThingyZ = Mouse.current.position.value.y / Screen.height;
-                    }
-
-                    float newX = startY - (Mouse.current.position.value.y / Screen.height - subThingyZ) * 360 * 1.33f;
-                    float newY = startX + (Mouse.current.position.value.x / Screen.width - subThingy) * 360 * 1.33f;
-
-                    newX = newX > 180f ? newX - 360f : newX;
-                    newX = Mathf.Clamp(newX, -90f, 90f);
-
-                    parentTransform.rotation = Quaternion.Euler(newX, newY, euler.z);
+                    pitch = Mathf.Clamp(pitch - delta.y * mouseLookSensitivity, -90f, 90f);
+                    parentTransform.rotation = Quaternion.Euler(pitch, yaw, euler.z);
                 }
                 else
                 {
-                    startX = -1;
-                    startY = -1;
+                    startX = -1f;
+                    startY = -1f;
                 }
 
                 float speed = FlySpeed;
