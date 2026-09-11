@@ -45,7 +45,7 @@ Let's bring back the collaboration of modding. No paywalls, no secrets, no malwa
 - **[Follow the license.](https://www.gnu.org/licenses/gpl-3.0.html)**
 
 > "You wouldn’t steal a method."<br>
-> [🎥 *(Or would you?)*](https://www.youtube.com/watch?v=zMBqPdMzZ9E)
+> *Or would you?*
 
 </details>
 
