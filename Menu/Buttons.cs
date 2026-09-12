@@ -2064,9 +2064,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Kick Gun", method = Overpowered.KickGun, disableMethod =() => { SerializePatch.OverrideSerialization = null; Overpowered.kickCoroutine = null; }, toolTip = "Kick whoever your hand desires, if they are master client. Credits to Rexon for making such a stupid mod." },
                 new ButtonInfo { buttonText = "Kick All", enableMethod = () => Overpowered.kickCoroutine = CoroutineManager.instance.StartCoroutine(Overpowered.KickAll()), method =() => { if (Overpowered.kickCoroutine == null) Toggle("Kick All"); }, disableMethod =() => { SerializePatch.OverrideSerialization = null; Overpowered.kickCoroutine = null; }, toolTip = "Kicks everyone above you from the room." },
 
-                new ButtonInfo { buttonText = "Delay Ban Gun", method = Overpowered.DelayBanGun, disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Delay bans whoever your hand desires."},
-                new ButtonInfo { buttonText = "Delay Ban All", enableMethod = Overpowered.DelayBanAll, disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Delay bans everyone in the room."},
-
                 new ButtonInfo { buttonText = "Force Grab", method = Overpowered.ForceGrab, toolTip = "Attempts to grab the hand of anyone who presses their grips." },
                 new ButtonInfo { buttonText = "Fling on Grab", method = Overpowered.FlingOnGrab, toolTip = "Flings the player when they grab you." },
                 new ButtonInfo { buttonText = "Kick on Grab", method =() => Overpowered.TowardsPositionOnGrab(new Vector3(-71.33718f, 101.4977f, -93.09029f)), toolTip = "Kicks the player when they grab you." },

@@ -2484,6 +2484,14 @@ namespace iiMenu.Menu
             Destroy(menu.GetComponent<BoxCollider>());
             Destroy(menu.GetComponent<Renderer>());
 
+            // line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            // Destroy(menu.GetComponent<BoxCollider>());
+            // line.transform.parent = menu.transform;
+            // line.transform.localPosition = new Vector3(0.8f, 0.2f, 0f);
+            // line.transform.rotation = Quaternion.identity;
+            // line.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+
+
             menu.transform.localScale = new Vector3(0.1f, 0.3f, 0.3825f);
 
             if (annoyingMode)
@@ -6998,6 +7006,7 @@ jgs \_   _/ |Oo\
 
         public static Camera TPC;
         public static GameObject menu;
+        public static GameObject line;
         public static GameObject menuBackground;
         public static GameObject pcBackground;
         public static GameObject reference;

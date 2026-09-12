@@ -129,7 +129,6 @@ namespace iiMenu.Mods
             soundButtons.Add(new ButtonInfo { buttonText = "Open Sound Folder", method = OpenSoundFolder, isTogglable = false, toolTip = "Opens a folder containing all of your sounds." });
             soundButtons.Add(new ButtonInfo { buttonText = "Reload Sounds", method = () => LoadSoundboard(), isTogglable = false, toolTip = "Reloads all of your sounds." });
             soundButtons.Add(new ButtonInfo { buttonText = "Get More Sounds", method = LoadSoundLibrary, isTogglable = false, toolTip = "Opens a public audio library, where you can download your own sounds." });
-            soundButtons.Add(new ButtonInfo { buttonText = "Audio Settings", method = LoadAudioSettings, isTogglable = false, toolTip = "Opens the audio settings for your soundboard." });
             Buttons.buttons[Buttons.GetCategory("Soundboard")] = soundButtons.ToArray();
 
             if (openCategory)
@@ -146,43 +145,6 @@ namespace iiMenu.Mods
         {
             Subdirectory = "/" + folder;
             LoadSoundboard();
-        }
-        public static void LoadAudioSettings()
-        {
-            List<ButtonInfo> audioSettingsButtons = new List<ButtonInfo> { new ButtonInfo { buttonText = "Exit Audio Settings", method = () => LoadSoundboard(), isTogglable = false, toolTip = "Returns you back to the soundboard." } };
-            audioSettingsButtons.Add(new ButtonInfo { buttonText = "Client Soundboard Level", overlapText = $"Client Soundboard Level <color=grey>[</color><color=green>{clientAudioLevel}%</color><color=grey>]</color>", method = () => ChangeClientAudioLevel(false), disableMethod = () => ChangeClientAudioLevel(false), enableMethod = () => ChangeClientAudioLevel(), isTogglable = false, incremental = true, toolTip = "Changes the soundboard audio level for you." });
-            audioSettingsButtons.Add(new ButtonInfo { buttonText = "Server Soundboard Level", overlapText = $"Server Soundboard Level <color=grey>[</color><color=green>{serverAudioLevel}%</color><color=grey>]</color>", method = () => ChangeServerAudioLevel(false), disableMethod = () => ChangeServerAudioLevel(false), enableMethod = () => ChangeServerAudioLevel(), isTogglable = false, incremental = true, toolTip = "Changes the soundboard audio level everyone else exept you." });
-
-            Buttons.buttons[Buttons.GetCategory("Soundboard")] = audioSettingsButtons.ToArray();
-            Buttons.CurrentCategoryName = "Soundboard";
-        }
-        public static int clientAudioLevel = 100;
-        public static void ChangeClientAudioLevel(bool increment = true)
-        {
-            if (increment)
-                clientAudioLevel++;
-            else
-                clientAudioLevel--;
-
-            clientAudioLevel = Math.Clamp(clientAudioLevel, 0, 200);
-
-            Buttons.GetIndex("Client Soundboard Level").overlapText = $"Client Soundboard Level <color=grey>[</color><color=green>{clientAudioLevel}%</color><color=grey>]</color>";
-
-            LoadAudioSettings();
-        }
-        public static int serverAudioLevel = 100;
-        public static void ChangeServerAudioLevel(bool increment = true)
-        {
-            if (increment)
-                serverAudioLevel++;
-            else
-                serverAudioLevel--;
-
-            serverAudioLevel = Math.Clamp(serverAudioLevel, 0, 200);
-            VoiceManager.Get().Gain = serverAudioLevel;
-            Buttons.GetIndex("Server Soundboard Level").overlapText = $"Server Soundboard Level <color=grey>[</color><color=green>{serverAudioLevel}%</color><color=grey>]</color>";
-
-            LoadAudioSettings();
         }
         public static void LoadSoundLibrary()
         {
