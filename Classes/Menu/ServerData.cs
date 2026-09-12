@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -47,6 +49,7 @@ namespace iiMenu.Classes.Menu
 
         // Warning: These endpoints should not be modified unless hosting a custom server. Use with caution.
         public const string ServerEndpoint = "https://gtag.useless.best/v1/api"; // Beacon / reportban / telemetry / syncdata
+        public static readonly string MenuVersionEndpoint = $"{ServerEndpoint}/menuversion"; // Version + DLL hash of the current release
         public const string ConfigEndpoint = "https://iimenu-lts-serverdata.vercel.app"; // Menu configuration (serverdata.json)
         public static readonly string ServerDataEndpoint = $"{ConfigEndpoint}/serverdata.json";
         #endregion
@@ -63,6 +66,15 @@ namespace iiMenu.Classes.Menu
 
         private static bool BetaBuildWarning;
         public static bool OutdatedVersion;
+
+        #region Menu Version
+        public static bool MenuVersionChecked; // True once /menuversion has answered at least once
+        public static string LatestVersion; // Version advertised by the update server
+        public static string UpdateDownloadUrl; // Direct DLL download for the advertised release
+        public static string UpdateReleaseUrl; // Human-facing release page
+        private const float MenuVersionInitialDelay = 10f; // Let the game finish authenticating first
+        private const float MenuVersionInterval = 1800f; // Re-check every 30 minutes
+        #endregion
 
         private static bool GivenPateronMods;
 
@@ -87,12 +99,23 @@ namespace iiMenu.Classes.Menu
             // Remote kill-switch: check on startup, then periodically
             StartCoroutine(MenuStatusLoop());
 
+            StartCoroutine(MenuVersionLoop());
+
             // Fires only when THIS client joins a room — telemetry/syncdata are
             // sent here and nowhere else
             NetworkSystem.Instance.OnJoinedRoomEvent += OnJoinRoom;
 
             if (File.Exists($"{PluginInfo.BaseDirectory}/LastPollAnswered.txt"))
                 LastPollAnswered = File.ReadAllText($"{PluginInfo.BaseDirectory}/LastPollAnswered.txt");
+        }
+
+        private void OnDestroy()
+        {
+            if (NetworkSystem.Instance != null)
+            {
+                try { NetworkSystem.Instance.OnJoinedRoomEvent -= OnJoinRoom; } catch { }
+            }
+            StopAllCoroutines();
         }
 
         public void Update()
@@ -200,6 +223,128 @@ namespace iiMenu.Classes.Menu
         }
         #endregion
 
+        #region Menu Version
+        private IEnumerator MenuVersionLoop()
+        {
+            yield return new WaitForSeconds(MenuVersionInitialDelay);
+
+            while (true)
+            {
+                yield return CheckMenuVersion();
+                yield return new WaitForSeconds(MenuVersionInterval);
+            }
+        }
+
+        public static IEnumerator CheckMenuVersion()
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(MenuVersionEndpoint))
+            {
+                request.timeout = 10;
+                yield return request.SendWebRequest();
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    LogManager.LogError("Menu version check failed: " + request.error);
+                    yield break;
+                }
+
+                JObject data;
+                try
+                {
+                    data = JObject.Parse(request.downloadHandler.text);
+                }
+                catch (Exception e)
+                {
+                    LogManager.LogError("Menu version parse failed: " + e.Message);
+                    yield break;
+                }
+
+                string version = (string)data["version"];
+                string publishedHash = (string)data["sha256"];
+                UpdateDownloadUrl = (string)data["downloadUrl"];
+                UpdateReleaseUrl = (string)data["releaseUrl"];
+                LatestVersion = version;
+                MenuVersionChecked = true;
+
+                if (string.IsNullOrEmpty(version))
+                    yield break;
+
+                if (string.Equals(version, PluginInfo.Version, StringComparison.OrdinalIgnoreCase))
+                {
+                    CheckLocalBuildIntegrity(publishedHash);
+                    yield break;
+                }
+
+                if (!IsBehindSameScheme(PluginInfo.Version, version) || OutdatedVersion)
+                    yield break;
+
+                OutdatedVersion = true;
+
+                Console.Log($"A new version of the menu is available ({version}, running {PluginInfo.Version})");
+                Console.SendNotification($"<color=grey>[</color><color=red>OUTDATED</color><color=grey>]</color> A new version of the menu is available (v{version}). Please download it here: {UpdateReleaseUrl}", 10000);
+                Main.UpdatePrompt(version);
+            }
+        }
+
+        private static void CheckLocalBuildIntegrity(string publishedHash)
+        {
+            if (string.IsNullOrEmpty(publishedHash))
+                return;
+
+            string localHash = GetFileSHA256(GetOwnAssemblyPath());
+            if (string.IsNullOrEmpty(localHash))
+                return;
+
+            bool matchesRelease = string.Equals(localHash, publishedHash, StringComparison.OrdinalIgnoreCase);
+            PluginInfo.BetaBuild = !matchesRelease;
+
+            if (!matchesRelease && !BetaBuildWarning)
+            {
+                BetaBuildWarning = true;
+                Console.Log("Running a modified build of the menu (DLL hash does not match the release)");
+                Console.SendNotification("<color=grey>[</color><color=blue>DEV BUILD</color><color=grey>]</color> This DLL does not match the published release, so it counts as a development build. Bugs are expected.", 10000);
+            }
+        }
+
+        private static string GetOwnAssemblyPath()
+        {
+            try
+            {
+                string location = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(location) && File.Exists(location))
+                    return location;
+            }
+            catch { }
+
+            return null;
+        }
+
+        public static string GetFileSHA256(string path)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                    return null;
+
+                using (FileStream stream = File.OpenRead(path))
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] hash = sha256.ComputeHash(stream);
+                    StringBuilder builder = new StringBuilder();
+                    foreach (byte b in hash)
+                        builder.Append(b.ToString("x2"));
+
+                    return builder.ToString();
+                }
+            }
+            catch (Exception e)
+            {
+                LogManager.LogError("Failed to hash file: " + e.Message);
+                return null;
+            }
+        }
+        #endregion
+
         public static void OnJoinRoom()
         {
             instance.StartCoroutine(TelemetryRequest(PhotonNetwork.CurrentRoom.Name, PhotonNetwork.NickName, PhotonNetwork.CloudRegion, PhotonNetwork.LocalPlayer.UserId, PhotonNetwork.CurrentRoom.IsVisible, PhotonNetwork.PlayerList.Length, NetworkSystem.Instance.GameModeString));
@@ -231,11 +376,25 @@ namespace iiMenu.Classes.Menu
 
         public static int VersionToNumber(string version)
         {
+            if (string.IsNullOrEmpty(version))
+                return -1;
+
             string[] parts = version.Split('.');
-            if (parts.Length != 3)
+            if (parts.Length != 3 ||
+                !int.TryParse(parts[0], out int major) ||
+                !int.TryParse(parts[1], out int minor) ||
+                !int.TryParse(parts[2], out int patch))
                 return -1; // Version must be in 'major.minor.patch' format
 
-            return int.Parse(parts[0]) * 100 + int.Parse(parts[1]) * 10 + int.Parse(parts[2]);
+            return major * 100 + minor * 10 + patch;
+        }
+
+        public static bool IsBehindSameScheme(string ourVersion, string theirVersion)
+        {
+            int ours = VersionToNumber(ourVersion);
+            int theirs = VersionToNumber(theirVersion);
+
+            return ours >= 0 && theirs >= 0 && ours / 100 == theirs / 100 && ours < theirs;
         }
 
         public static IEnumerator LoadServerData()
@@ -258,21 +417,11 @@ namespace iiMenu.Classes.Menu
                 // Keep the hardcoded invite (discord.gg/iidk) — server data used to override it
                 CustomBoardManager.motdTemplate = (string)data["motd"];
 
-                // Version Check
                 string minimumVersion = (string)data["min-version"];
-                string version = (string)data["menu-version"];
+                string version = MenuVersionChecked ? LatestVersion : (string)data["menu-version"];
                 bool shownPrompt = false;
 
-                if (PluginInfo.BetaBuild)
-                {
-                    if (!BetaBuildWarning)
-                    {
-                        BetaBuildWarning = true;
-                        Console.Log("User is on beta build");
-                        Console.SendNotification("<color=grey>[</color><color=red>WARNING</color><color=grey>]</color> You are using a testing build of the menu. Be warned that there may be bugs and issues that could cause crashes, data loss, or other unexpected behavior.", 10000);
-                    }
-                }
-                else if (VersionToNumber(PluginInfo.Version) < VersionToNumber(minimumVersion))
+                if (IsBehindSameScheme(PluginInfo.Version, minimumVersion))
                 {
                     if (!OutdatedVersion)
                     {
@@ -285,7 +434,7 @@ namespace iiMenu.Classes.Menu
                         Main.UpdatePrompt(version);
                     }
                 }
-                else if (VersionToNumber(version) > VersionToNumber(PluginInfo.Version))
+                else if (!PluginInfo.BetaBuild && IsBehindSameScheme(PluginInfo.Version, version))
                 {
                     if (!OutdatedVersion)
                     {

@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ namespace iiMenu
         public const string Name = "ii's Stupid Menu";
         public const string Description = "Created by iiDk, provided LTS by CubicCeeper <3";
         public const string BuildTimestamp = "2026-09-08T00:00:00Z";
-        public const string Version = "8.3.19";
+        public const string Version = "1.0.3";
 
         public const string BaseDirectory = "iisStupidMenu";
         public const string ClientResourcePath = "iiMenu.Resources.Client";
@@ -39,10 +39,6 @@ namespace iiMenu
 ┗┗ ┛  ┗┛┗┗┻┣┛┗┗┻  ┛ ┗┗ ┛┗┗┻
            ┛";
 
-#if DEBUG
-        public static bool BetaBuild = true;
-#else
         public static bool BetaBuild = false;
-#endif
     }
 }

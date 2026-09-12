@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,32 @@ namespace iiMenu.Managers
         {
             Instance = this;
             LogManager.Log("Notifications loaded");
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+            foreach (Coroutine c in clearCoroutines)
+            {
+                if (c != null)
+                {
+                    try { StopCoroutine(c); } catch { }
+                }
+            }
+            clearCoroutines.Clear();
+            try
+            {
+                if (canvas != null)
+                {
+                    Transform parent = canvas.transform.parent;
+                    if (parent != null)
+                        Destroy(parent.gameObject);
+                    else
+                        Destroy(canvas);
+                }
+            } catch { }
+            if (textMaterial != null) { try { Destroy(textMaterial); } catch { } textMaterial = null; }
         }
 
         private void Init()

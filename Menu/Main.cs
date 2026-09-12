@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ using Random = UnityEngine.Random;
  * Feel free to read them if you want
  *
  * ii's Stupid Menu falls under the GPL-3.0 license
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * If you want to support my, check out my Patreon: https://patreon.com/iiDk
  * Any support is appreciated, and it helps me make more free content for you all
@@ -724,7 +724,6 @@ namespace iiMenu.Menu
 
                 if (annoyingMode)
                 {
-                    CustomBoardManager.BoardMaterial.color = new Color32(226, 74, 44, 255);
                     int randomChance = Random.Range(1, 400);
                     if (randomChance == 21)
                     {
@@ -3369,18 +3368,17 @@ namespace iiMenu.Menu
                 });
 
             if (MenuWantsCursor || (menu == null && UnityInput.Current.GetKey(KeyCode.Q)))
-                {
-                    // Keyboard-opened menu - free the cursor so it can reach the menu
-                    Cursor.lockState = CursorLockMode.None;
-                    Cursor.visible = true;
-                    cursorFreedByMenu = true;
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                cursorFreedByMenu = true;
 
-                    if (!desktopHintShown)
-                    {
-                        desktopHintShown = true;
-                        NotificationManager.SendNotification("<color=grey>[</color><color=white>INFO</color><color=grey>]</color> Desktop mode: hold Q to open the menu, click buttons with the mouse.", 10000);
-                    }
+                if (!desktopHintShown)
+                {
+                    desktopHintShown = true;
+                    NotificationManager.SendNotification("<color=grey>[</color><color=white>INFO</color><color=grey>]</color> Desktop mode: hold Q to open the menu, click buttons with the mouse.", 10000);
                 }
+            }
 
             if (joystickMenu) return;
             if (reference == null)
@@ -3629,7 +3627,7 @@ namespace iiMenu.Menu
             promptText.enableAutoSizing = true;
             promptText.fontSizeMin = 0;
             RectTransform component = promptText.GetComponent<RectTransform>();
-            component.sizeDelta = new Vector2(0.28f, CurrentPrompt.IsText ? 0.25f : 0.28f);
+            component.sizeDelta = new Vector2(0.24f, CurrentPrompt.IsText ? 0.1f : 0.2f);
 
             component.localPosition = new Vector3(0.06f, 0f, CurrentPrompt.IsText ? -0.025f : 0f);
             component.rotation = Quaternion.Euler(new Vector3(180f, 90f, 90f));
@@ -4254,11 +4252,25 @@ namespace iiMenu.Menu
         {
             Play2DAudio(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/Notifications/win7-exc.ogg", "Audio/Menu/Notifications/win7-exc.ogg"), buttonClickVolume / 10f);
 
-            versionArchive ??= newVersion;
-            Prompt($"A new version is available ({versionArchive}). Would you like to update?", Settings.UpdateMenu);
+            versionArchive ??= string.IsNullOrEmpty(newVersion) ? ServerData.LatestVersion : newVersion;
+
+            string versionText = string.IsNullOrEmpty(versionArchive) ? "" : $" (v{versionArchive})";
+            Prompt($"A new version of the menu is available{versionText}. Would you like to download it now?", Settings.UpdateMenu);
         }
 
         public static readonly Dictionary<(Color, Color), Texture2D> cacheGradients = new Dictionary<(Color, Color), Texture2D>();
+        private const int MaxCachedGradients = 64;
+        private static void EvictGradientsIfNeeded()
+        {
+            if (cacheGradients.Count <= MaxCachedGradients) return;
+            int toRemove = cacheGradients.Count - MaxCachedGradients;
+            foreach (var key in cacheGradients.Keys.Take(toRemove).ToList())
+            {
+                Texture2D tex = cacheGradients[key];
+                if (tex != null) Destroy(tex);
+                cacheGradients.Remove(key);
+            }
+        }
 
         public static Texture2D GetGradientTexture(Color colorA, Color colorB)
         {
@@ -4292,6 +4304,7 @@ namespace iiMenu.Menu
 
             txt2d.Apply();
 
+            EvictGradientsIfNeeded();
             cacheGradients.Add(key, txt2d);
             return txt2d;
         }
@@ -5228,11 +5241,15 @@ namespace iiMenu.Menu
         public static GameObject GetObject(string find)
         {
             if (objectPool.TryGetValue(find, out GameObject go))
-                return go;
+            {
+                if (go != null)
+                    return go;
+                objectPool.Remove(find);
+            }
 
             GameObject tgo = GameObject.Find(find);
             if (tgo != null)
-                objectPool.Add(find, tgo);
+                objectPool[find] = tgo;
 
             return tgo;
         }
@@ -5661,6 +5678,14 @@ namespace iiMenu.Menu
                 NotificationManager.SendNotification($"<color=grey>[</color><color=blue>LEAVE ROOM</color><color=grey>]</color> Room Code: {lastRoom}");
 
             RPCProtection();
+            try
+            {
+                foreach (var rig in playerPing.Keys.ToList())
+                {
+                    if (rig == null || !rig.Active())
+                        playerPing.Remove(rig);
+                }
+            } catch { }
         }
 
         private static void OnMasterClientSwitch(NetPlayer masterClient)
@@ -5687,6 +5712,17 @@ namespace iiMenu.Menu
         {
             if (Player != NetworkSystem.Instance.LocalPlayer && !disablePlayerNotifications)
                 NotificationManager.SendNotification($"<color=grey>[</color><color=red>LEAVE</color><color=grey>]</color> Name: {CleanPlayerName(Player.NickName)}");
+
+            try
+            {
+                VRRig rig = Console.GetVRRigFromPlayer(Player.GetPlayer());
+                if (rig != null)
+                    playerPing.Remove(rig);
+            } catch { }
+            try
+            {
+                Visuals.CleanupPlayerLeave(Player);
+            } catch { }
         }
 
         public static Vector3 ServerSyncPos;
@@ -6469,11 +6505,20 @@ namespace iiMenu.Menu
             CustomBoardManager.CustomBoardsEnabled = false;
             CustomBoardManager.CustomBoardFonts = false;
 
-            NetworkSystem.Instance.OnJoinedRoomEvent -= OnJoinRoom;
-            NetworkSystem.Instance.OnReturnedToSinglePlayer -= OnLeaveRoom;
-
-            NetworkSystem.Instance.OnPlayerJoined -= OnPlayerJoin;
-            NetworkSystem.Instance.OnPlayerLeft -= OnPlayerLeave;
+            if (NetworkSystem.Instance != null)
+            {
+                try { NetworkSystem.Instance.OnJoinedRoomEvent -= OnJoinRoom; } catch { }
+                try { NetworkSystem.Instance.OnReturnedToSinglePlayer -= OnLeaveRoom; } catch { }
+                try { NetworkSystem.Instance.OnMasterClientSwitchedEvent -= OnMasterClientSwitch; } catch { }
+                try { NetworkSystem.Instance.OnPlayerJoined -= OnPlayerJoin; } catch { }
+                try { NetworkSystem.Instance.OnPlayerLeft -= OnPlayerLeave; } catch { }
+            }
+            try { SerializePatch.OnSerialize -= OnSerialize; } catch { }
+            try { PlayerSerializePatch.OnPlayerSerialize -= OnPlayerSerialize; } catch { }
+            if (GorillaTagger.Instance != null)
+            {
+                try { GorillaTagger.OnPlayerSpawned(null); } catch { }
+            }
 
             if (Console.ConsoleObject != null)
                 Destroy(Console.ConsoleObject);
@@ -6536,10 +6581,38 @@ namespace iiMenu.Menu
 
             try
             {
-                Visuals.ClearLinePool();
-                Visuals.ClearNameTagPool();
+                Visuals.ClearLinePool(true);
+                Visuals.ClearNameTagPool(true);
             }
             catch { }
+            try
+            {
+                foreach (KeyValuePair<(long, float), GameObject> kv in Visuals.auraPool.ToList())
+                {
+                    if (kv.Value != null) Destroy(kv.Value);
+                }
+                Visuals.auraPool.Clear();
+                foreach (KeyValuePair<(Vector3, Quaternion, Vector3), GameObject> kv in Visuals.cubePool.ToList())
+                {
+                    if (kv.Value != null) Destroy(kv.Value);
+                }
+                Visuals.cubePool.Clear();
+                foreach (KeyValuePair<string, GameObject> kv in Visuals.labelDictionary.ToList())
+                {
+                    if (kv.Value != null) Destroy(kv.Value);
+                }
+                Visuals.labelDictionary.Clear();
+            } catch { }
+            try { cacheGradients.Clear(); } catch { }
+            try { objectPool.Clear(); } catch { }
+            try { typePool.Clear(); receiveTypeDelay.Clear(); } catch { }
+            try { playerPing.Clear(); } catch { }
+            try
+            {
+                if (GunPointer != null) Destroy(GunPointer);
+                GunPointer = null;
+                if (GunLine != null) { Destroy(GunLine.gameObject); GunLine = null; }
+            } catch { }
 
             HasLoaded = false;
             hasLoadedPreferences = false;
@@ -6549,6 +6622,7 @@ namespace iiMenu.Menu
                 Destroy(Plugin.instance);
 
             PatchHandler.UnpatchAll();
+            try { WalkSimCursorPatch.Uninstall(); } catch { }
         }
 
         public static void InitializeFonts()

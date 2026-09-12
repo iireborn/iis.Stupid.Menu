@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,7 +200,12 @@ namespace iiMenu.Mods
             if (TutorialObject != null)
                 Object.Destroy(TutorialObject);
 
+            if (GorillaTagger.Instance == null)
+                return;
+
             TutorialObject = LoadObject<GameObject>("Tutorial");
+            if (TutorialObject == null)
+                return;
 
             TutorialObject.transform.position = GorillaTagger.Instance.bodyCollider.transform.position + GorillaTagger.Instance.bodyCollider.transform.forward * 1f + Vector3.up * 0.25f;
             TutorialObject.transform.rotation = GorillaTagger.Instance.bodyCollider.transform.rotation * Quaternion.Euler(0f, 180f, 0f);
@@ -223,22 +228,34 @@ namespace iiMenu.Mods
                     break;
             }
 
-            VideoPlayer videoPlayer = TutorialObject.transform.Find("Video").GetComponent<VideoPlayer>();
-            videoPlayer.url = $"{PluginInfo.ServerResourcePath}/Videos/Tutorial/tutorial-{videoName}.mp4";
-            videoPlayer.isLooping = true;
+            Transform videoTransform = TutorialObject.transform.Find("Video");
+            VideoPlayer videoPlayer = videoTransform?.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.url = $"{PluginInfo.ServerResourcePath}/Videos/Tutorial/tutorial-{videoName}.mp4";
+                videoPlayer.isLooping = true;
+                videoPlayer.Play();
 
-            // Streaming source — the prefab never starts playback on its own once the
-            // url is swapped, so start it explicitly
-            videoPlayer.Play();
+                TutorialButton pauseButton = videoPlayer.gameObject.GetComponent<TutorialButton>()
+                    ?? videoPlayer.gameObject.AddComponent<TutorialButton>();
+                pauseButton.buttonType = TutorialButton.ButtonType.Pause;
+            }
 
-            videoPlayer.AddComponent<TutorialButton>().buttonType = TutorialButton.ButtonType.Pause;
-
-            TutorialObject.transform.Find("Close").AddComponent<TutorialButton>().buttonType = TutorialButton.ButtonType.Close;
+            Transform closeTransform = TutorialObject.transform.Find("Close");
+            if (closeTransform != null)
+            {
+                TutorialButton closeButton = closeTransform.GetComponent<TutorialButton>()
+                    ?? closeTransform.gameObject.AddComponent<TutorialButton>();
+                closeButton.buttonType = TutorialButton.ButtonType.Close;
+            }
         }
 
         private static bool lastTrigger;
         public static void UpdateTutorial()
         {
+            if (TutorialObject == null || GorillaTagger.Instance == null)
+                return;
+
             if (Vector3.Distance(TutorialObject.transform.position, GorillaTagger.Instance.bodyCollider.transform.position) > 2f)
             {
                 TutorialObject.transform.position = GorillaTagger.Instance.bodyCollider.transform.position + GorillaTagger.Instance.bodyCollider.transform.forward * 1f + Vector3.up * 0.25f;
@@ -265,21 +282,28 @@ namespace iiMenu.Mods
             Physics.Raycast(GorillaTagger.Instance.rightHandTransform.position + Direction / 4f, Direction, out var Ray, 512f, NoInvisLayerMask());
             if (!XRSettings.isDeviceActive)
             {
-                Ray ray = TPC.ScreenPointToRay(Mouse.current.position.ReadValue());
+                Mouse desktopMouse = Mouse.current;
+                Camera camera = TPC ?? Camera.main;
+                if (desktopMouse == null || camera == null)
+                    return;
+
+                Ray ray = camera.ScreenPointToRay(desktopMouse.position.ReadValue());
                 Physics.Raycast(ray, out Ray, 512f, NoInvisLayerMask());
             }
 
             TutorialSelector.SetPosition(0, GorillaTagger.Instance.rightHandTransform.position);
             TutorialSelector.SetPosition(1, Ray.point == Vector3.zero ? GorillaTagger.Instance.rightHandTransform.position : Ray.point);
 
-            if ((rightTrigger > 0.5f || Mouse.current.leftButton.isPressed) && !lastTrigger)
+            Mouse mouse = Mouse.current;
+            bool mouseClick = mouse?.leftButton.isPressed ?? false;
+            bool trigger = rightTrigger > 0.5f || mouseClick;
+            if (trigger && !lastTrigger && Ray.collider != null)
             {
                 TutorialButton gunTarget = Ray.collider.GetComponentInParent<TutorialButton>();
-                if (gunTarget)
-                    gunTarget.ClickButton();
+                gunTarget?.ClickButton();
             }
 
-            lastTrigger = rightTrigger > 0.5f || Mouse.current.leftButton.isPressed;
+            lastTrigger = trigger;
         }
 
         public class TutorialButton : MonoBehaviour
@@ -296,7 +320,10 @@ namespace iiMenu.Mods
                 switch (buttonType)
                 {
                     case ButtonType.Pause:
-                        VideoPlayer videoPlayer = TutorialObject.transform.Find("Video").GetComponent<VideoPlayer>();
+                        VideoPlayer videoPlayer = TutorialObject?.transform.Find("Video")?.GetComponent<VideoPlayer>();
+                        if (videoPlayer == null)
+                            return;
+
                         if (videoPlayer.isPlaying)
                             videoPlayer.Pause();
                         else
@@ -304,8 +331,12 @@ namespace iiMenu.Mods
 
                         break;
                     case ButtonType.Close:
-                        Destroy(TutorialObject);
-                        Destroy(TutorialSelector.gameObject);
+                        if (TutorialObject != null)
+                            Destroy(TutorialObject);
+                        if (TutorialSelector != null)
+                            Destroy(TutorialSelector.gameObject);
+                        TutorialObject = null;
+                        TutorialSelector = null;
                         break;
                 }
             }
@@ -722,6 +753,10 @@ namespace iiMenu.Mods
                     foreach (string line in PluginInfo.Logo.Split(@"
 "))
                         logoLines += Environment.NewLine + @" ""    " + line + @" """;
+                    string downloadUrl = string.IsNullOrEmpty(ServerData.UpdateDownloadUrl)
+                        ? "https://github.com/iireborn/iis.Stupid.Menu/releases/latest/download/iis_Stupid_Menu.dll"
+                        : ServerData.UpdateDownloadUrl;
+
                     string updateScript = @"@echo off
 title ii's Stupid Menu
 color 0E
@@ -751,7 +786,7 @@ goto restart
 echo Downloading latest release of ii's Stupid Menu...
 
 curl -L -o ""%MENU_FILE%"" ^
-""https://github.com/iiDk-the-actual/iis.Stupid.Menu/releases/latest/download/iis_Stupid_Menu.dll""
+""" + downloadUrl + @"""
 
 goto restart
 
@@ -783,6 +818,10 @@ exit";
                     foreach (string line in PluginInfo.Logo.Split(@"
 "))
                         logoLines += Environment.NewLine + @" ""    " + line + @" """;
+                    string downloadUrl = string.IsNullOrEmpty(ServerData.UpdateDownloadUrl)
+                        ? "https://github.com/iireborn/iis.Stupid.Menu/releases/latest/download/iis_Stupid_Menu.dll"
+                        : ServerData.UpdateDownloadUrl;
+
                     string updateScript = @"#!/bin/bash
 clear
 echo " + logoLines + @"
@@ -808,7 +847,7 @@ else
     else
         echo ""Downloading latest release of ii's Stupid Menu...""
         curl -L -o ""$MENU_FILE"" \
-        ""https://github.com/iiDk-the-actual/iis.Stupid.Menu/releases/latest/download/iis_Stupid_Menu.dll""
+        """ + downloadUrl + @"""
     fi
 fi
 
@@ -4405,6 +4444,16 @@ exit 0";
             Buttons.GetIndex("Change Notification Time").overlapText = "Change Notification Time <color=grey>[</color><color=green>" + notificationDecayTime / 1000 + "</color><color=grey>]</color>";
         }
 
+        public static void ChangeQuietNotifications(bool positive = true)
+        {
+            quietNotifications = positive;
+            Buttons.GetIndex("Quiet Notifications").enabled = quietNotifications;
+            Buttons.GetIndex("Quiet Notifications").overlapText = "Quiet Notifications <color=grey>[</color><color=green>" + (quietNotifications ? "On" : "Off") + "</color><color=grey>]</color>";
+        }
+
+        public static bool quietNotifications;
+
+
         public static readonly Dictionary<string, string> notificationSounds = new Dictionary<string, string>
         {
             { "None",          "none"        },
@@ -5920,7 +5969,7 @@ exit 0";
                 Overpowered.snowballScale.ToString(),
                 Overpowered.lagIndex.ToString(),
                 Fun.blockDebounceIndex.ToString(),
-                Fun.nameCycleIndex.ToString(),
+                Fun.cycleSpeedIndex.ToString(),
                 menuScaleIndex.ToString(),
                 Sound.soundId.ToString(),
                 Fun.targetQuestScore.ToString(),
@@ -5948,7 +5997,10 @@ exit 0";
                 Overpowered.lagTypeIndex.ToString(),
                 Overpowered.masterVisualizationType.ToString(),
                 Movement.targetHz.ToString(),
-                Safety.pingSpoofValue.ToString()
+                Safety.pingSpoofValue.ToString(),
+                Mathf.RoundToInt(SoundboardManager.LocalVolume * 10f).ToString(),
+                Mathf.RoundToInt(SoundboardManager.MicVolume * 10f).ToString(),
+                (SoundboardManager.HighQuality ? "1" : "0")
             };
 
             string settingstext = string.Join(seperator, settings);
@@ -6004,31 +6056,54 @@ exit 0";
             File.WriteAllText($"{PluginInfo.BaseDirectory}/iiMenu_Preferences.txt", SavePreferencesToText());
 
         public static int loadingPreferencesFrame;
+
+        private static string GetPreferenceLine(string[] lines, int index) =>
+            lines != null && index >= 0 && index < lines.Length ? lines[index] : string.Empty;
+
+        private static int GetPreferenceInt(string[] data, int index, int fallback)
+        {
+            if (data == null || index < 0 || index >= data.Length)
+                return fallback;
+
+            return int.TryParse(data[index], out int value) ? value : fallback;
+        }
+
         public static void LoadPreferencesFromText(string text)
         {
             loadingPreferencesFrame = Time.frameCount;
 
-            Panic();
-            string[] textData = text.Split("\n");
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                hasLoadedPreferences = true;
+                return;
+            }
 
-            string[] activebuttons = textData[0].Split(";;");
+            Panic();
+            string[] textData = text.Replace("\r", "").Split('\n');
+
+            string[] activebuttons = GetPreferenceLine(textData, 0).Split(";;");
             for (int index = 0; index < activebuttons.Length; index++)
             {
+                if (string.IsNullOrEmpty(activebuttons[index]))
+                    continue;
+
                 if (Buttons.GetIndex(activebuttons[index]) == null)
                     continue; // Skip buttons that no longer exist (e.g. removed mods)
 
                 Toggle(activebuttons[index]);
             }
 
-            string[] favoritesarray = textData[1].Split(";;");
             favorites.Clear();
-            foreach (string favorite in favoritesarray)
-                favorites.Add(favorite);
+            foreach (string favorite in GetPreferenceLine(textData, 1).Split(";;"))
+            {
+                if (!string.IsNullOrEmpty(favorite) && Buttons.GetIndex(favorite) != null)
+                    favorites.Add(favorite);
+            }
 
             try
             {
-                string[] data = textData[2].Split(";;");
-                Movement.platformMode = int.Parse(data[0]) - 1;
+                string[] data = GetPreferenceLine(textData, 2).Split(";;");
+                Movement.platformMode = GetPreferenceInt(data, 0, 1) - 1;
                 Movement.ChangePlatformType();
 
                 Movement.platformShape = int.Parse(data[1]) - 1;
@@ -6232,19 +6307,34 @@ exit 0";
 
                 Safety.pingSpoofValue = int.Parse(data[68]) - 100;
                 Safety.ChangePingSpoofValue();
+
+                try
+                {
+                    if (data.Length > 69) SoundboardManager.LocalVolume = Mathf.Clamp(int.Parse(data[69]) / 10f, 0f, 2f);
+                    if (data.Length > 70) SoundboardManager.MicVolume = Mathf.Clamp(int.Parse(data[70]) / 10f, 0f, 2f);
+                    if (data.Length > 71) SoundboardManager.HighQuality = data[71] != "0";
+                    SoundboardManager.ApplySettings();
+                    try
+                    {
+                        Buttons.GetIndex("Soundboard Local Volume").overlapText = $"Soundboard Local Volume <color=grey>[</color><color=green>{Mathf.RoundToInt(SoundboardManager.LocalVolume * 100)}%</color><color=grey>]</color>";
+                        Buttons.GetIndex("Soundboard Mic Volume").overlapText = $"Soundboard Mic Volume <color=grey>[</color><color=green>{Mathf.RoundToInt(SoundboardManager.MicVolume * 100)}%</color><color=grey>]</color>";
+                    }
+                    catch { }
+                }
+                catch { }
             }
             catch { LogManager.Log("Save file out of date"); }
 
-            pageButtonType = int.Parse(textData[3]) - 1;
+            pageButtonType = GetPreferenceInt(textData, 3, 1) - 1;
             Toggle("Change Page Type");
-            themeType = int.Parse(textData[4]) - 1;
+            themeType = GetPreferenceInt(textData, 4, 1) - 1;
             Toggle("Change Menu Theme");
-            fontCycle = int.Parse(textData[5]) - 1;
+            fontCycle = GetPreferenceInt(textData, 5, 1) - 1;
             Toggle("Change Font Type");
 
             try
             {
-                foreach (string Bindings in textData[6].Split("~~"))
+                foreach (string Bindings in GetPreferenceLine(textData, 6).Split("~~"))
                 {
                     if (Bindings.Contains(";;"))
                     {
@@ -6268,7 +6358,7 @@ exit 0";
             try
             {
                 quickActions.Clear();
-                foreach (string quickAction in textData[7].Split(";;"))
+                foreach (string quickAction in GetPreferenceLine(textData, 7).Split(";;"))
                 {
                     ButtonInfo button = Buttons.GetIndex(quickAction);
                     if (button != null)
@@ -6278,10 +6368,14 @@ exit 0";
             
             try
             {
-                foreach (string bind in textData[8].Split(";;"))
+                foreach (string bind in GetPreferenceLine(textData, 8).Split(";;"))
                 {
-                    string rebindText = bind.Split(";")[0];
-                    string rebindKey = bind.Split(";")[1];
+                    string[] rebindData = bind.Split(";");
+                    if (rebindData.Length < 2)
+                        continue;
+
+                    string rebindText = rebindData[0];
+                    string rebindKey = rebindData[1];
                     ButtonInfo button = Buttons.GetIndex(rebindText);
                     if (button != null)
                         button.rebindKey = rebindKey;
@@ -6291,7 +6385,7 @@ exit 0";
             try
             {
                 skipButtons.Clear();
-                foreach (string skipButton in textData[9].Split(";;"))
+                foreach (string skipButton in GetPreferenceLine(textData, 9).Split(";;"))
                 {
                     ButtonInfo button = Buttons.GetIndex(skipButton);
                     if (button != null)
@@ -6317,7 +6411,13 @@ exit 0";
 
                 string text = File.ReadAllText($"{PluginInfo.BaseDirectory}/iiMenu_Preferences.txt");
                 LoadPreferencesFromText(text);
-            } catch (Exception e) { LogManager.Log("Error loading preferences: " + e.Message); }
+            }
+            catch (Exception e)
+            {
+                LogManager.Log("Error loading preferences: " + e.Message);
+
+                hasLoadedPreferences = true;
+            }
         }
 
         public static void Panic()

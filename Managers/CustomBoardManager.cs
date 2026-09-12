@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,19 +40,47 @@ namespace iiMenu.Managers
             SceneManager.sceneLoaded += SceneLoaded;
         }
 
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= SceneLoaded;
+            foreach (GameObject board in objectBoards.Values)
+            {
+                if (board != null)
+                    Destroy(board);
+            }
+            objectBoards.Clear();
+            textMeshPro.RemoveAll(t => t == null);
+            foreach (var k in characterDistanceArchive.Keys.Where(k => k == null).ToList()) characterDistanceArchive.Remove(k);
+            foreach (var k in textColorArchive.Keys.Where(k => k == null).ToList()) textColorArchive.Remove(k);
+            if (ownsBoardMaterial && _boardMaterial != null)
+            {
+                Destroy(_boardMaterial);
+                _boardMaterial = null;
+            }
+            instance = null;
+        }
+
         private static bool _customBoardsEnabled = true;
         public static bool CustomBoardsEnabled
         {
             get => _customBoardsEnabled;
             set
             {
+                if (_customBoardsEnabled == value)
+                    return;
+
                 _customBoardsEnabled = value;
 
                 if (value)
                 {
+                    if (instance == null)
+                        return;
+
                     instance.ReloadBoards();
-                    instance.motdTitle.SetActive(true);
-                    instance.motdText.SetActive(true);
+                    if (instance.motdTitle != null)
+                        instance.motdTitle.SetActive(true);
+                    if (instance.motdText != null)
+                        instance.motdText.SetActive(true);
 
                     GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom/motdBodyText").SetActive(false);
                     GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom/motdHeadingText").SetActive(false);
@@ -88,28 +116,6 @@ namespace iiMenu.Managers
                         catch { }
                     }
 
-                    var stumpChildren = GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom").transform.Children()
-                                   .Where(x => x.name.Contains("UnityTempFile"))
-                                   .ToList();
-
-                    if (StumpLeaderboardIndex >= 0 && StumpLeaderboardIndex < stumpChildren.Count)
-                    {
-                        var stumpBoard = stumpChildren[StumpLeaderboardIndex];
-                        if (stumpBoard != null && instance.stumpMaterial != null)
-                            stumpBoard.GetComponent<Renderer>().material = instance.stumpMaterial;
-                    }
-
-                    var forestChildren = GetObject("Environment Objects/LocalObjects_Prefab/Forest").transform.Children()
-                        .Where(x => x.name.Contains("UnityTempFile"))
-                        .ToList();
-
-                    if (ForestLeaderboardIndex >= 0 && ForestLeaderboardIndex < forestChildren.Count)
-                    {
-                        var forestBoard = forestChildren[ForestLeaderboardIndex];
-                        if (forestBoard != null && instance.forestMaterial != null)
-                            forestBoard.GetComponent<Renderer>().material = instance.forestMaterial;
-                    }
-
                     foreach (GameObject board in instance.objectBoards.Values)
                         Destroy(board);
 
@@ -125,6 +131,8 @@ namespace iiMenu.Managers
         }
 
         private static readonly Dictionary<TextMeshPro, float> characterDistanceArchive = new Dictionary<TextMeshPro, float>();
+
+        private static readonly Dictionary<TextMeshPro, Color> textColorArchive = new Dictionary<TextMeshPro, Color>();
 
         private static bool _customBoardFonts;
         public static bool CustomBoardFonts
@@ -153,16 +161,23 @@ namespace iiMenu.Managers
 
         public static bool CustomBoardTextEnabled = true;
         private static Material _boardMaterial = new Material(Shader.Find("GorillaTag/UberShader"));
+        private static bool ownsBoardMaterial = true;
         public static Material BoardMaterial
         {
             get => _boardMaterial;
             set
             {
-                if (value == null)
-                    value = new Material(Shader.Find("GorillaTag/UberShader"));
+                bool ownsNextMaterial = value == null;
+                Material nextMaterial = value ?? new Material(Shader.Find("GorillaTag/UberShader"));
 
-                _boardMaterial = value;
-                instance.ReloadBoards();
+                if (_boardMaterial != null && ownsBoardMaterial && _boardMaterial != nextMaterial)
+                {
+                    try { Destroy(_boardMaterial); } catch { }
+                }
+
+                _boardMaterial = nextMaterial;
+                ownsBoardMaterial = ownsNextMaterial;
+                instance?.ReloadBoards();
             }
         }
 
@@ -178,6 +193,7 @@ namespace iiMenu.Managers
 
         public Material forestMaterial;
         public Material stumpMaterial;
+        private Material originalComputerMonitorMaterial;
 
         public GameObject motdTitle;
         public GameObject motdText;
@@ -198,38 +214,6 @@ namespace iiMenu.Managers
                         Destroy(board);
 
                     objectBoards.Clear();
-
-                    var stumpChildren = GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom").transform.Children()
-                       .Where(x => x.name.Contains("UnityTempFile"))
-                       .ToList();
-
-                    if (StumpLeaderboardIndex >= 0 && StumpLeaderboardIndex < stumpChildren.Count)
-                    {
-                        var stumpBoard = stumpChildren[StumpLeaderboardIndex];
-                        if (stumpBoard != null)
-                        {
-                            if (stumpMaterial == null)
-                                stumpMaterial = stumpBoard.GetComponent<Renderer>().material;
-
-                            stumpBoard.GetComponent<Renderer>().material = BoardMaterial;
-                        }
-                    }
-
-                    var forestChildren = GetObject("Environment Objects/LocalObjects_Prefab/Forest").transform.Children()
-                        .Where(x => x.name.Contains("UnityTempFile"))
-                        .ToList();
-
-                    if (ForestLeaderboardIndex >= 0 && ForestLeaderboardIndex < forestChildren.Count)
-                    {
-                        var forestBoard = forestChildren[ForestLeaderboardIndex];
-                        if (forestBoard != null)
-                        {
-                            if (forestMaterial == null)
-                                forestMaterial = forestBoard.GetComponent<Renderer>().material;
-
-                            forestBoard.GetComponent<Renderer>().material = BoardMaterial;
-                        }
-                    }
 
                     foreach (GorillaNetworkJoinTrigger joinTrigger in PhotonNetworkController.Instance.allJoinTriggers)
                     {
@@ -294,15 +278,19 @@ namespace iiMenu.Managers
                 }
             }
 
-            if (computerMonitor == null)
-                computerMonitor = GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/GorillaComputerObject/ComputerUI/monitor/monitorScreen");
-
-            if (computerMonitor != null)
-                computerMonitor.GetComponent<Renderer>().material = BoardMaterial;
+            Renderer computerMonitorRenderer = computerMonitor?.GetComponent<Renderer>();
+            if (computerMonitorRenderer != null)
+            {
+                originalComputerMonitorMaterial ??= computerMonitorRenderer.sharedMaterial;
+                if (CustomBoardsEnabled)
+                    computerMonitorRenderer.material = BoardMaterial;
+            }
 
             try
             {
-                BoardMaterial.color = CustomBoardsEnabled ? backgroundColor.GetCurrentColor() : (Color)new Color32(0, 59, 4, 255);
+                if (CustomBoardsEnabled)
+                {
+                BoardMaterial.color = backgroundColor.GetCurrentColor();
 
                 if (motdTitle == null)
                 {
@@ -351,19 +339,34 @@ namespace iiMenu.Managers
                 FollowMenuSettings(motdBodyText, -4f);
 
                 motdBodyText.SafeSetText(FollowMenuSettings(string.Format(motdTemplate, PluginInfo.Version, fullModAmount, PluginInfo.BetaBuild ? "Beta" : "Release", PluginInfo.BuildTimestamp )));
+                }
+                else
+                    RestoreOriginalBoardScreens();
             }
             catch { }
             
             try
             {
+                bool tintBoardText = CustomBoardsEnabled && CustomBoardTextEnabled;
                 Color targetColor = textColors[0].GetCurrentColor();
 
-                if (!CustomBoardsEnabled || !CustomBoardTextEnabled)
-                    targetColor = Color.white;
+                textMeshPro.RemoveAll(t => t == null);
+                var deadKeys = characterDistanceArchive.Keys.Where(k => k == null).ToList();
+                foreach (var k in deadKeys) characterDistanceArchive.Remove(k);
+                var deadColorKeys = textColorArchive.Keys.Where(k => k == null).ToList();
+                foreach (var k in deadColorKeys) textColorArchive.Remove(k);
 
                 foreach (TextMeshPro txt in textMeshPro.Where(text => text.isActiveAndEnabled))
                 {
-                    txt.color = targetColor;
+                    if (tintBoardText)
+                    {
+                        if (!textColorArchive.ContainsKey(txt))
+                            textColorArchive[txt] = txt.color;
+
+                        txt.color = targetColor;
+                    }
+                    else if (textColorArchive.TryGetValue(txt, out Color archivedColor))
+                        txt.color = archivedColor;
 
                     if (!CustomBoardFonts) continue;
                     archiveGorillaTagFont ??= txt.font;
@@ -380,6 +383,13 @@ namespace iiMenu.Managers
             catch { }
         }
         #endregion
+
+        private void RestoreOriginalBoardScreens()
+        {
+            Renderer renderer = computerMonitor?.GetComponent<Renderer>();
+            if (renderer != null && originalComputerMonitorMaterial != null)
+                renderer.material = originalComputerMonitorMaterial;
+        }
 
         #region Object Boards
         public readonly Dictionary<string, GameObject> objectBoards = new Dictionary<string, GameObject>();

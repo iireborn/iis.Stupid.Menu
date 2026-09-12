@@ -3,7 +3,7 @@
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
  * Copyright (C) 2026  Goldentrophy Software
- * https://github.com/iiDk-the-actual/iis.Stupid.Menu
+ * https://github.com/iireborn/iis.Stupid.Menu
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -210,6 +210,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Change Notification Time", overlapText = "Change Notification Time <color=grey>[</color><color=green>1</color><color=grey>]</color>", method =() => Settings.ChangeNotificationTime(), enableMethod =() => Settings.ChangeNotificationTime(), disableMethod =() => Settings.ChangeNotificationTime(false), incremental = true, isTogglable = false, toolTip = "Changes the time before a notification is removed."},
                 new ButtonInfo { buttonText = "Change Notification Sound", overlapText = "Change Notification Sound <color=grey>[</color><color=green>None</color><color=grey>]</color>", method =() => Settings.ChangeNotificationSound(true, true), enableMethod =() => Settings.ChangeNotificationSound(true, true), disableMethod =() => Settings.ChangeNotificationSound(false, true), incremental = true, isTogglable = false, toolTip = "Changes the sound that plays when receiving a notification."},
                 new ButtonInfo { buttonText = "Notification Sound on Error", enableMethod =() => NotificationManager.soundOnError = true, disableMethod =() => NotificationManager.soundOnError = false, toolTip = "Plays your target notification sound when an error happens."},
+                new ButtonInfo { buttonText = "Quiet Notifications", overlapText = "Quiet Notifications <color=grey>[</color><color=green>Off</color><color=grey>]</color>", enableMethod =() => Settings.quietNotifications = true, disableMethod =() => Settings.quietNotifications = false, toolTip = "Reduces attention-grabbing notifications to quiet, understated copy."},
                 new ButtonInfo { buttonText = "Change Narration Voice", overlapText = "Change Narration Voice <color=grey>[</color><color=green>Default</color><color=grey>]</color>", method =() => Settings.ChangeNarrationVoice(), enableMethod =() => Settings.ChangeNarrationVoice(), disableMethod =() => Settings.ChangeNarrationVoice(false), incremental = true, isTogglable = false, toolTip = "Changes the voice of the narrator."},
                 new ButtonInfo { buttonText = "Change Pointer Position", method =() => Settings.ChangePointerPosition(), enableMethod =() => Settings.ChangePointerPosition(), disableMethod =() => Settings.ChangePointerPosition(false), incremental = true, isTogglable = false, toolTip = "Changes the position of the pointer."},
 
@@ -2241,8 +2242,8 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Decline Prompt", method =() => { NotificationManager.ClearAllNotifications(); if (inTextInput) Settings.DestroyKeyboard(); CurrentPrompt.DeclineAction?.Invoke(); Settings.StopCurrentPrompt(); }, isTogglable = false}
             },
 
-            new[] { // Sound Library [26]
-                new ButtonInfo { buttonText = "Exit Sound Library", method =() => Sound.LoadSoundboard(), isTogglable = false, toolTip = "Returns you back to the soundboard." }
+            new[] { // MyInstants [26]
+                new ButtonInfo { buttonText = "Exit MyInstants", method =() => Sound.LoadSoundboard(), isTogglable = false, toolTip = "Returns you back to the soundboard." }
             },
 
             new[] { // Experimental Mods [27]
@@ -2289,6 +2290,9 @@ namespace iiMenu.Menu
             new[] { // Soundboard Settings [30]
                 new ButtonInfo { buttonText = "Exit Soundboard Settings", method =() => CurrentCategoryName = "Settings", isTogglable = false, toolTip = "Returns you back to the settings menu."},
 
+                new ButtonInfo { buttonText = "Soundboard Local Volume", overlapText = "Soundboard Local Volume <color=grey>[</color><color=green>100%</color><color=grey>]</color>", method =() => Sound.ChangeLocalVolume(), enableMethod =() => Sound.ChangeLocalVolume(), disableMethod =() => Sound.ChangeLocalVolume(false), incremental = true, isTogglable = false, toolTip = "How loud the soundboard is to your ears (local preview). 0-200%."},
+                new ButtonInfo { buttonText = "Soundboard Mic Volume", overlapText = "Soundboard Mic Volume <color=grey>[</color><color=green>100%</color><color=grey>]</color>", method =() => Sound.ChangeMicVolume(), enableMethod =() => Sound.ChangeMicVolume(), disableMethod =() => Sound.ChangeMicVolume(false), incremental = true, isTogglable = false, toolTip = "How loud the soundboard is through your microphone to others. 0-200%."},
+                new ButtonInfo { buttonText = "High Quality Soundboard", enableMethod =() => { Sound.HighQuality = true; }, disableMethod =() => { Sound.HighQuality = false; }, toolTip = "High-quality: 48kHz mixing, peak normalization, soft limiting — best quality to you and lobby."},
                 new ButtonInfo { buttonText = "Loop Sounds", enableMethod =() => Sound.LoopAudio = true, disableMethod =() => Sound.LoopAudio = false, toolTip = "Makes sounds loop forever until stopped."},
                 new ButtonInfo { buttonText = "Overlap Sounds", enableMethod =() => Sound.OverlapAudio = true, disableMethod =() => Sound.OverlapAudio = false, toolTip = "Makes it so you can play sounds over and over again, making them overlap eachother."},
                 new ButtonInfo { buttonText = "Sound Bindings", overlapText = "Sound Bindings <color=grey>[</color><color=green>None</color><color=grey>]</color>", method =() => Sound.SoundBindings(), enableMethod =() => Sound.SoundBindings(), disableMethod =() => Sound.SoundBindings(false), incremental = true, isTogglable = false, toolTip = "Changes the button used to play sounds on the soundboard."},
@@ -2565,7 +2569,7 @@ namespace iiMenu.Menu
             "Visual Settings",
             "Enabled Mods",
             "Internal Mods",
-            "Sound Library",
+            "MyInstants",
             "Experimental Mods",
             "Safety Settings",
             "Temporary Category",

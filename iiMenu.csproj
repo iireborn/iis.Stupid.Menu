@@ -2,12 +2,21 @@
   <PropertyGroup>
     <AssemblyName>ii's Stupid Menu</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    
+
     <TargetFramework>netstandard2.1</TargetFramework>
 	  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    
+
+    <!--
+      MSB3277 (websocket-sharp 1.0.2.0 vs 1.0.2.32414): the vendored snapshot in
+      References/Managed contains an older websocket-sharp than the one the vendored
+      Assembly-CSharp.dll was compiled against. The menu only uses websocket-sharp's
+      string.IsNullOrEmpty() extension, identical in both versions, and at runtime the
+      game loads its own copy — so this is a compile-time-only unification notice,
+      not a real version mismatch in the shipped plugin. Deliberately left as-is.
+    -->
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup> 
