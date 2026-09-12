@@ -5501,6 +5501,10 @@ namespace iiMenu.Menu
             if (tmp == null)
                 return;
 
+            int targetLayer = hideTextOnCamera ? 19 : 0;
+            if (tmp.gameObject.layer != targetLayer)
+                tmp.gameObject.layer = targetLayer;
+
             float targetSpacing = overlapTargetSpacing ?? (-8f + characterDistance);
             if (redactText)
                 targetSpacing -= 3f;
