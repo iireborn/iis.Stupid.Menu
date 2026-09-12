@@ -131,6 +131,8 @@ namespace iiMenu.Menu
             watermark.material = new Material(watermark.material);
             watermarkImage = LoadTextureFromResource($"{PluginInfo.ClientResourcePath}.icon.png");
 
+            versionLabelBasePos = versionLabel.rectTransform.anchoredPosition;
+
             if (!Plugin.FirstLaunch)
             {
                 GameObject closeMessage = uiPrefab.transform.Find("Canvas")?.Find("HideMessage")?.gameObject;
@@ -159,6 +161,8 @@ namespace iiMenu.Menu
         private Image controlBackground;
         private List<TextMeshProUGUI> textObjects;
         private List<Image> imageObjects = new List<Image>();
+
+        private Vector2 versionLabelBasePos;
 
         private float uiUpdateDelay;
 
@@ -202,6 +206,11 @@ namespace iiMenu.Menu
 
                 foreach (var imageObject in imageObjects)
                     imageObject.color = buttonColors[0].GetCurrentColor();
+                
+                watermark.gameObject.SetActive(!disableWatermark);
+
+                versionLabel.rectTransform.anchoredPosition =
+                        disableWatermark ? versionLabelBasePos + new Vector2(watermark.rectTransform.rect.width, 0f) : versionLabelBasePos;
 
                 watermark.transform.rotation = Quaternion.Euler(0f, 0f, rockWatermark ? Mathf.Sin(Time.time * 2f) * 10f : 0f);
                 versionLabel.SafeSetText(FollowMenuSettings("Build") + " " + PluginInfo.Version + "\n" +
