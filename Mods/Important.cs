@@ -22,12 +22,14 @@
 using BepInEx;
 using GorillaExtensions;
 using GorillaGameModes;
+using GorillaLocomotion;
 using GorillaNetworking;
 using GorillaTagScripts;
 using HarmonyLib;
 using iiMenu.Extensions;
 using iiMenu.Managers;
 using iiMenu.Managers.DiscordRPC;
+using iiMenu.Menu;
 using iiMenu.Patches.Menu;
 using iiMenu.Utilities;
 using Photon.Pun;
@@ -283,13 +285,10 @@ exit";
                 updateTime = Time.time + 1f;
                 bool inRoom = NetworkSystem.Instance.InRoom;
                 string roomName = inRoom ? NetworkSystem.Instance.RoomName : "-";
-                string gameMode = inRoom && GorillaGameManager.instance != null
-                    ? GorillaGameManager.instance.GameType().ToString().ToLower()
-                    : "alone";
 
                 discord.SetPresence(new RichPresence
                 {
-                    Details = inRoom ? $"Playing {gameMode}" : "Playing alone",
+                    Details = inRoom ? $"Playing {GorillaGameManager.instance.GameType().ToString().ToLower()}" : "Playing alone",
                     State = inRoom ? $"Room: {roomName} ({PhotonNetwork.PlayerList.Length}/{PhotonNetwork.CurrentRoom.MaxPlayers})" : "Not in a room",
                     Assets = new Managers.DiscordRPC.Assets
                     {
@@ -883,27 +882,60 @@ exit";
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = int.MaxValue;
         }
-
+        private static int? notransparentobject;
+        public static int NoTransparentObjects()
+        {
+            int num = notransparentobject.GetValueOrDefault();
+            if (notransparentobject == null)
+            {
+                num = ~(1 << LayerMask.NameToLayer("TransparentFX") | 1 << LayerMask.NameToLayer("Ignore Raycast") | 1 << LayerMask.NameToLayer("Zone") | 1 << LayerMask.NameToLayer("Gorilla Trigger") | 1 << LayerMask.NameToLayer("Gorilla Boundary") | 1 << LayerMask.NameToLayer("GorillaCosmetics") | 1 << LayerMask.NameToLayer("GorillaParticle"));
+                notransparentobject = new int?(num);
+            }
+            return notransparentobject ?? GTPlayer.Instance.locomotionEnabledLayers;
+        }
         private static Vector3? oldLocalPosition;
+        private static float keydel;
         public static void PCButtonClick()
         {
-            if (Mouse.current.leftButton.isPressed && GunPointer == null)
-            {
-                Ray ray = TPC.ScreenPointToRay(Mouse.current.position.ReadValue());
-                Physics.Raycast(ray, out var Ray, 512f, NoInvisLayerMask());
+            if (!Mouse.current.leftButton.isPressed) return;
 
-                oldLocalPosition ??= GorillaTagger.Instance.rightHandTriggerCollider.transform.localPosition;
-                GorillaTagger.Instance.rightHandTriggerCollider.GetComponent<TransformFollow>().enabled = false;
-                GorillaTagger.Instance.rightHandTriggerCollider.transform.position = Ray.point;
-            }
-            else
+            Ray ray = Main.TPC.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+            if (!Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, NoTransparentObjects())) return;
+
+            if (raycastHit.collider == null) return;
+
+            if (Time.time <= keydel)  return;
+
+            foreach (Component component in raycastHit.collider.GetComponents<Component>())
             {
-                if (oldLocalPosition != null)
+                Type type = component.GetType();
+
+                if (type.Name == "GorillaPressableButton" || typeof(GorillaPressableButton).IsAssignableFrom(type) || type.Name == "GorillaPlayerLineButton")
                 {
-                    GorillaTagger.Instance.rightHandTriggerCollider.transform.localPosition = oldLocalPosition.Value;
-                    oldLocalPosition = null;
+                    type.GetMethod( "OnTriggerEnter", BindingFlags.Instance | (BindingFlags)36 )?.Invoke(component, new object[]
+                    {
+                        Main.GetObject("Player Objects/Player VR Controller/GorillaPlayer/TurnParent/RightHandTriggerCollider").GetComponent<Collider>()
+                    });
                 }
-                GorillaTagger.Instance.rightHandTriggerCollider.GetComponent<TransformFollow>().enabled = true;
+
+                if (type.Name == "CustomKeyboardKey")
+                {
+                    keydel = Time.time + 0.1f;
+
+                    type.GetMethod( "OnTriggerEnter", BindingFlags.Instance | (BindingFlags)36)?.Invoke(component, new object[]
+                    {
+                        Main.GetObject("Player Objects/Player VR Controller/GorillaPlayer/TurnParent/RightHandTriggerCollider").GetComponent<Collider>()
+                    });
+                }
+
+                if (type.Name == "GorillaKeyboardButton")
+                {
+                    keydel = Time.time + 0.1f;
+
+                    GameEvents.OnGorrillaKeyboardButtonPressedEvent.Invoke(Traverse.Create(component).Field("Binding").GetValue<GorillaKeyboardBindings>()
+                    );
+                }
             }
         }
 

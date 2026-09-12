@@ -17,9 +17,6 @@
 mono_crash.*
 
 # Build results
-.agents/
-.freebuff/
-..freebuff/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

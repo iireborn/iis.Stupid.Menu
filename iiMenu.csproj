@@ -575,9 +575,6 @@
     <Reference Include="VYaml.Core">
       <HintPath>$(ProjectDir)References\Managed\VYaml.Core.dll</HintPath>
     </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>$(ProjectDir)References\Managed\websocket-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="ZString">
       <HintPath>$(ProjectDir)References\Managed\ZString.dll</HintPath>
     </Reference>

@@ -988,8 +988,8 @@ exit 0";
             if (langInd < 0)
                 langInd = languageNames.Length - 1;
 
+            TranslationManager.translateCache.Clear();
             TranslationManager.language = codenames[langInd];
-            TranslationManager.ResetLanguageState();
 
             Buttons.GetIndex("Change Menu Language").overlapText = "Change Menu Language <color=grey>[</color><color=green>" + languageNames[langInd] + "</color><color=grey>]</color>";
 
