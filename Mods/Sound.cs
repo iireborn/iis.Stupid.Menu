@@ -41,6 +41,7 @@ using Valve.Newtonsoft.Json.Linq;
 using static iiMenu.Menu.Main;
 using static iiMenu.Utilities.AssetUtilities;
 using static iiMenu.Utilities.FileUtilities;
+using static Valve.VR.SteamVR_TrackedObject;
 using Random = UnityEngine.Random;
 
 namespace iiMenu.Mods

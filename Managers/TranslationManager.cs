@@ -37,51 +37,31 @@ namespace iiMenu.Managers
     {
         public static readonly Dictionary<string, float> waitingForTranslate = new Dictionary<string, float>();
         public static readonly Dictionary<string, string> translateCache = new Dictionary<string, string>();
-        private static readonly Dictionary<string, float> nextRetryTime = new Dictionary<string, float>();
-        private static readonly HashSet<string> loggedFailures = new HashSet<string>();
-        private const float TranslationRetryDelay = 30f;
-        private const float TranslationRequestInterval = 1f;
-        private static float nextRequestTime;
 
         /// <summary>
         /// Target language for translation. Format: "en", "fr", "de", "jp"
         /// </summary>
         public static string language;
 
-        public static void ResetLanguageState()
-        {
-            waitingForTranslate.Clear();
-            translateCache.Clear();
-            nextRetryTime.Clear();
-            loggedFailures.Clear();
-        }
-
         public static string TranslateText(string input, Action<string> onTranslated = null)
         {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(language) || language == "en")
-                return input;
-
             if (translateCache.TryGetValue(input, out var text))
                 return text;
-
-            if (waitingForTranslate.TryGetValue(input, out float retryAt))
+            if (!waitingForTranslate.ContainsKey(input))
             {
-                if (Time.time < retryAt)
-                    return input;
-
+                waitingForTranslate.Add(input, Time.time + 10f);
+                CoroutineManager.instance.StartCoroutine(GetTranslation(input, onTranslated));
+            }
+            else
+            {
+                if (!(Time.time > waitingForTranslate[input])) return "Loading...";
                 waitingForTranslate.Remove(input);
+
+                waitingForTranslate.Add(input, Time.time + 10f);
+                CoroutineManager.instance.StartCoroutine(GetTranslation(input, onTranslated));
             }
 
-            if (nextRetryTime.TryGetValue(input, out float nextRetry) && Time.time < nextRetry)
-                return input;
-
-            if (Time.time < nextRequestTime)
-                return input;
-
-            nextRequestTime = Time.time + TranslationRequestInterval;
-            waitingForTranslate[input] = Time.time + TranslationRetryDelay;
-            CoroutineManager.instance?.StartCoroutine(GetTranslation(input, onTranslated));
-            return input;
+            return "Loading...";
         }
 
         public static IEnumerator GetTranslation(string text, Action<string> onTranslated = null)
@@ -91,17 +71,7 @@ namespace iiMenu.Managers
 
             if (translateCache.TryGetValue(text, out var cached))
             {
-                waitingForTranslate.Remove(text);
-                nextRetryTime.Remove(text);
                 onTranslated?.Invoke(cached);
-                yield break;
-            }
-
-            if (string.IsNullOrEmpty(language) || language == "en")
-            {
-                waitingForTranslate.Remove(text);
-                nextRetryTime.Remove(text);
-                onTranslated?.Invoke(text);
                 yield break;
             }
 
@@ -152,33 +122,18 @@ namespace iiMenu.Managers
                     }
                     catch (Exception e)
                     {
-                        LogTranslationFailure(text, $"parse error: {e.Message}");
+                        Debug.LogError($"Translation parse error: {e}");
                     }
                 }
                 else
-                    LogTranslationFailure(text, request.error);
+                    Debug.LogError($"Translation request failed: {request.error}");
             }
             else
                 translation = File.ReadAllText(filePath);
 
-            waitingForTranslate.Remove(text);
-
-            if (string.IsNullOrEmpty(translation))
-                yield break;
-
-            nextRetryTime.Remove(text);
+            if (string.IsNullOrEmpty(translation)) yield break;
             translateCache[text] = translation;
             onTranslated?.Invoke(translation);
-        }
-
-        private static void LogTranslationFailure(string text, string error)
-        {
-            waitingForTranslate.Remove(text);
-            nextRetryTime[text] = Time.time + TranslationRetryDelay;
-
-            string key = $"{language}:{GetSHA256(text)}";
-            if (loggedFailures.Add(key))
-                LogManager.LogError($"Translation request failed: {error}");
         }
     }
 }

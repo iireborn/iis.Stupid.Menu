@@ -46,7 +46,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TextCore;
 using UnityEngine.UI;
-using WebSocketSharp;
 using static iiMenu.Menu.Main;
 using static iiMenu.Utilities.AssetUtilities;
 using static iiMenu.Utilities.GameModeUtilities;

@@ -22,6 +22,7 @@
 // Written with love by kingofnetflix </3
 // For anyone else snooping in this class hoping to use it, you need to make sure that your recorder source type is a Factory and that the Factory is a new instance of this class.
 // You may use VoiceManager.Get()
+using iiMenu.Mods;
 using Photon.Voice;
 using System;
 using System.Collections.Generic;
@@ -342,19 +343,22 @@ namespace iiMenu.Managers
         // this is automatically called by photon
         public bool Read(float[] buffer)
         {
-            if (microphoneClip == null || string.IsNullOrEmpty(currentDevice)) return false;
-
+            if (microphoneClip == null || string.IsNullOrEmpty(currentDevice))
+                return false;
             int samples = Mathf.CeilToInt(buffer.Length * step);
             int pos = Microphone.GetPosition(currentDevice);
-            int available = (pos < lastSamplePosition) ? microphoneClip.samples - lastSamplePosition + pos : pos - lastSamplePosition;
-            if (available < samples) return false;
 
+            int available = pos < lastSamplePosition ? microphoneClip.samples - lastSamplePosition + pos : pos - lastSamplePosition;
+            if (available < samples)
+                return false;
             if (tempBuffer == null || tempBuffer.Length != samples)
                 tempBuffer = new float[samples];
 
             int remaining = microphoneClip.samples - lastSamplePosition;
             if (remaining >= samples)
+            {
                 microphoneClip.GetData(tempBuffer, lastSamplePosition);
+            }
             else
             {
                 microphoneClip.GetData(tempBuffer, lastSamplePosition);
@@ -365,20 +369,36 @@ namespace iiMenu.Managers
             }
 
             float[] microphoneBuffer = new float[buffer.Length];
+
             for (int i = 0; i < buffer.Length; i++)
             {
-                float microphoneSample = 0;
+                float microphoneSample = 0f;
+
                 if (!muteMicrophone && !audioClips.Any(c => c.MuteMicrophone))
                 {
                     int index = (int)resample;
                     int nextIndex = index + 1;
-                    if (index >= tempBuffer.Length) { resample = 0f; index = 0; nextIndex = 1; }
-                    if (nextIndex >= tempBuffer.Length) nextIndex = 0;
 
-                    microphoneSample = Mathf.Lerp(tempBuffer[index], tempBuffer[nextIndex], resample - index);
+                    if (index >= tempBuffer.Length)
+                    {
+                        resample = 0f;
+                        index = 0;
+                        nextIndex = 1;
+                    }
+
+                    if (nextIndex >= tempBuffer.Length)
+                        nextIndex = 0;
+
+                    microphoneSample = Mathf.Lerp(
+                        tempBuffer[index],
+                        tempBuffer[nextIndex],
+                        resample - index
+                    );
 
                     resample += step * pitch;
-                    if (resample >= tempBuffer.Length) resample = 0f;
+
+                    if (resample >= tempBuffer.Length)
+                        resample = 0f;
                 }
 
                 microphoneBuffer[i] = microphoneSample * gain;
@@ -390,9 +410,13 @@ namespace iiMenu.Managers
                     postProcess?.Invoke(microphoneBuffer);
             }
 
+            float soundboardVolume = Mathf.Clamp(Sound.clientAudioLevel / 100f, 0f, 2f);
+
             for (int i = 0; i < buffer.Length; i++)
             {
                 float pushed = NextAudioClipSample();
+
+                pushed *= soundboardVolume;
                 buffer[i] = Mathf.Clamp(microphoneBuffer[i] + pushed, -1f, 1f);
             }
 
@@ -403,6 +427,7 @@ namespace iiMenu.Managers
             }
 
             lastSamplePosition = (lastSamplePosition + samples) % microphoneClip.samples;
+
             return true;
         }
 

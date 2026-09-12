@@ -19,7 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-﻿using System;
+using iiMenu.DataTables;
+using System;
 
 namespace iiMenu.Classes.Menu
 {
@@ -47,5 +48,7 @@ namespace iiMenu.Classes.Menu
 
         public string customBind;
         public string rebindKey;
+
+        public SuggestedGamemodeTypeTable.SuggestedGamemodeType suggestedGamemodeType;
     }
 }
