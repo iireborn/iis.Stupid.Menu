@@ -113,7 +113,14 @@ namespace iiMenu.Classes.Menu
         {
             if (NetworkSystem.Instance != null)
             {
-                try { NetworkSystem.Instance.OnJoinedRoomEvent -= OnJoinRoom; } catch { }
+                try 
+                { 
+                    NetworkSystem.Instance.OnJoinedRoomEvent -= OnJoinRoom; 
+                } 
+                catch (Exception ex)
+                {
+                    LogManager.LogError($"Error removing OnJoinedRoom event handler: {ex.Message}");
+                }
             }
             StopAllCoroutines();
         }

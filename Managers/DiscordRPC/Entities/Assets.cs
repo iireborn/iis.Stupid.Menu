@@ -1,4 +1,4 @@
-﻿using iiMenu.Managers.DiscordRPC.Exceptions;
+using iiMenu.Managers.DiscordRPC.Exceptions;
 using System;
 using Valve.Newtonsoft.Json;
 
@@ -164,42 +164,37 @@ namespace iiMenu.Managers.DiscordRPC
 			_largeimageurl = other._largeimageurl;
 
             //Convert the Large Key
-            string largeKey = other._largeimagekey ?? "";
-			if (largeKey.StartsWith(EXTERNAL_KEY_PREFIX))
-			{
-				IsLargeImageKeyExternal = true;
-				LargeImageID = largeKey;
-			}
-			else if (ulong.TryParse(largeKey, out _))
-			{
-				IsLargeImageKeyExternal = false;
-				LargeImageID = largeKey;
-			}
-			else
-			{
-				IsLargeImageKeyExternal = false;
-				LargeImageID = null;
-				_largeimagekey = largeKey;
-			}
+            ConvertKey(other._largeimagekey ?? "", out bool isLargeExternal, out string largeId, out string largeKey);
+            IsLargeImageKeyExternal = isLargeExternal;
+            LargeImageID = largeId;
+            if (largeKey != null) _largeimagekey = largeKey;
 
             //Convert the Small Key
-            //  TODO: Make this a function
-            string smallKey = other._smallimagekey ?? "";
-            if (smallKey.StartsWith(EXTERNAL_KEY_PREFIX))
+            ConvertKey(other._smallimagekey ?? "", out bool isSmallExternal, out string smallId, out string smallKey);
+            IsSmallImageKeyExternal = isSmallExternal;
+            SmallImageID = smallId;
+            if (smallKey != null) _smallimagekey = smallKey;
+		}
+
+		private static void ConvertKey(string key, out bool isExternal, out string imageId, out string imageKey)
+		{
+			if (key.StartsWith(EXTERNAL_KEY_PREFIX))
 			{
-				IsSmallImageKeyExternal = true;
-				SmallImageID = smallKey;
+				isExternal = true;
+				imageId = key;
+				imageKey = null;
 			}
-			else if (ulong.TryParse(smallKey, out _))
+			else if (ulong.TryParse(key, out _))
 			{
-				IsSmallImageKeyExternal = false;
-				SmallImageID = smallKey;
+				isExternal = false;
+				imageId = key;
+				imageKey = null;
 			}
 			else
 			{
-				IsSmallImageKeyExternal = false;
-				SmallImageID = null;
-				_smallimagekey = smallKey;
+				isExternal = false;
+				imageId = null;
+				imageKey = key;
 			}
 		}
 	}

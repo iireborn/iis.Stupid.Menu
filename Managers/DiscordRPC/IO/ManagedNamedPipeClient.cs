@@ -1,4 +1,4 @@
-﻿using iiMenu.Managers.DiscordRPC.Logging;
+using iiMenu.Managers.DiscordRPC.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -121,7 +121,7 @@ namespace iiMenu.Managers.DiscordRPC.IO
 
                 //Store the value
                 Logger.Info("Connected to '{0}'", pipename);
-                ConnectedPipe = int.Parse(pipename.Substring(pipename.LastIndexOf('-'))); // TODO: Deprecate this
+                ConnectedPipe = int.Parse(pipename.Substring(pipename.LastIndexOf('-') + 1));
                 _isClosed = false;
             }
             catch (Exception e)

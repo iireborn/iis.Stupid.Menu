@@ -982,7 +982,6 @@ namespace iiMenu.Mods
         public static void SuperInfectionBreakAudioAll() =>
             CreateItem(RpcTarget.Others, GadgetByName["WristJetGadgetPropellor"], GorillaTagger.Instance.bodyCollider.transform.position, RandomQuaternion(), Vector3.zero, Vector3.zero, 0L, ManagerRegistry.SuperInfection.GameEntityManager);
 
-        private static float reportDelay;
         public static void ObliteratePlayer(NetPlayer target)
         {
             if (Time.time > crashAllDelay)
@@ -6383,13 +6382,10 @@ namespace iiMenu.Mods
         }
 
 
-        private static Coroutine wipeOverride;
         public static IEnumerator ClearOverride()
         {
             yield return new WaitUntil(() => !PhotonNetwork.InRoom);
             SerializePatch.OverrideSerialization = null;
-
-            wipeOverride = null;
         }
 
         public static void KickAllInParty()
