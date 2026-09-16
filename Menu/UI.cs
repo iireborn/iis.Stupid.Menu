@@ -171,6 +171,11 @@ namespace iiMenu.Menu
             {
                 uiPrefab.SetActive(true);
 
+                if (arraylist != null) arraylist.gameObject.SetActive(!useIMGUI);
+                if (watermark != null) watermark.gameObject.SetActive(!useIMGUI);
+                if (versionLabel != null) versionLabel.gameObject.SetActive(!useIMGUI);
+                if (roomStatus != null) roomStatus.gameObject.SetActive(!useIMGUI);
+
                 if (UnityInput.Current.GetKeyDown(KeyCode.BackQuote))
                     ToggleDebug();
 
@@ -323,6 +328,13 @@ namespace iiMenu.Menu
         }
 
         private readonly string hideGUIPath = $"{PluginInfo.BaseDirectory}/iiMenu_HideGUI.txt";
+        public static bool useIMGUI = false;
+
+        private Rect windowRect = new Rect(20, 20, 800, 500);
+        private Vector2 modScrollPosition = Vector2.zero;
+        private Vector2 arraylistScrollPosition = Vector2.zero;
+        private List<string> debugLines = new List<string>();
+
         private void ToggleGUI()
         {
             isOpen = !isOpen;
@@ -357,6 +369,9 @@ namespace iiMenu.Menu
         private GameObject templateLine;
         public void DebugPrint(string text)
         {
+            debugLines.Add(text);
+            if (debugLines.Count > 15) debugLines.RemoveAt(0);
+
             if (!debugUI.activeSelf)
                 return;
 
@@ -425,10 +440,74 @@ namespace iiMenu.Menu
             }
         }
 
-        private void OnGUI() // Legacy plugin OnGUI compatibility
+        private void OnGUI() 
         {
-            if (isOpen)
-                PluginManager.ExecuteOnGUI();
+            if (!isOpen) return;
+
+            PluginManager.ExecuteOnGUI();
+
+            if (useIMGUI)
+            {
+                uiPrefab.SetActive(false);
+
+                GUI.backgroundColor = backgroundColor.GetCurrentColor();
+                GUI.contentColor = textColors[1].GetCurrentColor();
+                
+                string roomText = PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "Not connected";
+                string title = $"ii's Stupid Menu {PluginInfo.Version} | FPS: {lastDeltaTime} | {roomText}";
+                windowRect = GUI.Window(0, windowRect, DrawIMGUIWindow, title);
+            }
+            else
+            {
+                uiPrefab.SetActive(true);
+            }
+        }
+
+        private void DrawIMGUIWindow(int windowID)
+        {
+            GUILayout.BeginHorizontal();
+                
+            GUILayout.BeginVertical(GUILayout.Width(200));
+            arraylistScrollPosition = GUILayout.BeginScrollView(arraylistScrollPosition);
+            foreach (ButtonInfo mainButton in Buttons.buttons[0])
+            {
+                if (GUILayout.Button(mainButton.buttonText))
+                {
+                    if (mainButton.method != null)
+                        mainButton.method.Invoke();
+                    else if (mainButton.enableMethod != null)
+                        mainButton.enableMethod.Invoke();
+                }
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
+
+            modScrollPosition = GUILayout.BeginScrollView(modScrollPosition);
+                
+            int catIndex = System.Array.IndexOf(Buttons.categoryNames, Buttons.CurrentCategoryName);
+            if (catIndex >= 0 && catIndex < Buttons.buttons.Length)
+            {
+                foreach (ButtonInfo button in Buttons.buttons[catIndex])
+                {
+                    if (button.isTogglable)
+                    {
+                        bool prev = button.enabled;
+                        bool next = GUILayout.Toggle(prev, button.buttonText);
+                        if (prev != next)
+                            Main.Toggle(button.buttonText);
+                    }
+                    else
+                    {
+                        if (GUILayout.Button(button.buttonText))
+                            Main.Toggle(button.buttonText);
+                    }
+                }
+            }
+
+            GUILayout.EndScrollView();
+            GUILayout.EndHorizontal();
+
+            GUI.DragWindow();
         }
     }
 }

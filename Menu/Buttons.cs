@@ -75,7 +75,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Master Mods", method =() => CurrentCategoryName = "Master Mods", isTogglable = false, toolTip = "Opens the master mods."},
                 new ButtonInfo { buttonText = "Overpowered Mods", method =() => CurrentCategoryName = "Overpowered Mods", isTogglable = false, toolTip = "Opens the overpowered mods."},
                 new ButtonInfo { buttonText = "Experimental Mods", method =() => CurrentCategoryName = "Experimental Mods", isTogglable = false, toolTip = "Opens the experimental mods."},
-                new ButtonInfo { buttonText = "Detected Mods", method = Detected.EnterDetectedTab, isTogglable = false, toolTip = "Opens the detected mods."},
 
                 new ButtonInfo { buttonText = "Achievements", method = AchievementManager.EnterAchievementTab, isTogglable = false, toolTip = "Opens the achievements page."},
                 new ButtonInfo { buttonText = "Credits", method =() => CurrentCategoryName = "Credits", isTogglable = false, toolTip = "Opens the credits page."}
@@ -113,6 +112,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "One Handed Menu", enableMethod =() => oneHand = true, disableMethod =() => oneHand = false, toolTip = "Makes the menu open in front of you, so you can use it with one hand."},
                 new ButtonInfo { buttonText = "Joystick Menu", enableMethod =() => joystickMenu = true, disableMethod = Settings.JoystickMenuOff, toolTip = "Makes the menu into something like Colossal, click your joysticks to open, joysticks to move between mods and pages, and click your left joystick to toggle a mod."},
                 new ButtonInfo { buttonText = "Physical Menu", enableMethod = Settings.PhysicalMenuOn, disableMethod = Settings.PhysicalMenuOff, toolTip = "Freezes the menu in world space."},
+                new ButtonInfo { buttonText = "IMGUI Menu", enableMethod =() => UI.useIMGUI = true, disableMethod =() => UI.useIMGUI = false, toolTip = "Turns the PC menu into an IMGUI style."},
                 new ButtonInfo { buttonText = "Bark Menu", enableMethod =() => barkMenu = true, disableMethod =() => barkMenu = false, toolTip = "Allows you to spawn the menu similar to bark by banging on your chest."},
                 new ButtonInfo { buttonText = "Wrist Menu", enableMethod =() => wristMenu = true, disableMethod =() => wristMenu = false, toolTip = "Turns the menu into a weird wrist watch, click your hand to open it."},
                 new ButtonInfo { buttonText = "Watch Menu", enableMethod = Settings.WatchMenuOn, method = Settings.CheckWatchMenu, disableMethod = Settings.WatchMenuOff, toolTip = "Turns the menu into a watch, click your joystick to toggle, and move your joystick to select a mod."},
@@ -470,6 +470,8 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Restart Gorilla Tag", aliases = new[] { "Restart Game", "Restart App" }, method = () => Prompt("Are you sure you want to restart Gorilla Tag?", Important.RestartGame), isTogglable = false, toolTip = "Restarts Gorilla Tag." },
                 new ButtonInfo { buttonText = "Open Gorilla Tag Folder", method = Important.OpenGorillaTagFolder, isTogglable = false, toolTip = "Opens the folder in which your game is located." },
+                
+                new ButtonInfo { buttonText = "Change Spawn Point", overlapText = "Change Spawn Point <color=grey>[</color><color=green>Default</color><color=grey>]</color>", method =() => Important.ChangeSpawnPoint(true), enableMethod =() => Important.ChangeSpawnPoint(true), disableMethod =() => Important.ChangeSpawnPoint(false), incremental = true, isTogglable = false, toolTip = "Changes the spawn point that the alarm clock manager teleports you to when joining."},
 
                 new ButtonInfo { buttonText = "Discord RPC", aliases = new[] { "Self Tracker" }, method = Important.DiscordRPC, disableMethod = Important.DisableDiscordRPC, toolTip = "Gives you a indicator on Discord that you are using ii's Stupid Menu."},
                 new ButtonInfo { buttonText = "Media Integration", aliases = new[] { "Spotify" }, enableMethod = Important.EnsureIntegrationProgram, method = Important.MediaIntegration, disableMethod = Important.DisableMediaIntegration, toolTip = "Shows you what media you are watching/listening to in the top left. To switch media, open the menu and use your left joystick."},
@@ -533,6 +535,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Connect to EU", aliases = new[] { "EU VPN", "Connect to Europe", "Europe VPN" }, method =() => Important.ConnectToRegion("eu"), toolTip = "Connects you to the Europe servers."},
 
                 new ButtonInfo { buttonText = "Reauthenticate", method = MothershipAuthenticator.Instance.BeginLoginFlow, isTogglable = false, toolTip = "Restarts the login flow that happens at the beginning of the game."},
+                new ButtonInfo { buttonText = "Deauthenticate", method = Important.Deauthenticate, isTogglable = false, toolTip = "Disconnects you from PlayFab and Photon, putting you in a unauthenticated state."},
             },
 
             new[] { // Safety Mods [8]
@@ -541,7 +544,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Recommended Safety Mods", aliases = new[] { "Anti Ban" }, method = Safety.GeneralSafety, disableMethod = Safety.DisableGeneral, toolTip = "Has the effects of some good general safety mods while enabled." },
 
                 new ButtonInfo { buttonText = "No Finger Movement", aliases = new[] { "Disable Fingers" }, method = Safety.NoFinger, toolTip = "Makes your fingers not move, so you can use wall walk without getting called out." },
-                new ButtonInfo { buttonText = "Pull Your Id", aliases = new[] { "Pulls Id" }, method = Safety.PullYourID, isTogglable = false, toolTip = "Pulls your PlayFab and Photon IDs and logs them to a file."
+                new ButtonInfo { buttonText = "Copy Player ID ", aliases = new[] { "Copies Local Player's ID to a TXT File" }, method = Safety.PullYourID, isTogglable = false, toolTip = "Pulls your PlayFab and Photon IDs and logs them to a file."
                 },
 
                 new ButtonInfo { buttonText = "Fake Oculus Menu <color=grey>[</color><color=green>X</color><color=grey>]</color>", method = Safety.FakeOculusMenu, toolTip = "Imitates opening your Oculus menu when holding <color=green>X</color>."},
@@ -575,12 +578,8 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Join Random</color><color=grey>]</color>", method = Safety.AntiReportJoinRandom, toolTip = "Connects you to a random the room when anyone comes near your report button."},
 
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Oculus</color><color=grey>]</color>", enableMethod = Safety.EnableAntiOculusReport, disableMethod = Safety.DisableAntiOculusReport, toolTip = "Disconnects you from the room when you get reported with the Oculus report menu."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Anti Cheat</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiACReport = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiACReport = false, toolTip = "Disconnects you from the room when you get reported by the anti cheat."},
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Notify</color><color=grey>]</color>", method = Safety.AntiReportNotify, toolTip = "Tells you when people come near your report button, but doesn't do anything."},
                 new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Overlay</color><color=grey>]</color>", method = Safety.AntiReportOverlay, toolTip = "Shows you an overlay when people come near your report button, but doesn't do anything."},
-
-                new ButtonInfo { buttonText = "Show Anti Cheat Reports <color=grey>[</color><color=green>Self</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatSelf = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatSelf = false, toolTip = "Gives you a notification every time you have been reported by the anti cheat."},
-                new ButtonInfo { buttonText = "Show Anti Cheat Reports <color=grey>[</color><color=green>All</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatAll = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatAll = false, toolTip = "Gives you a notification every time anyone has been reported by the anti cheat."},
 
                 new ButtonInfo { buttonText = "Change Identity", method = Safety.ChangeIdentity, isTogglable = false, toolTip = "Changes your name and color to something a new player would have."},
                 new ButtonInfo { buttonText = "Change Identity <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method = Safety.ChangeIdentityRegular, isTogglable = false, toolTip = "Changes your name and color to something a regular player would have."},
@@ -739,6 +738,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Spin Head Y", method =() => Fun.SpinHead("y"), disableMethod = Fun.FixHead, toolTip = "Spins your head on the Y axis."},
                 new ButtonInfo { buttonText = "Spin Head Z", method =() => Fun.SpinHead("z"), disableMethod = Fun.FixHead, toolTip = "Spins your head on the Z axis."},
 
+                new ButtonInfo { buttonText = "Vibrate Rig", method = Fun.VibrateRig, disableMethod = Fun.FixVibrateRig, toolTip = "Makes your rig MASSIVELY vibrate."},
                 new ButtonInfo { buttonText = "Spaz Rig <color=grey>[</color><color=green>A</color><color=grey>]</color>", enableMethod = Movement.EnableSpazRig, method = Movement.SpazRig, disableMethod = Movement.DisableSpazRig, toolTip = "Makes every part of your rig spaz out a little bit when holding <color=green>A</color>."},
                 new ButtonInfo { buttonText = "Spaz Rig Hands <color=grey>[</color><color=green>A</color><color=grey>]</color>", method = Movement.SpazHands, toolTip = "Makes your rig's hands spaz out everywhere when holding <color=green>A</color>."},
                 new ButtonInfo { buttonText = "Spaz Hands <color=grey>[</color><color=green>A</color><color=grey>]</color>", method = Movement.SpazRealHands, toolTip = "Makes your hands spaz out everywhere when holding <color=green>A</color>."},
@@ -948,6 +948,8 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Better Rig Lerping", overlapText = "Better Rig Smoothing", enableMethod =() => PlayerSerializePatch.OnPlayerSerialize += Visuals.BetterRigLerping, disableMethod =() => PlayerSerializePatch.OnPlayerSerialize -= Visuals.BetterRigLerping, toolTip = "Estimates the inbetween positions using a real velocity emulator on the other player's rigs."},
                 new ButtonInfo { buttonText = "Remove Leaves", enableMethod = Visuals.EnableRemoveLeaves, disableMethod = Visuals.DisableRemoveLeaves, toolTip = "Removes leaves on trees, good for branching."},
                 new ButtonInfo { buttonText = "Streamer Remove Leaves", enableMethod = Visuals.EnableStreamerRemoveLeaves, disableMethod = Visuals.DisableStreamerRemoveLeaves, toolTip = "Removes leaves on trees in VR, but not on the camera. Good for streaming."},
+                new ButtonInfo { buttonText = "Remove BG Mountains", enableMethod = Visuals.RemoveBGMountains, disableMethod = Visuals.EnableBGMountains, toolTip = "Removes background mountains."},
+                new ButtonInfo { buttonText = "Freeze Mirror", enableMethod = Visuals.FreezeMirror, disableMethod = Visuals.UnfreezeMirror, toolTip = "Freezes the mirror in City."},
                 new ButtonInfo { buttonText = "Remove Cosmetics", enableMethod = Visuals.DisableCosmetics, disableMethod = Visuals.EnableCosmetics, toolTip = "Locally toggles off your cosmetics, so you can wear sight-blocking cosmetics such as the eyepatch."},
                 new ButtonInfo { buttonText = "X-Ray <color=grey>[</color><color=green>T</color><color=grey>]</color>", aliases = new[] { "See Through" }, method = Visuals.Xray, toolTip = "Lets you see through objects when holding <color=green>trigger</color>."},
 
@@ -999,6 +1001,7 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Chams", method = Visuals.Chams, disableMethod = Visuals.DisableShaderChams, toolTip = "Lets you see players through walls."},
 
+                new ButtonInfo { buttonText = "Disable Cosmetics", method = Visuals.DisableCosmetics, disableMethod = Visuals.EnableCosmetics, toolTip = "Disables all cosmetics on everyone"},
                 new ButtonInfo { buttonText = "Casual Chams", method = Visuals.CasualChams, disableMethod = Visuals.DisableChams, toolTip = "Lets you see players fur through walls. Shows everyone."},
                 new ButtonInfo { buttonText = "Infection Chams", method = Visuals.InfectionChams, disableMethod = Visuals.DisableChams, toolTip = "Lets you see players fur through walls. Shows untagged when tagged, vice versa.", suggestedGamemodeType = SuggestedGamemodeType.Infection},
                 new ButtonInfo { buttonText = "Hunt Chams", method = Visuals.HuntChams, disableMethod = Visuals.DisableChams, toolTip = "Lets you see players fur through walls. Shows your target and who is hunting you."},
@@ -2231,19 +2234,19 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Exit Enabled Mods", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
             },
 
-            new[] { // Internal Mods (hidden from user) [25]
-                new ButtonInfo { buttonText = "Search", method = Settings.Search, isTogglable = false, toolTip = "Lets you search for specific mods."},
-                new ButtonInfo { buttonText = "Global Return", method = Settings.GlobalReturn, isTogglable = false, toolTip = "Returns you to the previous category."},
-                new ButtonInfo { buttonText = "Info Screen", method = Settings.Debug, enableMethod = Settings.ShowDebug, disableMethod = Settings.HideDebug, toolTip = "Shows game and modding related information."},
-                new ButtonInfo { buttonText = "Donate Button", method =() => { NotificationManager.ClearAllNotifications(); acceptedDonations = true; File.WriteAllText($"{PluginInfo.BaseDirectory}/iiMenu_HideDonationButton.txt", "true"); Prompt("I've spent nearly two years building this menu. Your Patreon support helps me keep it growing, want to check it out?", () => Process.Start("https://patreon.com/iiDk")); }, isTogglable = false, toolTip = "An advertisement for my Patreon." },
-                new ButtonInfo { buttonText = "Update Button", method =() => UpdatePrompt(), isTogglable = false, toolTip = "Prompts you to update the menu." },
+            new ButtonInfo[] { // Internal Mods (hidden from user) [25]
+                //new ButtonInfo { buttonText = "Search", method = Settings.Search, isTogglable = false, toolTip = "Lets you search for specific mods."},
+                //new ButtonInfo { buttonText = "Global Return", method = Settings.GlobalReturn, isTogglable = false, toolTip = "Returns you to the previous category."},
+                //new ButtonInfo { buttonText = "Info Screen", method = Settings.Debug, enableMethod = Settings.ShowDebug, disableMethod = Settings.HideDebug, toolTip = "Shows game and modding related information."},
+                //new ButtonInfo { buttonText = "Donate Button", method =() => { NotificationManager.ClearAllNotifications(); acceptedDonations = true; File.WriteAllText($"{PluginInfo.BaseDirectory}/iiMenu_HideDonationButton.txt", "true"); Prompt("I've spent nearly two years building this menu. Your Patreon support helps me keep it growing, want to check it out?", () => Process.Start("https://patreon.com/iiDk")); }, isTogglable = false, toolTip = "An advertisement for my Patreon." },
+                //new ButtonInfo { buttonText = "Update Button", method =() => UpdatePrompt(), isTogglable = false, toolTip = "Prompts you to update the menu." },
 
-                new ButtonInfo { buttonText = "Accept Prompt", method =() => { NotificationManager.ClearAllNotifications(); if (inTextInput) Settings.DestroyKeyboard(); CurrentPrompt.AcceptAction?.Invoke(); Settings.StopCurrentPrompt(); }, isTogglable = false},
-                new ButtonInfo { buttonText = "Decline Prompt", method =() => { NotificationManager.ClearAllNotifications(); if (inTextInput) Settings.DestroyKeyboard(); CurrentPrompt.DeclineAction?.Invoke(); Settings.StopCurrentPrompt(); }, isTogglable = false}
+               // new ButtonInfo { buttonText = "Accept Prompt", method =() => { NotificationManager.ClearAllNotifications(); if (inTextInput) Settings.DestroyKeyboard(); CurrentPrompt.AcceptAction?.Invoke(); Settings.StopCurrentPrompt(); }, isTogglable = false},
+                //new ButtonInfo { buttonText = "Decline Prompt", method =() => { NotificationManager.ClearAllNotifications(); if (inTextInput) Settings.DestroyKeyboard(); CurrentPrompt.DeclineAction?.Invoke(); Settings.StopCurrentPrompt(); }, isTogglable = false}
             },
 
-            new[] { // MyInstants [26]
-                new ButtonInfo { buttonText = "Exit MyInstants", method =() => Sound.LoadSoundboard(), isTogglable = false, toolTip = "Returns you back to the soundboard." }
+            new ButtonInfo[] { // MyInstants [26]
+                //new ButtonInfo { buttonText = "Exit MyInstants", method =() => Sound.LoadSoundboard(), isTogglable = false, toolTip = "Returns you back to the soundboard." }
             },
 
             new[] { // Experimental Mods [27]
@@ -2278,7 +2281,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Change FPS Spoof Value", overlapText = "Change FPS Spoof Value <color=grey>[</color><color=green>90</color><color=grey>]</color>", method =() => Safety.ChangeFPSSpoofValue(), enableMethod =() => Safety.ChangeFPSSpoofValue(), disableMethod =() => Safety.ChangeFPSSpoofValue(false), incremental = true, isTogglable = false, toolTip = "Changes the target FPS for the FPS Spoof mod."},
                 new ButtonInfo { buttonText = "Change Ping Spoof Value", overlapText = "Change Ping Spoof Value <color=grey>[</color><color=green>200</color><color=grey>]</color>", method =() => Safety.ChangePingSpoofValue(), enableMethod =() => Safety.ChangePingSpoofValue(), disableMethod =() => Safety.ChangePingSpoofValue(false), incremental = true, isTogglable = false, toolTip = "Changes the target ping for the Ping Spoof mod."},
 
-                new ButtonInfo { buttonText = "Hide Anti Cheat Report Reasons", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatReasonHide = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatReasonHide = false, toolTip = "Hides the reason for Show Anti Cheat Reports."},
 
                 new ButtonInfo { buttonText = "Visualize Anti Report", method = Safety.VisualizeAntiReport, toolTip = "Visualizes the distance threshold for the anti report mods."},
                 new ButtonInfo { buttonText = "Smart Anti Report", enableMethod = Safety.EnableSmartAntiReport, disableMethod = Safety.DisableSmartAntiReport, toolTip = "Makes the anti report mods only activate in non-modded public lobbies."},
@@ -2303,8 +2305,8 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Graphic Punch Mod", toolTip = "Spawns blood projectiles when hitting other players with the allowed punch mods."},
 
-                new ButtonInfo { buttonText = "No Freeze Za Warudo", toolTip = "Disables the freezing on the \"Za Warudo\" mod, turning it into a fun mod." },
-                new ButtonInfo { buttonText = "Legacy Kick Freeze", enableMethod =() => Overpowered.legacyKickFreeze = true, disableMethod =() => Overpowered.legacyKickFreeze = false, toolTip = "Makes call overflow related kick methods freeze the rig instead of putting it in the low event state." },
+                //new ButtonInfo { buttonText = "No Freeze Za Warudo", toolTip = "Disables the freezing on the \"Za Warudo\" mod, turning it into a fun mod." },
+                //new ButtonInfo { buttonText = "Legacy Kick Freeze", enableMethod =() => Overpowered.legacyKickFreeze = true, disableMethod =() => Overpowered.legacyKickFreeze = false, toolTip = "Makes call overflow related kick methods freeze the rig instead of putting it in the low event state." },
 
                 new ButtonInfo { buttonText = "Change Lag Power", overlapText = "Change Lag Power <color=grey>[</color><color=green>Heavy</color><color=grey>]</color>", method =() => Overpowered.ChangeLagPower(), enableMethod =() => Overpowered.ChangeLagPower(), disableMethod =() => Overpowered.ChangeLagPower(false), incremental = true, isTogglable = false, toolTip = "Changes the power of the lag mods." },
                 new ButtonInfo { buttonText = "Change Lag Type", overlapText = "Change Lag Type <color=grey>[</color><color=green>Party</color><color=grey>]</color>", method =() => Overpowered.ChangeLagType(), enableMethod =() => Overpowered.ChangeLagType(), disableMethod =() => Overpowered.ChangeLagType(false), incremental = true, isTogglable = false, toolTip = "Changes the method used to lag players." },
@@ -2395,7 +2397,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "You have not loaded a map.", label = true }
             },
 
-            new ButtonInfo[] { }, // Chat Messages [41] 
+            new ButtonInfo[] { }, // Chat Messages [41]
 
             new[] // Macros [42]
             {
@@ -2405,109 +2407,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Disable Macros", enableMethod =() => Movement.disableMacros = true, disableMethod =() => Movement.disableMacros = false, toolTip = "Disables all macros." }
             },
 
-            new[] // Detected Mods [43]
-            {
-                new ButtonInfo { buttonText = "Exit Detected Mods", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
-
-                new ButtonInfo { buttonText = "Detected Auto Set Master Client", overlapText = "Auto Set Master Client", method = Detected.AutoSetMasterClient, detected = true, toolTip = "Automatically sets you as master client."},
-                new ButtonInfo { buttonText = "Detected Set Master Client Self", overlapText = "Set Master Client Self", method =() => PhotonNetwork.SetMasterClient(PhotonNetwork.LocalPlayer), isTogglable = false, detected = true, toolTip = "Sets you as master client."},
-                new ButtonInfo { buttonText = "Detected Set Master Client Gun", overlapText = "Set Master Client Gun", method = Detected.SetMasterClientGun, detected = true, toolTip = "Sets whoever your hand desires as master client."},
-                new ButtonInfo { buttonText = "Detected Set Master Client All", overlapText = "Set Master Client All", method = Detected.SetMasterClientAll, detected = true, toolTip = "Sets everyone in the room as master client."},
-                new ButtonInfo { buttonText = "Detected Set Master Client Aura", overlapText = "Set Master Client Aura", method = Detected.SetMasterClientAura, detected = true, toolTip = "Sets nearby players as master client."},
-                new ButtonInfo { buttonText = "Detected Set Master Client On Touch", overlapText = "Set Master Client On Touch", method = Detected.SetMasterClientOnTouch, detected = true, toolTip = "Sets players you touch as master client."},
-
-                new ButtonInfo { buttonText = "Detected Lag Gun", overlapText = "Lag Gun", method = Detected.LagGun, detected = true, toolTip = "Lags whoever your hand desires."},
-                new ButtonInfo { buttonText = "Detected Lag All", overlapText = "Lag All", method = Detected.LagAll, detected = true, toolTip = "Lags everyone in the room."},
-                new ButtonInfo { buttonText = "Detected Lag Aura", overlapText = "Lag Aura", method = Detected.LagAura, detected = true, toolTip = "Lags players nearby you."},
-                new ButtonInfo { buttonText = "Detected Lag On Touch", overlapText = "Lag On Touch", method = Detected.LagOnTouch, detected = true, toolTip = "Lags players that you touch."},
-
-                new ButtonInfo { buttonText = "Detected Crash Gun", overlapText = "Crash Gun", method = Detected.CrashGun, detected = true, toolTip = "Crashes whoever your hand desires."},
-                new ButtonInfo { buttonText = "Detected Crash All", overlapText = "Crash All", method = Detected.CrashAll, detected = true, toolTip = "Crashes everyone in the room."},
-                new ButtonInfo { buttonText = "Detected Crash Aura", overlapText = "Crash Aura", method = Detected.CrashAura, detected = true, toolTip = "Crashes players nearby you."},
-                new ButtonInfo { buttonText = "Detected Crash On Touch", overlapText = "Crash On Touch", method = Detected.CrashOnTouch, detected = true, toolTip = "Crashes players that you touch."},
-                new ButtonInfo { buttonText = "Detected Crash When Touched", overlapText = "Crash When Touched", method = Detected.CrashWhenTouched, detected = true, toolTip = "Crashes players that touch you."},
-
-                new ButtonInfo { buttonText = "Detected Mute Gun", overlapText = "Mute Gun", method = Detected.MuteGun, detected = true, toolTip = "Mutes whoever your hand desires."},
-                new ButtonInfo { buttonText = "Detected Mute All", overlapText = "Mute All", method = Detected.MuteAll, detected = true, toolTip = "Mutes everyone in the room."},
-                new ButtonInfo { buttonText = "Detected Mute Aura", overlapText = "Mute Aura", method = Detected.MuteAura, detected = true, toolTip = "Mutes players nearby you."},
-                new ButtonInfo { buttonText = "Detected Mute On Touch", overlapText = "Mute On Touch", method = Detected.MuteOnTouch, detected = true, toolTip = "Mutes players that you touch."},
-
-                new ButtonInfo { buttonText = "Detected Ghost Gun", overlapText = "Ghost Gun", method = Detected.GhostGun, detected = true, toolTip = "Freezes whoever your hand desires, making them a ghost."},
-                new ButtonInfo { buttonText = "Detected Ghost All", overlapText = "Ghost All", method = Detected.GhostAll, isTogglable = false, detected = true, toolTip = "Freezes everyone, making them a ghost."},
-                new ButtonInfo { buttonText = "Detected Ghost Aura", overlapText = "Ghost Aura", method = Detected.GhostAura, isTogglable = true, detected = true, toolTip = "Freezes nearby players, making them a ghost."},
-                new ButtonInfo { buttonText = "Detected Ghost On Touch", overlapText = "Ghost On Touch", method = Detected.GhostOnTouch, detected = true, toolTip = "Freezes players you touch, making them a ghost."},
-
-                new ButtonInfo { buttonText = "Detected Unghost Gun", overlapText = "Unghost Gun", method = Detected.UnghostGun, detected = true, toolTip = "Unfreezes whoever your hand desires, making them no longer a ghost."},
-                new ButtonInfo { buttonText = "Detected Unghost All", overlapText = "Unghost All", method = Detected.UnghostAll, isTogglable = false, detected = true, toolTip = "Unfreezes everyone, making them no longer a ghost."},
-                new ButtonInfo { buttonText = "Detected Unghost Aura", overlapText = "Unghost Aura", method = Detected.UnghostAura, isTogglable = true, detected = true, toolTip = "Unfreezes players nearby you, making them no longer a ghost."},
-                new ButtonInfo { buttonText = "Detected Unghost On Touch", overlapText = "Unghost On Touch", method = Detected.UnghostOnTouch, detected = true, toolTip = "Unfreeze players that you touch, making them no longer a ghost."},
-
-                new ButtonInfo { buttonText = "Detected Spam Ghost Gun", overlapText = "Spam Ghost Gun", method =() => { Detected.GhostGun(); Detected.UnghostGun(); }, detected = true, toolTip = "Spam makes whoever your hand desires freeze and unfreeze again. Ghost and Unghost."},
-                new ButtonInfo { buttonText = "Detected Spam Ghost All", overlapText = "Spam Ghost All", method =() => { Detected.GhostAll(); Detected.UnghostAll(); }, isTogglable = false, detected = true, toolTip = "Spam makes everyone freeze and unfreeze again. Ghost and Unghost."},
-                new ButtonInfo { buttonText = "Detected Spam Ghost Aura", overlapText = "Spam Ghost Aura", method =() => { Detected.GhostAura(); Detected.UnghostAura(); }, isTogglable = true, detected = true, toolTip = "Spam makes players nearby freeze and unfreeze again. Ghost and Unghost."},
-                new ButtonInfo { buttonText = "Detected Spam Ghost On Touch", overlapText = "Spam Ghost On Touch", method =() => { Detected.GhostOnTouch(); Detected.UnghostOnTouch(); }, detected = true, toolTip = "Spam makes players you touch freeze and unfreeze again. Ghost and Unghost."},
-
-                new ButtonInfo { buttonText = "Leaderboard Ghost", method = Detected.LeaderboardGhost, disableMethod = Detected.DisableLeaderboardGhost, detected = true, toolTip = "Ghosts players when you report them on the leaderboard."},
-                new ButtonInfo { buttonText = "Leaderboard Mute", method = Detected.LeaderboardMute, detected = true, toolTip = "Mutes players when you mute them on the leaderboard."},
-
-                new ButtonInfo { buttonText = "Detected Isolate Gun", overlapText = "Isolate Gun", method = Detected.IsolateGun, detected = true, toolTip = "Makes whoever your hand desires only be able to see you."},
-                new ButtonInfo { buttonText = "Detected Isolate All", overlapText = "Isolate All", method = Detected.IsolateAll, isTogglable = false, detected = true, toolTip = "Makes everyone only be able to see you."},
-                new ButtonInfo { buttonText = "Detected Isolate Aura", overlapText = "Isolate Aura", method = Detected.IsolateAura, detected = true, toolTip = "Makes players nearby only be able to see you."},
-                new ButtonInfo { buttonText = "Detected Isolate On Touch", overlapText = "Isolate On Touch", method = Detected.IsolateOnTouch, detected = true, toolTip = "Players that you touch will only be able to see you."},
-
-                new ButtonInfo { buttonText = "Detected Change Name Gun", overlapText = "Change Name Gun", enableMethod = Detected.PromptNameChange, method = Detected.ChangeNameGun, detected = true, toolTip = "Changes the name of whoever your hand desires."},
-                new ButtonInfo { buttonText = "Detected Change Name All", overlapText = "Change Name All", enableMethod = Detected.PromptNameChange, method = Detected.ChangeNameAll, detected = true, toolTip = "Changes the name of everyone in the room."},
-                new ButtonInfo { buttonText = "Detected Change Name Aura", overlapText = "Change Name Aura", enableMethod = Detected.PromptNameChange, method = Detected.ChangeNameAura, detected = true, toolTip = "Changes the name of whoever is near you."},
-                new ButtonInfo { buttonText = "Detected Change Name On Touch", overlapText = "Change Name On Touch", enableMethod = Detected.PromptNameChange, method = Detected.ChangeNameOnTouch, detected = true, toolTip = "Changes the name of players that you touch."},
-
-                new ButtonInfo { buttonText = "Detected Ban Gun", overlapText = "Ban Gun", method = Detected.BanGun, detected = true, toolTip = "Changes the name of whoever your hand desires to a banned name."},
-                new ButtonInfo { buttonText = "Detected Ban All", overlapText = "Ban All", method = Detected.BanGun, detected = true, toolTip = "Changes the name of everyone in the room to a banned name."},
-                new ButtonInfo { buttonText = "Detected Ban Aura", overlapText = "Ban Aura", method = Detected.BanAura, detected = true, toolTip = "Changes the name of whoever is near you to a banned name."},
-                new ButtonInfo { buttonText = "Detected Ban On Touch", overlapText = "Ban On Touch", method = Detected.BanOnTouch, detected = true, toolTip = "Changes the name of players that you touch to a banned name."},
-
-                new ButtonInfo { buttonText = "Bypass Mod Checkers Gun", method = Detected.BypassModCheckersGun, detected = true, toolTip = "Tells players using mod checkers that whoever your hand desires has no mods."},
-                new ButtonInfo { buttonText = "Bypass Mod Checkers All", method = Detected.BypassModCheckersAll, isTogglable = false, detected = true, toolTip = "Tells players using mod checkers that no one has no mods."},
-                new ButtonInfo { buttonText = "Bypass Mod Checkers Aura", method = Detected.BypassModCheckersAura, detected = true, toolTip = "Tells players using mod checkers that players nearby you have no mods."},
-                new ButtonInfo { buttonText = "Bypass Mod Checkers On Touch", method = Detected.BypassModCheckersOnTouch, detected = true, toolTip = "Tells players using mod checkers that players you touch have no mods."},
-
-                new ButtonInfo { buttonText = "Break Mod Checkers Gun", method = Detected.BreakModCheckersGun, detected = true, toolTip = "Tells players using mod checkers that whoever your hand desires has every mod."},
-                new ButtonInfo { buttonText = "Break Mod Checkers All", method = Detected.BreakModCheckersAll, isTogglable = false, detected = true, toolTip = "Tells players using mod checkers that everyone has every mod."},
-                new ButtonInfo { buttonText = "Break Mod Checkers Aura", method = Detected.BreakModCheckersAura, detected = true, toolTip = "Tells players using mod checkers that players nearby you have every mod."},
-                new ButtonInfo { buttonText = "Break Mod Checkers On Touch", method = Detected.BreakModCheckersOnTouch, detected = true, toolTip = "Tells players using mod checkers that players you touch have every mod."},
-
-                new ButtonInfo { buttonText = "Gamemode Include Gun", method = Detected.GamemodeIncludeGun, detected = true, toolTip = "Includes whoever your hand desires from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Include All", method = Detected.GamemodeIncludeAll, isTogglable = false, detected = true, toolTip = "Includes everyone from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Include Aura", method = Detected.GamemodeIncludeAura, detected = true, toolTip = "Includes players nearby you from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Include On Touch", method = Detected.GamemodeIncludeOnTouch, detected = true, toolTip = "Includes players you touch from the current gamemode."},
-
-                new ButtonInfo { buttonText = "Gamemode Exclude Gun", method = Detected.GamemodeExcludeGun, detected = true, toolTip = "Excludes whoever your hand desires from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Exclude All", method = Detected.GamemodeExcludeAll, isTogglable = false, detected = true, toolTip = "Excludes everyone from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Exclude Aura", method = Detected.GamemodeExcludeAura, detected = true, toolTip = "Excludes players nearby you from the current gamemode."},
-                new ButtonInfo { buttonText = "Gamemode Exclude On Touch", method = Detected.GamemodeExcludeOnTouch, detected = true, toolTip = "Excludes players you touch from the current gamemode."},
-
-                new ButtonInfo { buttonText = "Break Network Triggers", method = Detected.BreakNetworkTriggers, isTogglable = false, detected = true, toolTip = "Breaks the network triggers."},
-                new ButtonInfo { buttonText = "Kick Network Triggers", method = Detected.KickNetworkTriggers, isTogglable = false, detected = true, toolTip = "Makes all network triggers kick you."},
-
-                new ButtonInfo { buttonText = "Spaz Gamemode", method = Detected.SpazGamemode, detected = true, toolTip = "Rapidly changes the gamemode."},
-                new ButtonInfo { buttonText = "Break Gamemode", enableMethod =() => Detected.BreakGamemode(true), disableMethod =() => Detected.BreakGamemode(false), detected = true, toolTip = "Breaks the current gamemode."},
-                new ButtonInfo { buttonText = "Change Gamemode to None", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.None), isTogglable = false, detected = true, toolTip = "Changes the gamemode to error/none."},
-                new ButtonInfo { buttonText = "Change Gamemode to Count", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Count), isTogglable = false, detected = true, toolTip = "Changes the gamemode to count."},
-                new ButtonInfo { buttonText = "Change Gamemode to Casual", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Casual), isTogglable = false, detected = true, toolTip = "Changes the gamemode to casual."},
-                new ButtonInfo { buttonText = "Change Gamemode to Infection", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Infection), isTogglable = false, detected = true, toolTip = "Changes the gamemode to infection."},
-                new ButtonInfo { buttonText = "Change Gamemode to Competitive Infection", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.InfectionCompetitive), isTogglable = false, detected = true, toolTip = "Changes the gamemode to competitive infection."},
-                new ButtonInfo { buttonText = "Change Gamemode to Super Infection", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.SuperInfect), isTogglable = false, detected = true, toolTip = "Changes the gamemode to super infection."},
-                new ButtonInfo { buttonText = "Change Gamemode to Super Casual", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.SuperCasual), isTogglable = false, detected = true, toolTip = "Changes the gamemode to super casual."},
-                new ButtonInfo { buttonText = "Change Gamemode to Hunt", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.HuntDown), isTogglable = false, detected = true, toolTip = "Changes the gamemode to hunt."},
-                new ButtonInfo { buttonText = "Change Gamemode to Paintbrawl", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Paintbrawl), isTogglable = false, detected = true, toolTip = "Changes the gamemode to paintbrawl."},
-                new ButtonInfo { buttonText = "Change Gamemode to Ambush", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Ambush), isTogglable = false, detected = true, toolTip = "Changes the gamemode to ambush."},
-                new ButtonInfo { buttonText = "Change Gamemode to Ghost Tag", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Ghost), isTogglable = false, detected = true, toolTip = "Changes the gamemode to ghost tag."},
-                new ButtonInfo { buttonText = "Change Gamemode to Guardian", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Guardian), isTogglable = false, detected = true, toolTip = "Changes the gamemode to guardian."},
-                new ButtonInfo { buttonText = "Change Gamemode to Freeze Tag", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.FreezeTag), isTogglable = false, detected = true, toolTip = "Changes the gamemode to freeze tag."},
-                new ButtonInfo { buttonText = "Change Gamemode to Prop Hunt", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.PropHunt), isTogglable = false, detected = true, toolTip = "Changes the gamemode to prop hunt."},
-                new ButtonInfo { buttonText = "Change Gamemode to Custom", method =() => Detected.ChangeGamemode(GorillaGameModes.GameModeType.Custom), isTogglable = false, detected = true, toolTip = "Changes the gamemode to custom."}
-            },
-
-            new[] // Detected Settings [44]
+            new[] // Detected Settings [43]
             {
                 new ButtonInfo { buttonText = "Exit Detected Settings", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
 
@@ -2526,21 +2426,21 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Exit Mod List", method = () => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." }
             },
 
-            new[] // Patreon Mods [47]
-            {
-                new ButtonInfo { buttonText = "Exit Patreon Mods", method = () => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." },
-                new ButtonInfo { buttonText = "No Patreon Indicator", enableMethod =() => PatreonManager.ShowIndicator(true), method = PatreonManager.ConstantHideIndicator, disableMethod =() => PatreonManager.ShowIndicator(false), toolTip = "Disables the membership that appears above your head to others with the menu."}
-            },
+            //new[] // Patreon Mods [47]
+         //   {
+              //  new ButtonInfo { buttonText = "Exit Patreon Mods", method = () => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." },
+             //   new ButtonInfo { buttonText = "No Patreon Indicator", enableMethod =() => PatreonManager.ShowIndicator(true), method = PatreonManager.ConstantHideIndicator, disableMethod =() => PatreonManager.ShowIndicator(false), toolTip = "Disables the membership that appears above your head to others with the menu."}
+          //  },
 
-            new[] // Patreon Settings [48]
-            {
-                new ButtonInfo { buttonText = "Exit Patreon Settings", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
-                new ButtonInfo { buttonText = "Disable Patreon Indicators", enableMethod =() => PatreonManager.IndicatorsEnabled = false, disableMethod =() => PatreonManager.IndicatorsEnabled = true, toolTip = "Disables the memberships that appear above people's head with the menu."}
-            },
+          //  new[] // Patreon Settings [48]
+          //  {
+          //      new ButtonInfo { buttonText = "Exit Patreon Settings", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
+          //      new ButtonInfo { buttonText = "Disable Patreon Indicators", enableMethod =() => PatreonManager.IndicatorsEnabled = false, disableMethod =() => PatreonManager.IndicatorsEnabled = true, toolTip = "Disables the memberships that appear above people's head with the menu."}
+          //  },
             new[] // Suggested Mods [49]
             {
                 new ButtonInfo { buttonText = "Exit Suggested Mods", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
-            },
+            }
         };
 
         public static string[] categoryNames = {
@@ -2583,12 +2483,11 @@ namespace iiMenu.Menu
             "Custom Maps",
             "Chat Messages",
             "Macros",
-            "Detected Mods",
             "Detected Settings",
             "Achievements",
             "Mod List",
-            "Patreon Mods",
-            "Patreon Settings",
+           // "Patreon Mods",
+           // "Patreon Settings",
             "Suggested Mods"
         };
 

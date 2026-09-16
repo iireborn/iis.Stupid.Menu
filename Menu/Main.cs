@@ -365,7 +365,7 @@ namespace iiMenu.Menu
                     { 4, rightJoystickClick }
                 };
 
-                bool isKeyboardCondition = UnityInput.Current.GetKey(KeyCode.Q) || (inTextInput && isKeyboardPc);
+                bool isKeyboardCondition = (UnityInput.Current.GetKey(KeyCode.Q) && !UI.useIMGUI) || (inTextInput && isKeyboardPc);
                 bool buttonCondition = rightHand ? rightInputs[menuButtonIndex] : leftInputs[menuButtonIndex];
 
                 if (oneHand)
@@ -3119,7 +3119,7 @@ namespace iiMenu.Menu
         private static Quaternion? recenterRotation;
         public static void RecenterMenu()
         {
-            bool isKeyboardCondition = UnityInput.Current.GetKey(KeyCode.Q) || (inTextInput && isKeyboardPc);
+            bool isKeyboardCondition = (UnityInput.Current.GetKey(KeyCode.Q) && !UI.useIMGUI) || (inTextInput && isKeyboardPc);
             if (clickGUI)
             {
                 if (recenterPosition == null || Vector3.Distance(recenterPosition.Value, GorillaTagger.Instance.bodyCollider.transform.TransformPoint(new Vector3(0f, 0f, 1.5f))) > 1f)
