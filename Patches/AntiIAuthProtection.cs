@@ -120,9 +120,7 @@ namespace AntiIAuth
         {
             "harmony.patchinfo.bin",
             "harmonypatchinfo.bin",
-            ".graze",
-            "israelauth",
-            "pastebin"
+            "israelauth"
         };
 
         private static bool ScanFile(string filePath)
