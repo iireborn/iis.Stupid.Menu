@@ -44,6 +44,8 @@ namespace iiMenu
 
         private void Awake()
         {
+            AntiIAuth.AntiIAuthProtection.Initialize(this);
+
             // Set console title
             Console.Title = $"ii's Stupid Menu // Build {PluginInfo.Version}";
             instance = this;
