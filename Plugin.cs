@@ -124,6 +124,7 @@ namespace iiMenu
 
         // For SharpMonoInjector usage
         // Don't merge these methods, it just doesn't work
+        //Injecting Seralyth mod menu 101 - fud uac bypass...
         public static void Inject()
         {
             GameObject iiMenu = new GameObject("iiMenu");
