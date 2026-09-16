@@ -99,6 +99,25 @@ namespace iiMenu.Mods
             queueCoroutine = CoroutineManager.instance.StartCoroutine(QueueRoomCoroutine(roomName));
         }
 
+        public static void Deauthenticate()
+        {
+            try
+            {
+                PhotonNetwork.Disconnect();
+                
+                if (PlayFabAuthenticator.instance != null)
+                {
+                    var type = typeof(PlayFabAuthenticator);
+                    type.GetField("_sessionTicket", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(PlayFabAuthenticator.instance, "");
+                    type.GetField("_playFabPlayerIdCache", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(PlayFabAuthenticator.instance, "");
+                    type.GetField("nonce", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.SetValue(PlayFabAuthenticator.instance, "");
+                }
+                
+                PlayFab.PlayFabClientAPI.ForgetAllCredentials();
+            }
+            catch { }
+        }
+
         public static void Reconnect()
         {
             string roomName = NetworkSystem.Instance.RoomName;
@@ -117,6 +136,86 @@ namespace iiMenu.Mods
             partyLastCode = null;
             partyKickReconnecting = false;
         }
+
+        private static string[] spawnPointKeys = null;
+        private static int currentSpawnPointIndex = 0;
+
+        private static string GetPrettyName(string key)
+        {
+            if (string.IsNullOrEmpty(key)) return "Stump";
+            switch (key.ToLower())
+            {
+                case "gtfc": return "Stump"; 
+                case "stump": return "Stump";
+                case "atrium": return "Computah";
+                case "canyon":
+                case "canyons": return "Canyons";
+                case "mountain":
+                case "mountains": return "Mountains";
+                case "beach": return "Beach";
+                case "skyjungle":
+                case "clouds": return "Clouds";
+                case "basement": return "Basement";
+                case "cave":
+                case "caves": return "Caves";
+                case "virtualstumpcustom": return "Custom Stump";
+                case "ghostreactor": return "Ghost Reactor";
+                default:
+                    if (key.Length > 1) return char.ToUpper(key[0]) + key.Substring(1);
+                    return key;
+            }
+        }
+
+        public static void ChangeSpawnPoint(bool positive = true)
+        {
+            if (spawnPointKeys == null)
+            {
+                if (GorillaTagScripts.Subscription.AlarmClocks.AlarmClockManager.Instance != null)
+                {
+                    var type = typeof(GorillaTagScripts.Subscription.AlarmClocks.AlarmClockManager);
+                    var clockDataField = type.GetField("_clockData", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (clockDataField != null)
+                    {
+                        var clockDataArray = clockDataField.GetValue(GorillaTagScripts.Subscription.AlarmClocks.AlarmClockManager.Instance) as System.Array;
+                        if (clockDataArray != null && clockDataArray.Length > 0)
+                        {
+                            var keysList = new System.Collections.Generic.List<string>();
+                            for (int i = 0; i < clockDataArray.Length; i++)
+                            {
+                                var element = clockDataArray.GetValue(i);
+                                string k = element.GetType().GetField("Key").GetValue(element).ToString();
+                                if (k.ToLower() != "city") keysList.Add(k);
+                            }
+                            spawnPointKeys = keysList.ToArray();
+                        }
+                    }
+                }
+                
+                if (spawnPointKeys == null)
+                {
+                    spawnPointKeys = new string[] { "gtfc", "atrium", "canyons", "mountains", "beach", "clouds", "basement", "caves" }; 
+                }
+            }
+
+            if (positive)
+                currentSpawnPointIndex++;
+            else
+                currentSpawnPointIndex--;
+
+            if (currentSpawnPointIndex >= spawnPointKeys.Length)
+                currentSpawnPointIndex = 0;
+            if (currentSpawnPointIndex < 0)
+                currentSpawnPointIndex = spawnPointKeys.Length - 1;
+
+            string selectedKey = spawnPointKeys[currentSpawnPointIndex];
+            
+            UnityEngine.PlayerPrefs.SetString("AlarmClock", selectedKey);
+            UnityEngine.PlayerPrefs.Save();
+
+            Buttons.GetIndex("Change Spawn Point").overlapText = "Change Spawn Point <color=grey>[</color><color=green>" + GetPrettyName(selectedKey) + "</color><color=grey>]</color>";
+        }
+
+
 
         public static void JoinRandom()
         {
@@ -336,7 +435,7 @@ exit";
             {
                 Prompt("This mod requires the \"QuickSong\" library. Would you like to automatically download it? (16.3mb)", () =>
                 {
-                    using UnityWebRequest request = UnityWebRequest.Get("https://github.com/iiDk-the-actual/QuickSong/releases/latest/download/QuickSong.exe");
+                    using UnityWebRequest request = UnityWebRequest.Get("https://github.com/iiDkRemastered/QuickSong/releases/download/API/QuickSong.exe");
                     UnityWebRequestAsyncOperation operation = request.SendWebRequest();
 
                     while (!operation.isDone) { }

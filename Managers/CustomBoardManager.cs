@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ii's Stupid Menu  Managers/CustomBoardManager.cs
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -258,15 +258,24 @@ namespace iiMenu.Managers
                             LogManager.Log("Could not find " + objectName);
                     }
 
-                    Transform forestTransform = GetObject("Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard").transform;
-                    for (int i = 0; i < forestTransform.transform.childCount; i++)
+                    List<string> scoreboardPaths = new List<string> { "Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard" };
+                    foreach (var info in BoardInformations.Values)
+                        scoreboardPaths.Add(info.GameObjectPath);
+
+                    foreach (string path in scoreboardPaths)
                     {
-                        GameObject v = forestTransform.GetChild(i).gameObject;
-                        if ((!v.name.Contains("Board Text") && !v.name.Contains("Scoreboard_OfflineText")) ||
-                            !v.activeSelf) continue;
-                        TextMeshPro text = v.GetComponent<TextMeshPro>();
-                        if (!textMeshPro.Contains(text))
-                            textMeshPro.Add(text);
+                        GameObject boardObj = GetObject(path);
+                        if (boardObj == null) continue;
+
+                        Transform boardTransform = boardObj.transform;
+                        for (int i = 0; i < boardTransform.childCount; i++)
+                        {
+                            GameObject v = boardTransform.GetChild(i).gameObject;
+                            TextMeshPro text = v.GetComponent<TextMeshPro>();
+                            if (text == null) continue;
+                            if (!textMeshPro.Contains(text))
+                                textMeshPro.Add(text);
+                        }
                     }
 
                     hasFoundAllBoards = true;
@@ -465,7 +474,7 @@ namespace iiMenu.Managers
                 new Vector3(21.6f, 0.1f, 20.4909f)
             ),
             ["Mountain"] = new BoardInformation(
-                "Mountain/MountainScoreboardAnchor/GorillaScoreBoard",
+                "Mountain/MountainScoreboardAnchor/gorillascoreboard",
                 Vector3.zero,
                 Vector3.zero,
                 Vector3.one

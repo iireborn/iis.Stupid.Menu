@@ -88,6 +88,26 @@ namespace iiMenu.Mods
         public static void SidewaysHead() =>
             VRRig.LocalRig.head.trackingRotationOffset.y = 90f;
  
+        public static void VibrateRig()
+        {
+            float intensity = 15f;
+            VRRig.LocalRig.head.trackingRotationOffset.x = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.head.trackingRotationOffset.y = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.head.trackingRotationOffset.z = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.leftHand.trackingRotationOffset.x = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.leftHand.trackingRotationOffset.y = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.leftHand.trackingRotationOffset.z = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.rightHand.trackingRotationOffset.x = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.rightHand.trackingRotationOffset.y = UnityEngine.Random.Range(-intensity, intensity);
+            VRRig.LocalRig.rightHand.trackingRotationOffset.z = UnityEngine.Random.Range(-intensity, intensity);
+        }
+
+        public static void FixVibrateRig()
+        {
+            FixHead();
+            VRRig.LocalRig.leftHand.trackingRotationOffset = UnityEngine.Vector3.zero;
+            VRRig.LocalRig.rightHand.trackingRotationOffset = UnityEngine.Vector3.zero;
+        }
 
         public static float lastBangTime;
         public static readonly float BPM = 159f;

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ii's Stupid Menu  Managers/VoiceManager.cs
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -410,13 +410,13 @@ namespace iiMenu.Managers
                     postProcess?.Invoke(microphoneBuffer);
             }
 
-            float soundboardVolume = Mathf.Clamp(Sound.clientAudioLevel / 100f, 0f, 2f);
+            float currentSoundboardVolume = this.SoundboardVolume;
 
             for (int i = 0; i < buffer.Length; i++)
             {
                 float pushed = NextAudioClipSample();
 
-                pushed *= soundboardVolume;
+                pushed *= currentSoundboardVolume;
                 buffer[i] = Mathf.Clamp(microphoneBuffer[i] + pushed, -1f, 1f);
             }
 

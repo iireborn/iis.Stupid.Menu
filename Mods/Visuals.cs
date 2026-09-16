@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ii's Stupid Menu  Mods/Visuals.cs
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -163,6 +163,77 @@ namespace iiMenu.Mods
             return visualizeGO;
         }
 
+        private static HashSet<Renderer> disabledCosmeticsRenderers = new HashSet<Renderer>();
+        private static HashSet<GameObject> disabledCosmeticsObjects = new HashSet<GameObject>();
+        private static float lastCosmeticDisableTime = 0f;
+
+        private static void HideCosmetic(GameObject cosmetic)
+        {
+            if (cosmetic == null) return;
+
+            disabledCosmeticsObjects.Add(cosmetic);
+            cosmetic.SetActive(false);
+
+            foreach (Renderer r in cosmetic.GetComponentsInChildren<Renderer>(true))
+            {
+                if (r != null)
+                {
+                    disabledCosmeticsRenderers.Add(r);
+                    r.forceRenderingOff = true;
+                    r.enabled = false;
+                }
+            }
+        }
+
+        public static void DisableAllCosmetics()
+        {
+            if (UnityEngine.Time.time < lastCosmeticDisableTime + 0.5f) return;
+            lastCosmeticDisableTime = UnityEngine.Time.time;
+
+            foreach (VRRig rig in UnityEngine.Object.FindObjectsOfType<VRRig>())
+            {
+                if (rig == null) continue;
+
+                try 
+                {
+                    if (rig.cosmetics != null)
+                    {
+                        foreach (GameObject cosmetic in rig.cosmetics)
+                            HideCosmetic(cosmetic);
+                    }
+
+                    if (rig.overrideCosmetics != null)
+                    {
+                        foreach (GameObject cosmetic in rig.overrideCosmetics)
+                            HideCosmetic(cosmetic);
+                    }
+                } 
+                catch { }
+            }
+        }
+
+        public static void EnableAllCosmetics()
+        {
+            foreach (Renderer renderer in disabledCosmeticsRenderers)
+            {
+                if (renderer != null)
+                {
+                    renderer.forceRenderingOff = false;
+                    renderer.enabled = true;
+                }
+            }
+            disabledCosmeticsRenderers.Clear();
+
+            foreach (GameObject obj in disabledCosmeticsObjects)
+            {
+                if (obj != null)
+                    obj.SetActive(true);
+            }
+            disabledCosmeticsObjects.Clear();
+            
+            lastCosmeticDisableTime = 0f;
+        }
+
         public static void ConductDebug()
         {
             string text = "";
@@ -203,9 +274,6 @@ namespace iiMenu.Mods
 
         public static void WeatherChange(bool rain)
         {
-            // New builds schedule weather events, so mutating weatherCycle no longer
-            // applies. The game's own fixed-weather override (used by its console)
-            // is the supported path; clearing restores the natural cycle.
             if (rain)
                 BetterDayNightManager.instance.SetFixedWeather(BetterDayNightManager.WeatherType.Raining, true);
             else
@@ -3277,36 +3345,40 @@ namespace iiMenu.Mods
                 vrrig.mainSkin.material.color = vrrig.playerColor;
         }
 
-        public static string _leavesName;
-        public static string LeavesName
+        public static string MainLeavesName = "UnityTempFile";
+        public static string RankedLeavesName = "UnityTempFile";
+        private static bool fetchedLeaves = false;
+
+        public static async void FetchLeaves()
         {
-            get 
+            if (fetchedLeaves) return;
+            fetchedLeaves = true;
+            try
             {
-                if (_leavesName == null)
+                using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
                 {
-                    var matchingObjects = GetObject("Environment Objects/LocalObjects_Prefab/Forest")
-                        .GetComponentsInChildren<Transform>(true)
-                        .Where(t => t.name.StartsWith("UnityTempFile"))
-                        .GroupBy(t => t.name)
-                        .FirstOrDefault(g => g.Count() == 3);
-
-                    _leavesName = matchingObjects?.Key ?? "UnityTempFile";
+                    string json = await client.GetStringAsync("https://gtag.website/leafs/");
+                    System.Text.RegularExpressions.Match mainMatch = System.Text.RegularExpressions.Regex.Match(json, @"""mainForest""\s*:\s*""([^""]+)""");
+                    if (mainMatch.Success) MainLeavesName = mainMatch.Groups[1].Value;
+                    
+                    System.Text.RegularExpressions.Match rankedMatch = System.Text.RegularExpressions.Regex.Match(json, @"""rankedForest""\s*:\s*""([^""]+)""");
+                    if (rankedMatch.Success) RankedLeavesName = rankedMatch.Groups[1].Value;
                 }
-
-                return _leavesName;
-            } 
+            }
+            catch { }
         }
 
         public static readonly List<GameObject> leaves = new List<GameObject>();
         public static void EnableRemoveLeaves()
         {
+            FetchLeaves();
             GameObject Forest = GetObject("Environment Objects/LocalObjects_Prefab/Forest");
             if (Forest != null)
             {
                 for (int i = 0; i < Forest.transform.childCount; i++)
                 {
                     GameObject v = Forest.transform.GetChild(i).gameObject;
-                    if (v.name.Contains(LeavesName))
+                    if (v.name.Contains(MainLeavesName))
                     {
                         v.SetActive(false);
                         leaves.Add(v);
@@ -3320,7 +3392,7 @@ namespace iiMenu.Mods
                 for (int i = 0; i < RankedForest.transform.childCount; i++)
                 {
                     GameObject v = RankedForest.transform.GetChild(i).gameObject;
-                    if (v.name.Contains(LeavesName))
+                    if (v.name.Contains(RankedLeavesName))
                     {
                         v.SetActive(false);
                         leaves.Add(v);
@@ -3339,13 +3411,14 @@ namespace iiMenu.Mods
 
         public static void EnableStreamerRemoveLeaves()
         {
+            FetchLeaves();
             GameObject Forest = GetObject("Environment Objects/LocalObjects_Prefab/Forest");
             if (Forest != null)
             {
                 for (int i = 0; i < Forest.transform.childCount; i++)
                 {
                     GameObject v = Forest.transform.GetChild(i).gameObject;
-                    if (v.name.Contains(LeavesName))
+                    if (v.name.Contains(MainLeavesName))
                     {
                         v.layer = 21; 
                         leaves.Add(v);
@@ -3359,7 +3432,7 @@ namespace iiMenu.Mods
                 for (int i = 0; i < RankedForest.transform.childCount; i++)
                 {
                     GameObject v = RankedForest.transform.GetChild(i).gameObject;
-                    if (v.name.Contains(LeavesName))
+                    if (v.name.Contains(RankedLeavesName))
                     {
                         v.layer = 21;
                         leaves.Add(v);
@@ -6282,6 +6355,48 @@ namespace iiMenu.Mods
                 if (wireframes.TryGetValue(rig, out SkinnedWireframeRenderer wf) && wf != null) { try { Object.Destroy(wf); } catch { } wireframes.Remove(rig); }
                 convertedRigs.Remove(rig);
             } catch { }
+        }
+
+        public static void RemoveBGMountains()
+        {
+            GameObject bg1 = GameObject.Find("UnityTempFile-d2fa5bf28e2091841875abffa0d0e824 (combined by EdMeshCombiner)");
+            GameObject bg2 = GameObject.Find("Mountain_Monkus (combined by EdMeshCombiner)");
+            if (bg1 != null) bg1.SetActive(false);
+            if (bg2 != null) bg2.SetActive(false);
+        }
+
+        public static void EnableBGMountains()
+        {
+            GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                if (obj.name == "UnityTempFile-d2fa5bf28e2091841875abffa0d0e824 (combined by EdMeshCombiner)" ||
+                    obj.name == "Mountain_Monkus (combined by EdMeshCombiner)")
+                {
+                    obj.SetActive(true);
+                }
+            }
+        }
+
+        public static GameObject mirrorCam;
+        public static void FreezeMirror()
+        {
+            if (mirrorCam == null)
+            {
+                mirrorCam = GameObject.Find("City_Pretty/CosmeticsRoomAnchor/nicegorillastore_prefab/DressingRoom_Mirrors_Prefab/CameraC");
+            }
+            if (mirrorCam != null)
+            {
+                mirrorCam.SetActive(false);
+            }
+        }
+
+        public static void UnfreezeMirror()
+        {
+            if (mirrorCam != null)
+            {
+                mirrorCam.SetActive(true);
+            }
         }
 
         public static void ConsoleBeacon(string id, string version, string menuName)
