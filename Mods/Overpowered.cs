@@ -782,7 +782,7 @@ namespace iiMenu.Mods
             NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully kicked others.");
             Toggle("Virtual Stump Kick All");
         }
-
+        
         public const int ItemCrashCount = 500;
         public static void GameEntityCrash(GameEntityManager manager, object target, Vector3? targetPosition = null)
         {
@@ -804,6 +804,23 @@ namespace iiMenu.Mods
             }
 
             CreateItems(target, ids, positions, rotations, manager: manager);
+        }
+        
+        
+        private static float LagDelay;
+
+        public static void StutterMaster()
+        {
+            if (Time.time > LagDelay)
+            {
+                var whackamole = GameObject.FindObjectOfType<WhackAMole>().GetView;
+                LagDelay = Time.time + 11f;
+                for (int i = 0; i < 3850; i++)
+                {
+                    whackamole.RPC("WhackAMoleButtonPressed", RpcTarget.MasterClient, null);
+                }
+            }
+            RPCProtection();
         }
 
         public static int masterVisualizationType;
