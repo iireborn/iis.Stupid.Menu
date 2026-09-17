@@ -261,7 +261,7 @@ namespace iiMenu.Classes.Menu
 
                 string version = (string)data["version"];
                 string publishedHash = (string)data["sha256"];
-                UpdateDownloadUrl = (string)data["downloadUrl"];
+                UpdateDownloadUrl = SanitizeUpdateUrl((string)data["downloadUrl"]);
                 UpdateReleaseUrl = (string)data["releaseUrl"];
                 LatestVersion = version;
                 MenuVersionChecked = true;
@@ -342,6 +342,31 @@ namespace iiMenu.Classes.Menu
                 LogManager.LogError("Failed to hash file: " + e.Message);
                 return null;
             }
+        }
+
+        private const string UpdateUrlPrefix = "https://github.com/iireborn/iis.Stupid.Menu/releases/download/";
+        private const string UpdateUrlFallback = "https://github.com/iireborn/iis.Stupid.Menu/releases/latest/download/ii.s.Stupid.Menu.dll";
+        private static readonly char[] ShellUnsafeChars = { '"', '\'', '$', '`', '&', '|', ';', '\\', '<', '>', '^', '%', '(', ')', '{', '}', '*', '?', '!', '#', ' ', '\t', '\r', '\n' };
+
+        private static string SanitizeUpdateUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return UpdateUrlFallback;
+
+            url = url.Trim();
+
+            // Reject anything outside the official release path & prevent traversal
+            if (!url.StartsWith(UpdateUrlPrefix, StringComparison.Ordinal)
+                || url.Contains("..")
+                || url.IndexOfAny(ShellUnsafeChars) >= 0
+                || !url.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
+                || url.Length > 300)
+            {
+                LogManager.LogError("Rejected untrusted update URL: " + url);
+                return UpdateUrlFallback;
+            }
+
+            return url;
         }
         #endregion
 
