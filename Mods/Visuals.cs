@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ii's Stupid Menu  Mods/Visuals.cs
  * A mod menu for Gorilla Tag with over 1000+ mods
  *
@@ -1507,8 +1507,8 @@ namespace iiMenu.Mods
             {
                 if (!localTrajectoryLine.gameObject.activeSelf)
                 {
-                    localTrajectoryLine = null;
                     Object.Destroy(localTrajectoryLine.gameObject);
+                    localTrajectoryLine = null;
                 }
                 else
                     localTrajectoryLine.gameObject.SetActive(false);

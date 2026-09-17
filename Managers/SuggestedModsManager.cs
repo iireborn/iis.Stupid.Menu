@@ -1,4 +1,4 @@
-﻿using GorillaGameModes;
+using GorillaGameModes;
 using iiMenu.Classes.Menu;
 using iiMenu.Menu;
 using iiMenu.Mods;
@@ -12,7 +12,6 @@ namespace iiMenu.Managers
     internal class SuggestedModsManager
     {
         private static List<ButtonInfo> SuggestedMods;
-        public static GameMode currentMode;
         public static void Init()
         {
             Buttons.CurrentCategoryName = "Suggested Mods";

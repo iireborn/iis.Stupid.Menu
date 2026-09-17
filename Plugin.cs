@@ -26,6 +26,7 @@ using iiMenu.Managers;
 using iiMenu.Menu;
 using iiMenu.Patches;
 using iiMenu.Patches.Menu;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -105,7 +106,14 @@ namespace iiMenu
         private void OnDestroy()
         {
             Main.UnloadMenu();
-            try { Utilities.AssetUtilities.ReleaseAll(); } catch { }
+            try 
+            { 
+                Utilities.AssetUtilities.ReleaseAll(); 
+            } 
+            catch (Exception ex)
+            {
+                PluginLogger.LogError($"Error releasing assets: {ex.Message}");
+            }
         }
 
         private static void LoadMenu()
