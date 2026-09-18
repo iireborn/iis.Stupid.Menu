@@ -6220,8 +6220,6 @@ namespace iiMenu.Menu
         {
             switch (buttonText)
             {
-                case "Discord RPC":
-                    return;
                 case "PreviousPage":
                 {
                     if (dynamicAnimations)

@@ -28,6 +28,7 @@ using HarmonyLib;
 using iiMenu.Extensions;
 using iiMenu.Managers;
 using iiMenu.Managers.DiscordRPC;
+using iiMenu.Managers.DiscordRPC.Logging;
 using iiMenu.Patches.Menu;
 using iiMenu.Utilities;
 using Photon.Pun;
@@ -248,18 +249,112 @@ exit";
         }
 
         private static DiscordRpcClient discord;
+        private static DateTime? startTime;
+        private static DateTime? endTime;
+        private static float updateTime;
+
         public static void DiscordRPC()
         {
+            if (discord == null)
+            {
+                discord = new DiscordRpcClient(PluginInfo.DiscordAppId)
+                {
+                    Logger = new DiscordLogManager()
+                };
+
+                discord.Initialize();
+            }
+
+            if (NetworkSystem.Instance.InRoom)
+            {
+                endTime = null;
+
+                if (startTime == null)
+                    startTime = DateTime.UtcNow;
+            }
+            else
+            {
+                startTime = null;
+
+                if (endTime == null)
+                    endTime = DateTime.UtcNow;
+            }
+
+            if (Time.time > updateTime)
+            {
+                updateTime = Time.time + 1f;
+                bool inRoom = NetworkSystem.Instance.InRoom;
+                string roomName = inRoom ? NetworkSystem.Instance.RoomName : "-";
+
+                string smallImageKey = inRoom ? PluginInfo.DiscordSmallImageKeyOnline : PluginInfo.DiscordSmallImageKeyOffline;
+                Managers.DiscordRPC.Assets assets = null;
+
+                if (!string.IsNullOrEmpty(PluginInfo.DiscordLargeImageKey) || !string.IsNullOrEmpty(smallImageKey))
+                {
+                    assets = new Managers.DiscordRPC.Assets();
+
+                    if (!string.IsNullOrEmpty(PluginInfo.DiscordLargeImageKey))
+                    {
+                        assets.LargeImageKey = PluginInfo.DiscordLargeImageKey;
+                        assets.LargeImageText = "ii's Stupid Menu";
+                    }
+
+                    if (!string.IsNullOrEmpty(smallImageKey))
+                    {
+                        assets.SmallImageKey = smallImageKey;
+                        assets.SmallImageText = inRoom ? "Online" : "Offline";
+                    }
+                }
+
+                try
+                {
+                    discord.SetPresence(new RichPresence
+                    {
+                        Details = inRoom ? $"Playing {GorillaGameManager.instance.GameType().ToString().ToLower()}" : "Playing alone",
+                        State = inRoom ? $"Room: {roomName} ({PhotonNetwork.PlayerList.Length}/{PhotonNetwork.CurrentRoom.MaxPlayers})" : "Not in a room",
+                        Assets = assets,
+                        Timestamps = inRoom ? new Timestamps
+                        {
+                            Start = startTime ?? endTime ?? DateTime.UtcNow
+                        } : null,
+                        Buttons = new[]
+                        {
+                            new Button
+                            {
+                                Label = "Discord Server",
+                                Url = serverLink
+                            },
+                            new Button
+                            {
+                                Label = "Download",
+                                Url = "https://github.com/iireborn/iis.Stupid.Menu"
+                            }
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    LogManager.LogError($"Failed to update the Discord presence at {e.StackTrace}: {e.Message}");
+                }
+            }
         }
 
         public static void DisableDiscordRPC()
         {
-            if (discord != null)
+            if (discord == null)
+                return;
+
+            try
             {
                 discord.ClearPresence();
                 discord.Dispose();
-                discord = null;
             }
+            catch (Exception e)
+            {
+                LogManager.LogError($"Failed to shut down Discord RPC at {e.StackTrace}: {e.Message}");
+            }
+
+            discord = null;
         }
 
         private static bool quickSongExists;

@@ -32,6 +32,12 @@ namespace iiMenu
         public const string BaseDirectory = "iisStupidMenu";
         public const string ClientResourcePath = "iiMenu.Resources.Client";
         public const string ServerResourcePath = "https://raw.githubusercontent.com/Seralyth/Seralyth-Menu/master/Resources/Server";
+
+        public const string DiscordAppId = "1550339122777030756";
+
+        public const string DiscordLargeImageKey = "";
+        public const string DiscordSmallImageKeyOnline = "";
+        public const string DiscordSmallImageKeyOffline = "";
         
         public const string Logo = @"••╹   ┏┓     • ┓  ┳┳┓      
 ┓┓ ┏  ┗┓╋┓┏┏┓┓┏┫  ┃┃┃┏┓┏┓┓┏

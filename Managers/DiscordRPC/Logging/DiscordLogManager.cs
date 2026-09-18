@@ -23,7 +23,7 @@ namespace iiMenu.Managers.DiscordRPC.Logging
 
 		public DiscordLogManager()
 		{
-            Level = LogLevel.Warning;
+            Level = LogLevel.Info;
             Coloured = false;
 		}
 

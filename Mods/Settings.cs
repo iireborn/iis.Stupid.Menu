@@ -6255,7 +6255,7 @@ exit 0";
                 if (Buttons.GetIndex(activebuttons[index]) == null)
                     continue;
 
-                if (activebuttons[index] == "Connect to iiServers" || activebuttons[index] == "Discord RPC")
+                if (activebuttons[index] == "Connect to iiServers")
                 {
                     Buttons.GetIndex(activebuttons[index]).enabled = false;
                     continue;
