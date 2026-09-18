@@ -6232,8 +6232,11 @@ namespace iiMenu.Mods
                 backgroundRender.material.color = Color.white;
                 MeshRender.material.renderQueue = backgroundRender.material.renderQueue + 2;
 
-                newMesh.outlineWidth = 0.2f;
-                newMesh.outlineColor = Color.black;
+                if (newMesh.SupportsOutline())
+                {
+                    newMesh.outlineWidth = 0.2f;
+                    newMesh.outlineColor = Color.black;
+                }
 
                 nameTagPool.Add(newMesh);
 

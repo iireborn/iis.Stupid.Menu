@@ -117,7 +117,7 @@ namespace iiMenu.Managers
             canvasRect.sizeDelta = new Vector2(5f, 5f);
             canvasRect.position = mainCamera.transform.position;
 
-            canvas.transform.parent = canvasParent.transform;
+            canvas.transform.SetParent(canvasParent.transform, false);
             canvasRect.localPosition = new Vector3(0f, 0f, 1.6f);
             canvasRect.localScale = Vector3.one;
 

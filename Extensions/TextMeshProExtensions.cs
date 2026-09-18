@@ -76,6 +76,9 @@ namespace iiMenu.Extensions
                 tmp.characterSpacing = targetSpacing;
         }
 
+        public static bool SupportsOutline(this TMP_Text tmp) =>
+            tmp != null && tmp.fontSharedMaterial != null && tmp.fontSharedMaterial.HasProperty("_OutlineWidth");
+
         private static Shader _tmpShader;
         public static Shader TmpShader
         {

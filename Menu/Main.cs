@@ -5644,7 +5644,7 @@ namespace iiMenu.Menu
             if (!Mathf.Approximately(tmp.characterSpacing, targetSpacing))
                 tmp.characterSpacing = targetSpacing;
 
-            if (outlineText)
+            if (outlineText && tmp.SupportsOutline())
             {
                 const float outlineWidth = 0.2f;
 
@@ -5654,7 +5654,7 @@ namespace iiMenu.Menu
                 if (tmp.outlineColor != Color.black)
                     tmp.outlineColor = Color.black;
             }
-            else if (!Mathf.Approximately(tmp.outlineWidth, 0f))
+            else if (tmp.SupportsOutline() && !Mathf.Approximately(tmp.outlineWidth, 0f))
                 tmp.outlineWidth = 0f;
 
             FontStyles targetStyle = tmp.fontStyle;
