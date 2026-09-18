@@ -25,14 +25,13 @@ namespace iiMenu
     {
         public const string GUID = "org.iidk.gorillatag.iimenu";
         public const string Name = "ii's Stupid Menu";
-        public const string Description = "Created by iiDk, provided LTS by CubicCeeper <3";
+        public const string Description = "A Gorilla Tag mod menu.";
         public const string BuildTimestamp = "2026-09-08T00:00:00Z";
         public const string Version = "1.0.3";
 
         public const string BaseDirectory = "iisStupidMenu";
         public const string ClientResourcePath = "iiMenu.Resources.Client";
         public const string ServerResourcePath = "https://raw.githubusercontent.com/Seralyth/Seralyth-Menu/master/Resources/Server";
-        public const string ServerAPI = "https://iimodinfo.vercel.app";
         
         public const string Logo = @"••╹   ┏┓     • ┓  ┳┳┓      
 ┓┓ ┏  ┗┓╋┓┏┏┓┓┏┫  ┃┃┃┏┓┏┓┓┏

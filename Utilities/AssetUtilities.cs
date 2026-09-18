@@ -22,8 +22,9 @@
 using iiMenu.Managers;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -89,6 +90,8 @@ namespace iiMenu.Utilities
             return sound;
         }
 
+        private static readonly HashSet<string> soundsDownloading = new HashSet<string>();
+
         public static AudioClip LoadSoundFromURL(string resourcePath, string fileName)
         {
             string filePath = $"{PluginInfo.BaseDirectory}/{fileName}";
@@ -98,20 +101,62 @@ namespace iiMenu.Utilities
                 Directory.CreateDirectory(directory);
 
             if (File.Exists(filePath)) return LoadSoundFromFile(fileName);
-            LogManager.Log("Downloading " + fileName);
-            try
+
+            BeginSoundDownload(resourcePath, filePath, fileName);
+            return null;
+        }
+
+        private static void BeginSoundDownload(string resourcePath, string filePath, string fileName)
+        {
+            lock (soundsDownloading)
             {
-                using WebClient stream = new WebClient();
-                stream.Headers[HttpRequestHeader.UserAgent] = BrowserUserAgent;
-                stream.DownloadFile(resourcePath, filePath);
-            }
-            catch (System.Exception e)
-            {
-                LogManager.LogError($"Failed to download {fileName} from {resourcePath}: {e.Message}");
-                return null;
+                if (!soundsDownloading.Add(fileName))
+                    return;
             }
 
-            return LoadSoundFromFile(fileName);
+            LogManager.Log("Downloading " + fileName);
+
+            Thread worker = new Thread(() =>
+            {
+                string temporaryPath = filePath + ".part";
+
+                try
+                {
+                    using HttpClient http = new HttpClient { Timeout = System.TimeSpan.FromSeconds(8) };
+                    http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
+                    byte[] data = http.GetByteArrayAsync(resourcePath).GetAwaiter().GetResult();
+                    File.WriteAllBytes(temporaryPath, data);
+
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+
+                    File.Move(temporaryPath, filePath);
+                }
+                catch (System.Exception e)
+                {
+                    LogManager.LogError($"Failed to download {fileName} from {resourcePath}: {e.Message}");
+
+                    try
+                    {
+                        if (File.Exists(temporaryPath))
+                            File.Delete(temporaryPath);
+                    }
+                    catch
+                    {
+                    }
+                }
+                finally
+                {
+                    lock (soundsDownloading)
+                        soundsDownloading.Remove(fileName);
+                }
+            })
+            {
+                IsBackground = true,
+                Name = $"iisStupidMenu sound download ({fileName})"
+            };
+
+            worker.Start();
         }
 
         public static readonly Dictionary<string, Texture2D> textureResourceDictionary = new Dictionary<string, Texture2D>();
@@ -159,14 +204,13 @@ namespace iiMenu.Utilities
                 try
                 {
                     LogManager.Log("Downloading " + fileName);
-                    using (WebClient client = new WebClient())
-                    {
-                        byte[] bytes = client.DownloadData(resourcePath);
-                        if (!TryCreateTexture(bytes, out texture))
-                            throw new InvalidDataException("The response was not a valid image.");
+                    using HttpClient http = new HttpClient { Timeout = System.TimeSpan.FromSeconds(15) };
+                    http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
+                    byte[] bytes = http.GetByteArrayAsync(resourcePath).GetAwaiter().GetResult();
+                    if (!TryCreateTexture(bytes, out texture))
+                        throw new InvalidDataException("The response was not a valid image.");
 
-                        File.WriteAllBytes(filePath, bytes);
-                    }
+                    File.WriteAllBytes(filePath, bytes);
                 }
                 catch (System.Exception ex)
                 {

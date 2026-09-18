@@ -57,6 +57,16 @@ namespace iiMenu.Mods
 {
     public class Visuals
     {
+        private static Shader GetVisualShader()
+        {
+            return Shader.Find("GUI/Text Shader") ?? Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Sprites/Default");
+        }
+
+        private static bool SceneReady(bool roomRequired = false)
+        {
+            return GorillaTagger.Instance != null && GorillaTagger.Instance.headCollider != null && GTPlayer.Instance != null && (!roomRequired || PhotonNetwork.InRoom);
+        }
+
         public static readonly Dictionary<(long, float), GameObject> auraPool = new Dictionary<(long, float), GameObject>();
         public static void VisualizeAura(Vector3 position, float range, Color color, long? indexId = null, float alpha = 0.25f)
         {
@@ -83,7 +93,7 @@ namespace iiMenu.Mods
 
             Color clr = color;
             clr.a = alpha;
-            auraRenderer.material.shader = Shader.Find("GUI/Text Shader");
+            auraRenderer.material.shader = GetVisualShader();
             auraRenderer.material.color = clr;
         }
 
@@ -113,7 +123,7 @@ namespace iiMenu.Mods
 
             Color clr = color;
             clr.a = alpha;
-            auraRenderer.material.shader = Shader.Find("GUI/Text Shader");
+            auraRenderer.material.shader = GetVisualShader();
             auraRenderer.material.color = clr;
         }
 
@@ -134,7 +144,7 @@ namespace iiMenu.Mods
 
             Color clr = color;
             clr.a = alpha;
-            auraRenderer.material.shader = Shader.Find("GUI/Text Shader");
+            auraRenderer.material.shader = GetVisualShader();
             auraRenderer.material.color = clr;
 
             return visualizeGO;
@@ -158,7 +168,7 @@ namespace iiMenu.Mods
 
             Color clr = color;
             clr.a = alpha;
-            auraRenderer.material.shader = Shader.Find("GUI/Text Shader");
+            auraRenderer.material.shader = GetVisualShader();
             auraRenderer.material.color = clr;
 
             return visualizeGO;
@@ -190,34 +200,53 @@ namespace iiMenu.Mods
             text += "<color=green>Theme</color> " + themeType + "\n";
             text += "<color=green>Preferences Directory</color><color=grey>:</color> " + $"{FileUtilities.GetGamePath()}/{PluginInfo.BaseDirectory}";
 
-            GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData").GetComponent<TextMeshPro>().SafeSetText(text);
+            GameObject infoObject = GetObject("Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData");
+            TextMeshPro infoText = infoObject != null ? infoObject.GetComponent<TextMeshPro>() : null;
+            if (infoText != null)
+                infoText.SafeSetText(text);
         }
 
         public static void ToggleSnow(bool enable)
         {
-            GameObject snowObject = GetObject("Environment Objects/LocalObjects_Prefab/Forest/Environment/WeatherDayNight").transform.Find("snow").gameObject;
-            snowObject.SetActive(enable);
-            snowObject.transform.position += Vector3.one * (enable ? 0.001f : -0.001f);
-            snowObject.GetComponent<TimeOfDayDependentAudio>().enabled = !enable;
-            snowObject.transform.Find("snow partic").gameObject.SetActive(enable);
+            GameObject weather = GetObject("Environment Objects/LocalObjects_Prefab/Forest/Environment/WeatherDayNight");
+            Transform snow = weather != null ? weather.transform.Find("snow") : null;
+            if (snow == null)
+                return;
+
+            snow.gameObject.SetActive(enable);
+            snow.position += Vector3.one * (enable ? 0.001f : -0.001f);
+
+            TimeOfDayDependentAudio audio = snow.GetComponent<TimeOfDayDependentAudio>();
+            if (audio != null)
+                audio.enabled = !enable;
+
+            Transform particles = snow.Find("snow partic");
+            if (particles != null)
+                particles.gameObject.SetActive(enable);
         }
 
         public static void WeatherChange(bool rain)
         {
-            // New builds schedule weather events, so mutating weatherCycle no longer
-            // applies. The game's own fixed-weather override (used by its console)
-            // is the supported path; clearing restores the natural cycle.
+            if (BetterDayNightManager.instance == null)
+                return;
+
             if (rain)
                 BetterDayNightManager.instance.SetFixedWeather(BetterDayNightManager.WeatherType.Raining, true);
             else
                 BetterDayNightManager.instance.ClearFixedWeather(true);
         }
 
-        public static void DisableFog() =>
-            ZoneShaderSettings.activeInstance.SetGroundFogValue(Color.clear, 0f, 0f, 0f);
+        public static void DisableFog()
+        {
+            if (ZoneShaderSettings.activeInstance != null)
+                ZoneShaderSettings.activeInstance.SetGroundFogValue(Color.clear, 0f, 0f, 0f);
+        }
 
-        public static void EnableFog() =>
-            ZoneShaderSettings.activeInstance.SetGroundFogValue(new Color(0.9569f, 0.6941f, 0.502f, 0.1216f), 40f, 10f, 40f);
+        public static void EnableFog()
+        {
+            if (ZoneShaderSettings.activeInstance != null)
+                ZoneShaderSettings.activeInstance.SetGroundFogValue(new Color(0.9569f, 0.6941f, 0.502f, 0.1216f), 40f, 10f, 40f);
+        }
 
         private static readonly List<TimeOfDayDependentAudio> disabledAmbientObjects = new List<TimeOfDayDependentAudio>();
         public static void DisableAmbience()
@@ -240,8 +269,11 @@ namespace iiMenu.Mods
             disabledAmbientObjects.Clear();
         }
 
-        public static void ResetFog() =>
-            ZoneShaderSettings.activeInstance.CopySettings(ZoneShaderSettings.defaultsInstance);
+        public static void ResetFog()
+        {
+            if (ZoneShaderSettings.activeInstance != null && ZoneShaderSettings.defaultsInstance != null)
+                ZoneShaderSettings.activeInstance.CopySettings(ZoneShaderSettings.defaultsInstance);
+        }
 
         /*
         public static void SpawnLightning() =>
@@ -275,7 +307,7 @@ namespace iiMenu.Mods
 
         public static void CoreESP()
         {
-            if (!PhotonNetwork.InRoom)
+            if (!SceneReady(true) || global::GhostReactor.instance == null || ManagerRegistry.GhostReactor.GameEntityManager == null || Overpowered.ObjectByName == null || !Overpowered.ObjectByName.ContainsKey("GhostReactorCollectibleCore"))
                 return;
 
             bool fmt = Buttons.GetIndex("Follow Menu Theme").enabled;
@@ -298,7 +330,7 @@ namespace iiMenu.Mods
 
         public static void CritterESP()
         {
-            if (!PhotonNetwork.InRoom)
+            if (!SceneReady(true) || CrittersManager.instance == null || CrittersManager.instance.crittersPawns == null)
                 return;
 
             bool fmt = Buttons.GetIndex("Follow Menu Theme").enabled;
@@ -344,7 +376,7 @@ namespace iiMenu.Mods
 
         public static void EnemyESP()
         {
-            if (!PhotonNetwork.InRoom)
+            if (!SceneReady(true) || global::GhostReactor.instance == null || ManagerRegistry.GhostReactor.GameEntityManager == null)
                 return;
 
             bool fmt = Buttons.GetIndex("Follow Menu Theme").enabled;
@@ -367,7 +399,7 @@ namespace iiMenu.Mods
 
         public static void ResourceESP()
         {
-            if (!PhotonNetwork.InRoom)
+            if (!SceneReady(true) || ManagerRegistry.SuperInfection.SuperInfectionManager == null || ManagerRegistry.SuperInfection.GameEntityManager == null)
                 return;
 
             bool fmt = Buttons.GetIndex("Follow Menu Theme").enabled;
@@ -391,6 +423,9 @@ namespace iiMenu.Mods
         private static bool previousFullbrightStatus;
         public static void SetFullbrightStatus(bool fullBright)
         {
+            if (GameLightingManager.instance == null)
+                return;
+
             if (fullBright)
             {
                 previousFullbrightStatus = GameLightingManager.instance.customVertexLightingEnabled;
@@ -409,6 +444,9 @@ namespace iiMenu.Mods
             {
                 removeBlindfoldDelay = Time.time + 0.5f;
                 GameObject mainCamera = GetObject("Player Objects/Player VR Controller/GorillaPlayer/TurnParent/Main Camera");
+                if (mainCamera == null)
+                    return;
+
                 int childCount = mainCamera.transform.childCount;
                 for (int i = 0; i < childCount; i++)
                 {
@@ -421,7 +459,14 @@ namespace iiMenu.Mods
 
         public static void WatchOn()
         {
-            GameObject mainwatch = VRRig.LocalRig.transform.Find("rig/hand.L/huntcomputer (1)").gameObject;
+            if (VRRig.LocalRig == null)
+                return;
+
+            Transform watchTransform = VRRig.LocalRig.transform.Find("rig/hand.L/huntcomputer (1)");
+            if (watchTransform == null)
+                return;
+
+            GameObject mainwatch = watchTransform.gameObject;
             regwatchobject = Object.Instantiate(mainwatch, rightHand ? VRRig.LocalRig.transform.Find("rig/hand.R").transform : VRRig.LocalRig.transform.Find("rig/hand.L").transform, false);
             Object.Destroy(regwatchobject.GetComponent<GorillaHuntComputer>());
             regwatchobject.SetActive(true);
@@ -548,6 +593,9 @@ namespace iiMenu.Mods
         public static bool infoWatchCode;
         public static void WatchStep()
         {
+            if (regwatchText == null || !regwatchText.activeInHierarchy)
+                return;
+
             bool defaultWatch = !infoWatchMenuName && !infoWatchTime && !infoWatchClip && !infoWatchFPS && !infoWatchCode;
             string watchText = "";
 
@@ -573,23 +621,39 @@ namespace iiMenu.Mods
                 watchTextComponent.text = watchTextComponent.text.ToUpper();
         }
 
-        public static void WatchOff() =>
-            Object.Destroy(regwatchobject);
+        public static void WatchOff()
+        {
+            if (regwatchobject != null)
+                Object.Destroy(regwatchobject);
+
+            regwatchobject = null;
+            regwatchText = null;
+            regwatchShell = null;
+        }
 
         public static Material oldSkyMat;
         public static void DoCustomSkyboxColor()
         {
             GameObject sky = GetObject("Environment Objects/LocalObjects_Prefab/Standard Sky");
-            oldSkyMat = sky.GetComponent<Renderer>().material;
+            Renderer renderer = sky != null ? sky.GetComponent<Renderer>() : null;
+            if (renderer != null)
+                oldSkyMat = renderer.material;
         }
 
-        public static void CustomSkyboxColor() =>
-            GetObject("Environment Objects/LocalObjects_Prefab/Standard Sky").GetComponent<Renderer>().material = CustomBoardManager.BoardMaterial;
+        public static void CustomSkyboxColor()
+        {
+            GameObject sky = GetObject("Environment Objects/LocalObjects_Prefab/Standard Sky");
+            Renderer renderer = sky != null ? sky.GetComponent<Renderer>() : null;
+            if (renderer != null && CustomBoardManager.BoardMaterial != null)
+                renderer.material = CustomBoardManager.BoardMaterial;
+        }
 
         public static void UnCustomSkyboxColor()
         {
             GameObject sky = GetObject("Environment Objects/LocalObjects_Prefab/Standard Sky");
-            sky.GetComponent<Renderer>().material = oldSkyMat;
+            Renderer renderer = sky != null ? sky.GetComponent<Renderer>() : null;
+            if (renderer != null && oldSkyMat != null)
+                renderer.material = oldSkyMat;
         }
 
         public static TrailRenderer trailRenderer;
@@ -821,10 +885,8 @@ namespace iiMenu.Mods
             return 0.1f + frames.Count * 0.1f;
         }
 
-        /// <summary>
         /// Displays a label with the specified text and color at the position of the player's left or right hand. If a
         /// label with the given code name does not exist, a new label is created.
-        /// </summary>
         /// <remarks>If the label already exists, its properties are updated; otherwise, a new label is
         /// created and added. The label is positioned and oriented to face the main camera, and its scale may be
         /// adjusted based on the player's scale. The label is always set active when this method is called.</remarks>
@@ -1015,7 +1077,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1041,7 +1103,13 @@ namespace iiMenu.Mods
 
         public static void EnableDebugHUD()
         {
-            DebugHudStats debugStats = Camera.main.transform.Find("DebugCanvas").GetComponent<DebugHudStats>();
+            if (Camera.main == null)
+                return;
+
+            Transform debugCanvas = Camera.main.transform.Find("DebugCanvas");
+            DebugHudStats debugStats = debugCanvas != null ? debugCanvas.GetComponent<DebugHudStats>() : null;
+            if (debugStats == null)
+                return;
 
             debugStats.builder = new StringBuilder();
             debugStats.drawCallsRecorder = ProfilerRecorder.StartNew(
@@ -1061,8 +1129,13 @@ namespace iiMenu.Mods
 
         public static void DisableDebugHUD()
         {
-            DebugHudStats debugStats = Camera.main.transform.Find("DebugCanvas").GetComponent<DebugHudStats>();
-            debugStats.gameObject.SetActive(false);
+            if (Camera.main == null)
+                return;
+
+            Transform debugCanvas = Camera.main.transform.Find("DebugCanvas");
+            DebugHudStats debugStats = debugCanvas != null ? debugCanvas.GetComponent<DebugHudStats>() : null;
+            if (debugStats != null)
+                debugStats.gameObject.SetActive(false);
         }
 
         public static void NearbyTaggerLabel()
@@ -1144,8 +1217,16 @@ namespace iiMenu.Mods
 
         public static void AudioVisualizer()
         {
-            visualizerObject.GetComponent<Renderer>().material.color = backgroundColor.GetCurrentColor();
-            visualizerOutline.GetComponent<Renderer>().material.color = buttonColors[0].GetCurrentColor();
+            if (!SceneReady() || visualizerObject == null || visualizerOutline == null)
+                return;
+
+            Renderer visualizerRenderer = visualizerObject.GetComponent<Renderer>();
+            Renderer outlineRenderer = visualizerOutline.GetComponent<Renderer>();
+            if (visualizerRenderer == null || outlineRenderer == null)
+                return;
+
+            visualizerRenderer.material.color = backgroundColor.GetCurrentColor();
+            outlineRenderer.material.color = buttonColors[0].GetCurrentColor();
 
             Physics.Raycast(GorillaTagger.Instance.bodyCollider.transform.position - new Vector3(0f, 0.2f, 0f), Vector3.down, out var Ray, 512f, GTPlayer.Instance.locomotionEnabledLayers);
             visualizerObject.transform.position = Ray.point;
@@ -1159,8 +1240,8 @@ namespace iiMenu.Mods
             size *= 16f;
             visualizerObject.transform.localScale = new Vector3(size, 0.05f, size);
 
-            visualizerObject.GetComponent<Renderer>().enabled = size > 0.05f;
-            visualizerOutline.GetComponent<Renderer>().enabled = size > 0.05f;
+            visualizerRenderer.enabled = size > 0.05f;
+            outlineRenderer.enabled = size > 0.05f;
 
             visualizerOutline.transform.position = visualizerObject.transform.position;
             visualizerOutline.transform.rotation = visualizerObject.transform.rotation;
@@ -1169,8 +1250,13 @@ namespace iiMenu.Mods
 
         public static void DestroyAudioVisualizer()
         {
-            Object.Destroy(visualizerObject);
-            Object.Destroy(visualizerOutline);
+            if (visualizerObject != null)
+                Object.Destroy(visualizerObject);
+            if (visualizerOutline != null)
+                Object.Destroy(visualizerOutline);
+
+            visualizerObject = null;
+            visualizerOutline = null;
         }
 
         private static GameObject headPos;
@@ -5497,7 +5583,9 @@ namespace iiMenu.Mods
 
         public static void AutomaticESP(Action infection, Action hunt, Action other)
         {
-            if (!PhotonNetwork.InRoom) return;
+            if (!SceneReady(true) || GorillaGameManager.instance == null)
+                return;
+
             switch (GorillaGameManager.instance.GameType())
             {
                 case GameModeType.Infection:

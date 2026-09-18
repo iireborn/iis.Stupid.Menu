@@ -52,7 +52,7 @@ namespace iiMenu.Mods.CustomMaps.Maps
 
             new ButtonInfo { buttonText = "Monke Magic Crash Gun", overlapText = "Crash Gun", method = CrashGun, toolTip = "Crashes whoever your hand desires in the custom map." },
             new ButtonInfo { buttonText = "Monke Magic Crash All", overlapText = "Crash All", method = CrashAll, isTogglable = false, toolTip = "Crashes everyone in the custom map." },
-            new ButtonInfo { buttonText = "Monke Magic Anti Report", overlapText = "Anti Report <color=grey>[</color><color=green>Crash</color><color=grey>]</color>", method = AntiReportCrash, toolTip = "Crashes everyone who tries to report you." },
+
             new ButtonInfo { buttonText = "Monke Magic Crash Aura", overlapText = "Crash Aura", method = CrashAura, toolTip = "Crashes players nearby you in the custom map." },
             new ButtonInfo { buttonText = "Monke Magic Crash On Touch", overlapText = "Crash On Touch", method = CrashOnTouch, toolTip = "Crashes whoever you touch in the custom map." },
             new ButtonInfo { buttonText = "Monke Magic Crash When Touched", overlapText = "Crash When Touched", method = CrashWhenTouched, toolTip = "Crashes whoever touches you in the custom map." }
@@ -83,7 +83,7 @@ namespace iiMenu.Mods.CustomMaps.Maps
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -135,7 +135,7 @@ namespace iiMenu.Mods.CustomMaps.Maps
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -176,7 +176,7 @@ namespace iiMenu.Mods.CustomMaps.Maps
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > lucyDelay)
                     {
                         lucyDelay = Time.time + 0.2f;
@@ -225,7 +225,7 @@ namespace iiMenu.Mods.CustomMaps.Maps
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -303,9 +303,11 @@ namespace iiMenu.Mods.CustomMaps.Maps
                 if (Time.time > crashDelay)
                 {
                     NetPlayer Player = GetPlayerFromVRRig(vrrig);
+                    if (Player == null) return;
+
                     CrashPlayer(Player.ActorNumber);
                     crashDelay = Time.time + 0.5f;
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been crashed.");
+                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, they have been crashed.");
                 }
             });
         }

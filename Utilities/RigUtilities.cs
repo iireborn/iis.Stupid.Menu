@@ -34,46 +34,118 @@ namespace iiMenu.Utilities
 {
     public class RigUtilities
     {
-        public static VRRig GetVRRigFromPlayer(NetPlayer p) =>
-            GorillaGameManager.StaticFindRigForPlayer(p);
+        public static VRRig GetVRRigFromPlayer(NetPlayer p)
+        {
+            if (p == null || GorillaGameManager.instance == null)
+                return null;
 
-        public static NetPlayer GetPlayerFromVRRig(VRRig p) =>
-            p.Creator ?? NetworkSystem.Instance.GetPlayer(NetworkSystem.Instance.GetOwningPlayerID(p.rigSerializer.gameObject));
+            try
+            {
+                return GorillaGameManager.StaticFindRigForPlayer(p);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-        /// <summary>
-        /// Crash-safe variant of GetPlayerFromVRRig: during room join some rigs have no
-        /// serializer/owner wired up yet, which makes the strict variant throw. Returns
-        /// null instead — callers should skip the rig until it resolves.
-        /// </summary>
+        public static VRRig GetRigFromHit(RaycastHit hit)
+        {
+            if (hit.collider == null || NetworkSystem.Instance == null || !PhotonNetwork.InRoom)
+                return null;
+
+            try
+            {
+                VRRig rig = hit.collider.GetComponentInParent<VRRig>();
+                return TryGetPlayerFromVRRig(rig, out _) ? rig : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static NetPlayer GetPlayerFromVRRig(VRRig p)
+        {
+            TryGetPlayerFromVRRig(p, out NetPlayer player);
+            return player;
+        }
+
+        public static string GetPlayerName(VRRig p)
+        {
+            NetPlayer player = GetPlayerFromVRRig(p);
+
+            if (player != null && !string.IsNullOrEmpty(player.NickName))
+                return player.NickName;
+
+            return "A player";
+        }
+
         public static bool TryGetPlayerFromVRRig(VRRig p, out NetPlayer player)
         {
             player = null;
 
-            if (p == null)
+            if (p == null || NetworkSystem.Instance == null || !PhotonNetwork.InRoom)
                 return false;
 
             try
             {
-                player = GetPlayerFromVRRig(p);
+                if (p.Creator != null)
+                {
+                    int creatorActorNumber = p.Creator.ActorNumber;
+                    player = NetworkSystem.Instance.AllNetPlayers.FirstOrDefault(candidate => candidate != null && candidate.ActorNumber == creatorActorNumber);
+                    if (player != null)
+                        return true;
+                }
+
+                if (p.rigSerializer == null || p.rigSerializer.gameObject == null)
+                    return false;
+
+                int ownerId = NetworkSystem.Instance.GetOwningPlayerID(p.rigSerializer.gameObject);
+                player = NetworkSystem.Instance.AllNetPlayers.FirstOrDefault(candidate => candidate.ActorNumber == ownerId);
             }
             catch
             {
-                return false;
+                player = null;
             }
 
             return player != null;
         }
 
+        public static NetPlayer GetPlayerFromVRRigLegacy(VRRig p)
+        {
+            if (p == null)
+                return null;
+
+            try
+            {
+                if (p.Creator != null)
+                    return p.Creator;
+
+                if (p.rigSerializer == null || p.rigSerializer.gameObject == null || NetworkSystem.Instance == null)
+                    return null;
+
+                return NetworkSystem.Instance.GetPlayer(NetworkSystem.Instance.GetOwningPlayerID(p.rigSerializer.gameObject));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static NetPlayer GetPlayerFromID(string id) =>
             PhotonNetwork.PlayerList.FirstOrDefault(player => player.UserId == id);
 
+        public static bool IsUsableRig(VRRig rig) =>
+            TryGetPlayerFromVRRig(rig, out _);
+
         public static Player NetPlayerToPlayer(NetPlayer p) =>
-            p.GetPlayerRef();
+            p == null ? null : p.GetPlayerRef();
 
         public static Player GetRandomPlayer(bool includeSelf) =>
             includeSelf ?
-            PhotonNetwork.PlayerList[Random.Range(0, PhotonNetwork.PlayerList.Length)] :
-            PhotonNetwork.PlayerListOthers[Random.Range(0, PhotonNetwork.PlayerListOthers.Length)];
+            PhotonNetwork.PlayerList.Length == 0 ? null : PhotonNetwork.PlayerList[Random.Range(0, PhotonNetwork.PlayerList.Length)] :
+            PhotonNetwork.PlayerListOthers.Length == 0 ? null : PhotonNetwork.PlayerListOthers[Random.Range(0, PhotonNetwork.PlayerListOthers.Length)];
 
         private static VRRig rigTarget;
         private static float rigTargetChange;
@@ -90,10 +162,13 @@ namespace iiMenu.Utilities
             GetVRRigFromPlayer(GetRandomPlayer(includeSelf));
 
         public static NetworkView GetNetworkViewFromVRRig(VRRig p) =>
-            p.netView;
+            p == null ? null : p.netView;
 
-        public static PhotonView GetPhotonViewFromVRRig(VRRig p) =>
-            GetNetworkViewFromVRRig(p).GetView;
+        public static PhotonView GetPhotonViewFromVRRig(VRRig p)
+        {
+            NetworkView view = GetNetworkViewFromVRRig(p);
+            return view == null ? null : view.GetView;
+        }
 
         public static VRRig GetClosestVRRig() =>
             VRRig.LocalRig.GetClosest();

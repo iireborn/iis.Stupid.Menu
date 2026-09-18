@@ -93,7 +93,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > guardianDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         SetGuardianTarget(GetPlayerFromVRRig(gunTarget));
@@ -136,7 +136,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > guardianDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (NetworkSystem.Instance.IsMasterClient)
@@ -195,7 +195,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > playerColorDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         playerColorDelay = Time.time + 0.1f;
@@ -248,7 +248,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunTarget.IsTagged())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -347,7 +347,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunTarget.IsTagged())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -486,7 +486,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -544,7 +544,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -609,7 +609,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -646,7 +646,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -726,7 +726,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                         CustomMapsTerminal.instance.mapTerminalNetworkObject.photonView.RPC("SetRoomMap_RPC", lockTarget.GetPhotonPlayer(), id.Value);
                 }
@@ -873,7 +873,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -903,7 +903,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -933,7 +933,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -963,7 +963,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -991,7 +991,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         gunLocked = true;
@@ -1336,8 +1336,9 @@ namespace iiMenu.Mods
                 if (Vector3.Distance(ServerLeftHandPos, position) > maxDistance)
                     position = ServerLeftHandPos + (position - ServerLeftHandPos).normalized * maxDistance;
 
-                GamePlayer gamePlayer = GamePlayer.GetGamePlayer(PhotonNetwork.LocalPlayer);
-                if (gamePlayer.IsHoldingEntity(gameEntityManager, true) && Time.time > ghostReactorDelay)
+                if (!GamePlayer.TryGetGamePlayer(PhotonNetwork.LocalPlayer, out GamePlayer gamePlayer))
+                    gamePlayer = null;
+                if (gamePlayer != null && gamePlayer.IsHoldingEntity(gameEntityManager, true) && Time.time > ghostReactorDelay)
                 {
                     VRRig.LocalRig.enabled = true;
                     if (ServerLeftHandPos.Distance(position) < maxDistance)
@@ -2008,8 +2009,9 @@ namespace iiMenu.Mods
             int hash = GadgetByName["MegaChargeBlasterGadget"];
  
             GameEntityManager gameEntityManager = ManagerRegistry.SuperInfection.GameEntityManager;
-            GamePlayer gamePlayer = GamePlayer.GetGamePlayer(PhotonNetwork.LocalPlayer);
-            if (gamePlayer.IsHoldingEntity(gameEntityManager, true))
+            if (!GamePlayer.TryGetGamePlayer(PhotonNetwork.LocalPlayer, out GamePlayer gamePlayer))
+                gamePlayer = null;
+            if (gamePlayer != null && gamePlayer.IsHoldingEntity(gameEntityManager, true))
             {
                 GameEntity entity = gameEntityManager.GetGameEntity(gamePlayer.GetGrabbedGameEntityId(GamePlayer.GetHandIndex(true)));
                 if (entity.gameObject.TryGetComponent<SIGadgetChargeBlaster>(out var blaster))
@@ -2218,7 +2220,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2276,7 +2278,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2334,7 +2336,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2392,7 +2394,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2450,7 +2452,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2508,7 +2510,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2715,7 +2717,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                         LucyChase(gunTarget.GetPlayer());
                 }
@@ -2755,7 +2757,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2798,7 +2800,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -2988,7 +2990,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -3169,7 +3171,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > grabDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         GorillaGuardianManager gman = (GorillaGuardianManager)GorillaGameManager.instance;
@@ -3215,7 +3217,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > releaseDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         GorillaGuardianManager gman = (GorillaGuardianManager)GorillaGameManager.instance;
@@ -3262,7 +3264,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > flingDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         BetaSetVelocityPlayer(GetPlayerFromVRRig(gunTarget), new Vector3(0f, 19.9f, 0f) );
@@ -3302,7 +3304,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -3341,7 +3343,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4062,7 +4064,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4104,7 +4106,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > snowballDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         snowballDelay = Time.time + SnowballSpawnDelay;
@@ -4395,7 +4397,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4434,7 +4436,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4534,7 +4536,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4610,7 +4612,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4643,7 +4645,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4676,7 +4678,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4708,7 +4710,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4730,9 +4732,12 @@ namespace iiMenu.Mods
             {
                 Safety.AntiReport((vrrig, position) =>
                 {
+                    NetPlayer reporter = GetPlayerFromVRRig(vrrig);
+                    if (reporter == null) return;
+
                     antiReportFlingDelay = Time.time + 0.1f;
-                    BetaSetVelocityPlayer(GetPlayerFromVRRig(vrrig), (vrrig.transform.position - position) * 50f);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
+                    BetaSetVelocityPlayer(reporter, (vrrig.transform.position - position) * 50f);
+                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, they have been flung.");
                 });
             }
         }
@@ -4743,9 +4748,12 @@ namespace iiMenu.Mods
             {
                 Safety.AntiReport((vrrig, position) =>
                 {
+                    NetPlayer reporter = GetPlayerFromVRRig(vrrig);
+                    if (reporter == null) return;
+
                     snowballDelay = Time.time + SnowballSpawnDelay;
-                    BetaSpawnSnowball(position, new Vector3(0f, -500f, 0f), 2, NetPlayerToPlayer(GetPlayerFromVRRig(vrrig)));
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they have been flung.");
+                    BetaSpawnSnowball(position, new Vector3(0f, -500f, 0f), 2, NetPlayerToPlayer(reporter));
+                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, they have been flung.");
                 });
             }
         }
@@ -4852,7 +4860,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4924,7 +4932,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4970,7 +4978,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5041,7 +5049,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5598,7 +5606,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5719,7 +5727,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5755,7 +5763,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5817,7 +5825,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5926,7 +5934,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5976,7 +5984,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6018,7 +6026,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6090,7 +6098,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6170,7 +6178,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > kickDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer player = GetPlayerFromVRRig(gunTarget);
@@ -6242,7 +6250,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > elevatorKickDelay)
                     {
                         elevatorKickDelay = Time.time + 0.5f;
@@ -6482,7 +6490,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6523,7 +6531,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         gunLocked = true;
@@ -6600,7 +6608,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6659,7 +6667,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > greyZoneDelay)
                     {
                         greyZoneDelay = Time.time + 0.1f;
@@ -6829,9 +6837,7 @@ namespace iiMenu.Mods
 
         public static bool legacyKickFreeze;
 
-        /// <summary>
         /// Indicates whether event optimization is enabled. When enabled, it reduces network load by limiting certain RPC calls and adjusting serialization rates.
-        /// </summary>
         private static bool _optimizeEvents;
         public static bool OptimizeEvents
         {
@@ -6882,7 +6888,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (lockTarget == null && FriendshipGroupDetection.Instance.IsInMyGroup(gunTarget.GetPlayer().UserId))
@@ -7008,9 +7014,12 @@ namespace iiMenu.Mods
 
                 Safety.AntiReport((vrrig, position) =>
                 {
+                    NetPlayer reporter = GetPlayerFromVRRig(vrrig);
+                    if (reporter == null) return;
+
                     antiReportLagDelay = Time.time + 0.1f;
-                    actors.Add(GetPlayerFromVRRig(vrrig).ActorNumber);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, they are being lagged.");
+                    actors.Add(reporter.ActorNumber);
+                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, they are being lagged.");
                 });
 
                 if (actors.Count > 0)
@@ -7044,7 +7053,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > destroyDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         DestroyPlayer(NetPlayerToPlayer(GetPlayerFromVRRig(gunTarget)));
@@ -7170,7 +7179,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > rockDebounce)
                     {
                         rockDebounce = Time.time + 0.1f;
@@ -7291,7 +7300,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > slowDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer player = GetPlayerFromVRRig(gunTarget);
@@ -7383,7 +7392,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > vibrateDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer owner = GetPlayerFromVRRig(gunTarget);
@@ -7467,7 +7476,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -7531,7 +7540,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;

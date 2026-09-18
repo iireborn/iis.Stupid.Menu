@@ -45,11 +45,17 @@ namespace iiMenu.Mods
 
         public static void TagSelf()
         {
+            if (!PhotonNetwork.InRoom || GorillaGameManager.instance == null || NetworkSystem.Instance == null || PhotonNetwork.LocalPlayer == null)
+                return;
+
             if (PhotonNetwork.IsMasterClient)
             {
                 AddInfected(PhotonNetwork.LocalPlayer);
                 NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> You have been tagged.");
-                Buttons.GetIndex("Tag Self").enabled = false;
+
+                ButtonInfo tagSelfButton = Buttons.GetIndex("Tag Self");
+                if (tagSelfButton != null)
+                    tagSelfButton.enabled = false;
             }
             else
             {
@@ -57,7 +63,10 @@ namespace iiMenu.Mods
                 {
                     NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> You have been tagged.");
                     VRRig.LocalRig.enabled = true;
-                    Buttons.GetIndex("Tag Self").enabled = false;
+
+                    ButtonInfo tagSelfButton = Buttons.GetIndex("Tag Self");
+                    if (tagSelfButton != null)
+                        tagSelfButton.enabled = false;
 
                     if (instantTag)
                         SerializePatch.OverrideSerialization = null;
@@ -65,12 +74,18 @@ namespace iiMenu.Mods
                 else
                 {
                     VRRig rig = VRRigCache.ActiveRigs
-                        .Where(r => !r.IsLocal() && r.IsTagged())
+                        .Where(r => r != null && !r.IsLocal() && r.IsTagged())
                         .OrderBy(r => Vector3.Distance(
                                         r.transform.position,
                                         GorillaTagger.Instance.headCollider.transform.position)
                                     + r.LatestVelocity().magnitude)
                         .FirstOrDefault();
+
+                    if (rig == null)
+                    {
+                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> No tagged player to get tagged by.");
+                        return;
+                    }
 
                     if (instantTag)
                     {
@@ -90,11 +105,11 @@ namespace iiMenu.Mods
 
                             return false;
                         };
-                    } else
+                    }
+                    else
                     {
-                        if (!rig.IsTagged()) return;
                         VRRig.LocalRig.enabled = false;
-                        if (rig != null) VRRig.LocalRig.transform.position = rig.rightHandTransform.position;
+                        VRRig.LocalRig.transform.position = rig.rightHandTransform.position;
 
                         if (!Buttons.GetIndex("Obnoxious Tag").enabled) return;
                         Quaternion rotation = Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0));
@@ -213,7 +228,7 @@ namespace iiMenu.Mods
                 }
 
                 if (!GetGunInput(true)) return;
-                VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                VRRig gunTarget = GetRigFromHit(Ray);
                 if (!gunTarget || gunTarget.IsLocal()) return;
                 if (!PhotonNetwork.IsMasterClient) return;
                 gunLocked = true;
@@ -237,9 +252,9 @@ namespace iiMenu.Mods
                 foreach (Player v in PhotonNetwork.PlayerList)
                 {
                     if (InfectedList().Contains(v))
-                        AddInfected(v);
-                    else
                         RemoveInfected(v);
+                    else
+                        AddInfected(v);
                 }
             }
         }
@@ -253,7 +268,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -290,7 +305,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -422,7 +437,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -457,7 +472,7 @@ namespace iiMenu.Mods
         }
 
         public static bool ValidateTag(VRRig Rig) =>
-            Vector3.Distance(ServerSyncPos, Rig.transform.position) < 6f;
+            Rig != null && Vector3.Distance(ServerSyncPos, Rig.transform.position) < 6f;
 
         public static void TagGun()
         {
@@ -478,7 +493,6 @@ namespace iiMenu.Mods
                     {
                         if (!Buttons.GetIndex("Obnoxious Tag").enabled)
                         {
-                            // No-move tag: the serialized position is spoofed instead of teleporting the rig
                             SpoofTag(lockTarget, lockTarget.transform.position - new Vector3(0f, 3f, 0f));
                         }
                         else
@@ -521,7 +535,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -542,18 +556,38 @@ namespace iiMenu.Mods
             }
         }
 
+        private static void SpoofTag(VRRig rig, Vector3 spoofedPosition)
+        {
+            SerializeWritePatch.positionOverride = spoofedPosition;
+            try
+            {
+                SendSerialize(GorillaTagger.Instance.myVRRig.GetView, new RaiseEventOptions { TargetActors = new[] { PhotonNetwork.MasterClient.ActorNumber } });
+                ReportTag(rig);
+            }
+            finally
+            {
+                SerializeWritePatch.positionOverride = null;
+            }
+        }
+
         private static float reportTagDelay;
         public static void ReportTag(VRRig rig)
         {
+            if (rig == null || !TryGetPlayerFromVRRig(rig, out NetPlayer player))
+                return;
+
             if (Time.time > reportTagDelay)
             {
                 reportTagDelay = Time.time + 0.1f;
-                GameMode.ReportTag(GetPlayerFromVRRig(rig));
+                GameMode.ReportTag(player);
             }
         }
 
         public static void TagPlayer(NetPlayer player)
         {
+            if (player == null || !PhotonNetwork.InRoom || GorillaGameManager.instance == null || VRRig.LocalRig == null)
+                return;
+
             if (PhotonNetwork.IsMasterClient)
             {
                 AddInfected(player);
@@ -575,11 +609,13 @@ namespace iiMenu.Mods
             }
 
             VRRig targetRig = GetVRRigFromPlayer(player);
+            if (targetRig == null)
+                return;
+
             if (!targetRig.IsTagged())
             {
                 if (!Buttons.GetIndex("Obnoxious Tag").enabled)
                 {
-                    // No-move tag: the serialized position is spoofed instead of teleporting the rig
                     SpoofTag(targetRig, targetRig.transform.position - new Vector3(0f, 3f, 0f));
                 }
                 else
@@ -589,8 +625,8 @@ namespace iiMenu.Mods
                     VRRig.LocalRig.transform.position = position;
 
                     VRRig.LocalRig.head.rigTarget.transform.rotation = RandomQuaternion();
-                    VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + RandomVector3();
-                    VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + RandomVector3();
+                    VRRig.LocalRig.leftHand.rigTarget.transform.position = targetRig.transform.position + RandomVector3();
+                    VRRig.LocalRig.rightHand.rigTarget.transform.position = targetRig.transform.position + RandomVector3();
 
                     VRRig.LocalRig.leftHand.rigTarget.transform.rotation = RandomQuaternion();
                     VRRig.LocalRig.rightHand.rigTarget.transform.rotation = RandomQuaternion();
@@ -616,7 +652,11 @@ namespace iiMenu.Mods
                     ReportTag(targetRig);
             }
             else
-                Buttons.GetIndex("Tag Player").enabled = false;
+            {
+                ButtonInfo tagPlayerButton = Buttons.GetIndex("Tag Player");
+                if (tagPlayerButton != null)
+                    tagPlayerButton.enabled = false;
+            }
         }
 
         public static void UntagGun()
@@ -628,7 +668,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && gunTarget.IsTagged())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -660,12 +700,7 @@ namespace iiMenu.Mods
         public static void TagAll()
         {
             if (!PhotonNetwork.InRoom || GorillaGameManager.instance == null || VRRig.LocalRig == null || NetworkSystem.Instance == null)
-            {
-                ButtonInfo tagAllButton = Buttons.GetIndex("Tag All");
-                if (tagAllButton != null)
-                    tagAllButton.enabled = false;
                 return;
-            }
 
             if (GorillaGameManager.instance.GameType() == GameModeType.HuntDown)
             {
@@ -673,111 +708,87 @@ namespace iiMenu.Mods
                 return;
             }
 
-            if (NetworkSystem.Instance.IsMasterClient)
+            if (PhotonNetwork.IsMasterClient)
             {
-                foreach (Player v in PhotonNetwork.PlayerList)
-                    AddInfected(v);
-                
-                Buttons.GetIndex("Tag All").enabled = false;
-                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Everyone is tagged!");
+                foreach (Player player in PhotonNetwork.PlayerList)
+                    AddInfected(player);
+
+                ButtonInfo tagAllButton = Buttons.GetIndex("Tag All");
+                if (tagAllButton != null)
+                    tagAllButton.enabled = false;
+                NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Everyone is tagged.");
+                return;
+            }
+
+            if (!VRRig.LocalRig.IsTagged())
+            {
+                NotificationManager.SendNotification("<color=grey>[</color><color=yellow>INFO</color><color=grey>]</color> You must be tagged before tagging other players.");
             }
             else
             {
-                if (instantTag)
+                bool isInfectedPlayers = VRRigCache.ActiveRigs.Any(vrrig => vrrig != null && !vrrig.IsLocal() && !vrrig.IsTagged());
+                if (isInfectedPlayers)
                 {
-                    InstantTagAll();
-                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Everyone is tagged!");
-                    Buttons.GetIndex("Tag All").enabled = false;
-                    return;
-                }
+                    foreach (var vrrig in VRRigCache.ActiveRigs.Where(vrrig => vrrig != null && !vrrig.IsLocal() && !vrrig.IsTagged()))
+                    {
+                        if (!Buttons.GetIndex("Obnoxious Tag").enabled)
+                        {
+                            SpoofTag(vrrig, vrrig.transform.position - new Vector3(0f, 3f, 0f));
+                        }
+                        else
+                        {
+                            Vector3 position = vrrig.transform.position + RandomVector3();
 
-                if (!VRRig.LocalRig.IsTagged())
-                {
-                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You must be tagged.");
-                    Buttons.GetIndex("Tag All").enabled = false;
+                            VRRig.LocalRig.transform.position = position;
+                            VRRig.LocalRig.transform.rotation = RandomQuaternion();
+
+                            VRRig.LocalRig.head.rigTarget.transform.rotation = RandomQuaternion();
+                            VRRig.LocalRig.leftHand.rigTarget.transform.position = vrrig.transform.position + RandomVector3();
+                            VRRig.LocalRig.rightHand.rigTarget.transform.position = vrrig.transform.position + RandomVector3();
+
+                            VRRig.LocalRig.leftHand.rigTarget.transform.rotation = RandomQuaternion();
+                            VRRig.LocalRig.rightHand.rigTarget.transform.rotation = RandomQuaternion();
+
+                            VRRig.LocalRig.leftIndex.calcT = 0f;
+                            VRRig.LocalRig.leftMiddle.calcT = 0f;
+                            VRRig.LocalRig.leftThumb.calcT = 0f;
+
+                            VRRig.LocalRig.leftIndex.LerpFinger(1f, false);
+                            VRRig.LocalRig.leftMiddle.LerpFinger(1f, false);
+                            VRRig.LocalRig.leftThumb.LerpFinger(1f, false);
+
+                            VRRig.LocalRig.rightIndex.calcT = 0f;
+                            VRRig.LocalRig.rightMiddle.calcT = 0f;
+                            VRRig.LocalRig.rightThumb.calcT = 0f;
+
+                            VRRig.LocalRig.rightIndex.LerpFinger(1f, false);
+                            VRRig.LocalRig.rightMiddle.LerpFinger(1f, false);
+                            VRRig.LocalRig.rightThumb.LerpFinger(1f, false);
+                        }
+
+                        if (ValidateTag(vrrig))
+                            ReportTag(vrrig);
+                    }
                 }
                 else
                 {
-                    bool isInfectedPlayers = VRRigCache.ActiveRigs.Any(vrrig => !vrrig.IsTagged());
-                    if (isInfectedPlayers)
-                    {
-                        foreach (var vrrig in VRRigCache.ActiveRigs.Where(vrrig => !vrrig.IsTagged()))
-                        {
-                            if (!Buttons.GetIndex("Obnoxious Tag").enabled)
-                            {
-                                // No-move tag: the serialized position is spoofed instead of teleporting the rig
-                                SpoofTag(vrrig, vrrig.transform.position - new Vector3(0f, 3f, 0f));
-                            }
-                            else
-                            {
-                                Vector3 position = vrrig.transform.position + RandomVector3();
-                                    
-                                VRRig.LocalRig.transform.position = position;
-                                VRRig.LocalRig.transform.rotation = RandomQuaternion();
+                    NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Everyone is tagged!");
 
-                                VRRig.LocalRig.head.rigTarget.transform.rotation = RandomQuaternion();
-                                VRRig.LocalRig.leftHand.rigTarget.transform.position = vrrig.transform.position + RandomVector3();
-                                VRRig.LocalRig.rightHand.rigTarget.transform.position = vrrig.transform.position + RandomVector3();
-
-                                VRRig.LocalRig.leftHand.rigTarget.transform.rotation = RandomQuaternion();
-                                VRRig.LocalRig.rightHand.rigTarget.transform.rotation = RandomQuaternion();
-
-                                VRRig.LocalRig.leftIndex.calcT = 0f;
-                                VRRig.LocalRig.leftMiddle.calcT = 0f;
-                                VRRig.LocalRig.leftThumb.calcT = 0f;
-
-                                VRRig.LocalRig.leftIndex.LerpFinger(1f, false);
-                                VRRig.LocalRig.leftMiddle.LerpFinger(1f, false);
-                                VRRig.LocalRig.leftThumb.LerpFinger(1f, false);
-
-                                VRRig.LocalRig.rightIndex.calcT = 0f;
-                                VRRig.LocalRig.rightMiddle.calcT = 0f;
-                                VRRig.LocalRig.rightThumb.calcT = 0f;
-
-                                VRRig.LocalRig.rightIndex.LerpFinger(1f, false);
-                                VRRig.LocalRig.rightMiddle.LerpFinger(1f, false);
-                                VRRig.LocalRig.rightThumb.LerpFinger(1f, false);
-                            }
-
-                                if (ValidateTag(vrrig))
-                                    ReportTag(vrrig);
-                        }
-                    }
-                    else
-                    {
-                        NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Everyone is tagged!");
-                        Buttons.GetIndex("Tag All").enabled = false;
-                    }
+                    ButtonInfo tagAllButton = Buttons.GetIndex("Tag All");
+                    if (tagAllButton != null)
+                        tagAllButton.enabled = false;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Tags <paramref name="rig"/> without moving the local rig: one serialization
-        /// packet is sent with the rig spoofed at <paramref name="spoofedPosition"/> so the
-        /// master client's validation sees us adjacent to the target, then the tag is
-        /// reported. The rig transform never visibly moves.
-        /// </summary>
-        private static void SpoofTag(VRRig rig, Vector3 spoofedPosition)
-        {
-            SerializeWritePatch.positionOverride = spoofedPosition;
-            try
-            {
-                SendSerialize(GorillaTagger.Instance.myVRRig.GetView, new RaiseEventOptions { TargetActors = new[] { PhotonNetwork.MasterClient.ActorNumber } });
-                ReportTag(rig);
-            }
-            finally
-            {
-                SerializeWritePatch.positionOverride = null;
             }
         }
 
         public static void InstantTagPlayer(NetPlayer Target)
         {
-            if (!VRRig.LocalRig.IsTagged() || Target.VRRig().IsTagged())
+            if (Target == null || !PhotonNetwork.InRoom || !PhotonNetwork.IsConnected || VRRig.LocalRig == null)
                 return;
 
             VRRig targetRig = GetVRRigFromPlayer(Target);
+            if (targetRig == null || targetRig.IsTagged() || !VRRig.LocalRig.IsTagged())
+                return;
 
             SerializeWritePatch.positionOverride = targetRig.transform.position;
             try
@@ -803,7 +814,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > tagGunDelay)
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         tagGunDelay = Time.time + 0.2f;
@@ -824,7 +835,7 @@ namespace iiMenu.Mods
                 return;
             }
 
-            foreach (var vrrig in VRRigCache.ActiveRigs.Where(vrrig => !vrrig.IsTagged()))
+            foreach (var vrrig in VRRigCache.ActiveRigs.Where(vrrig => vrrig != null && !vrrig.IsLocal() && !vrrig.IsTagged()))
             {
                 SerializeWritePatch.positionOverride = vrrig.transform.position;
                 try
@@ -862,7 +873,6 @@ namespace iiMenu.Mods
 
                 if (!Buttons.GetIndex("Obnoxious Tag").enabled)
                 {
-                    // No-move tag: the serialized position is spoofed instead of teleporting the rig
                     SpoofTag(vrrig, vrrig.transform.position - new Vector3(0f, 3f, 0f));
                 }
                 else
@@ -1042,7 +1052,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -1086,7 +1096,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer owner = GetPlayerFromVRRig(gunTarget);
@@ -1161,7 +1171,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer owner = GetPlayerFromVRRig(gunTarget);

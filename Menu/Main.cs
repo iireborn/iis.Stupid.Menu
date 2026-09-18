@@ -42,7 +42,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -86,9 +86,7 @@ namespace iiMenu.Menu
     [HarmonyPatch(typeof(GTPlayer), nameof(GTPlayer.LateUpdate))]
     public class Main : MonoBehaviour // Do not get rid of this. I don't know why, the entire class kills itself.
     {
-        /// <summary>
         /// Runs on first frame of <see cref="GTPlayer.LateUpdate"/> after menu is launched
-        /// </summary>
         public static void OnLaunch()
         {
             if (CoroutineManager.instance == null)
@@ -103,10 +101,7 @@ namespace iiMenu.Menu
             InitializeFonts();
             activeFont = AgencyFB;
 
-            if (Plugin.FirstLaunch)
-                Prompt("It seems like this is your first time using the menu. Would you like to watch a quick tutorial to get to know how to use it?", Settings.ShowTutorial);
-            else
-                acceptedDonations = File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_HideDonationButton.txt");
+            acceptedDonations = File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_HideDonationButton.txt");
 
             NetworkSystem.Instance.OnJoinedRoomEvent += OnJoinRoom;
             NetworkSystem.Instance.OnReturnedToSinglePlayer += OnLeaveRoom;
@@ -116,6 +111,7 @@ namespace iiMenu.Menu
 
             NetworkSystem.Instance.OnPlayerJoined += OnPlayerJoin;
             NetworkSystem.Instance.OnPlayerLeft += OnPlayerLeave;
+            OnMenuClosed += ThrowableMenuManager.OnMenuClosed;
 
             SerializePatch.OnSerialize += OnSerialize;
             PlayerSerializePatch.OnPlayerSerialize += OnPlayerSerialize;
@@ -186,6 +182,16 @@ namespace iiMenu.Menu
                 $"Error with Movement.LoadMacros() at {exc.StackTrace}: {exc.Message}");
             }
 
+            try
+            {
+                VoiceAssistant.Load();
+            }
+            catch (Exception exc)
+            {
+                LogManager.LogError(
+                $"Error with VoiceAssistant.Load() at {exc.StackTrace}: {exc.Message}");
+            }
+
             loadPreferencesTime = Time.time;
             if (File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_Preferences.txt"))
             {
@@ -240,6 +246,12 @@ namespace iiMenu.Menu
         public static void Prefix()
         {
             WalkSimCursorPatch.EnsureInstalled();
+
+            if (gunLocked && (lockTarget == null || !RigUtilities.IsUsableRig(lockTarget)))
+            {
+                gunLocked = false;
+                lockTarget = null;
+            }
 
             #region Diagnostics
             if (!xrStateLogged)
@@ -435,7 +447,6 @@ namespace iiMenu.Menu
                 buttonCondition |= isKeyboardCondition;
                 buttonCondition |= inTextInput;
 
-                // Remote kill-switch: refuse to open while the server says the menu is off
                 if (MenuDisabled)
                 {
                     if (buttonCondition && Time.time > nextDisabledNoticeTime)
@@ -453,19 +464,28 @@ namespace iiMenu.Menu
                 if (barkMenu)
                     buttonCondition = isKeyboardCondition || barkMenuOpen;
 
+                bool throwableHandled = ThrowableMenuManager.Tick(buttonCondition, isKeyboardCondition || inTextInput);
+                if (throwableHandled)
+                    buttonCondition = false;
+
                 isMenuButtonHeld = buttonCondition;
-                switch (buttonCondition)
+                if (!throwableHandled)
                 {
-                    case true when menu == null:
-                        OpenMenu();
-                        break;
-                    case false when menu != null:
-                        CloseMenu();
-                        break;
+                    switch (buttonCondition)
+                    {
+                        case true when menu == null:
+                            OpenMenu();
+                            break;
+                        case false when menu != null:
+                            CloseMenu();
+                            break;
+                    }
+
+                    if (buttonCondition && menu != null)
+                        RecenterMenu();
                 }
 
-                if (buttonCondition && menu != null)
-                    RecenterMenu();
+                ProcessFirstPersonMouseClick();
 
                 // Cursor ownership: while the keyboard-opened menu is up we keep freeing
                 // the cursor (other plugins like WalkSimulator re-lock it every frame);
@@ -575,13 +595,6 @@ namespace iiMenu.Menu
                 #endregion
 
                 #region Menu Features
-                // Fix for disorganized menu
-                if (disorganized && Buttons.CurrentCategoryName != "Main")
-                {
-                    Buttons.CurrentCategoryName = "Main";
-                    ReloadMenu();
-                }
-
                 // Fix for long menu
                 if (longmenu && pageNumber != 0)
                 {
@@ -2029,8 +2042,7 @@ namespace iiMenu.Menu
         }
 
         private static void AddSearchButton()
-        {
-            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        {            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(KeyCode.Q) && !isKeyboardPc)
                 buttonObject.layer = 2;
 
@@ -2175,7 +2187,6 @@ namespace iiMenu.Menu
         private static void AddDebugButton()
         {
             bool infoScreenEnabled = Buttons.GetIndex("Info Screen").enabled;
-
             GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(KeyCode.Q) && !isKeyboardPc)
                 buttonObject.layer = 2;
@@ -2223,8 +2234,7 @@ namespace iiMenu.Menu
         }
 
         private static void AddDonateButton()
-        {
-            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        {            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(KeyCode.Q) && !isKeyboardPc)
                 buttonObject.layer = 2;
 
@@ -2271,8 +2281,7 @@ namespace iiMenu.Menu
         }
 
         private static void AddUpdateButton()
-        {
-            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        {            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(KeyCode.Q) && !isKeyboardPc)
                 buttonObject.layer = 2;
 
@@ -2319,8 +2328,7 @@ namespace iiMenu.Menu
         }
 
         private static void AddReturnButton(bool offcenteredPosition)
-        {
-            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        {            GameObject buttonObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
             if (!UnityInput.Current.GetKey(KeyCode.Q) && !isKeyboardPc)
                 buttonObject.layer = 2;
 
@@ -2874,7 +2882,7 @@ namespace iiMenu.Menu
                     AddUpdateButton();
             }
 
-            if (!disablePageButtons && CurrentPrompt == null && !pageScrolling)
+            if (CurrentPrompt == null && !pageScrolling && LastPage > 0)
                 AddPageButtons();
 
             if (inTextInput)
@@ -3044,18 +3052,20 @@ namespace iiMenu.Menu
                         renderButtons = StringsToInfos(Alphabetize(InfosToStrings(renderButtons)));
 
                     if (!longmenu)
+                    {
+                        int visiblePageSize = Math.Max(1, PageSize - buttonIndexOffset);
                         renderButtons = renderButtons
-                            .Skip(pageNumber * (PageSize - buttonIndexOffset) + pageOffset)
-                            .Take(PageSize - buttonIndexOffset)
+                            .Skip(pageNumber * visiblePageSize + pageOffset)
+                            .Take(visiblePageSize)
                             .ToArray();
+                    }
 
                     for (int i = 0; i < renderButtons.Length; i++)
                         AddButton((i + buttonIndexOffset + buttonOffset) * ButtonDistance, i, renderButtons[i]);
                 }
-                catch
+                catch (Exception exc)
                 {
-                    LogManager.Log("Menu draw is erroring, returning to home page");
-                    Buttons.CurrentCategoryName = "Main";
+                    LogManager.LogError($"Menu draw failed in category {Buttons.CurrentCategoryName} ({Buttons.CurrentCategoryIndex}): {exc.Message}");
                 }
             }
 
@@ -3270,20 +3280,17 @@ namespace iiMenu.Menu
                     menu.transform.position = TPC.transform.position + TPC.transform.forward * 0.5f;
                     menu.transform.rotation = clickGUI && !XRSettings.isDeviceActive ? Quaternion.identity : TPC.transform.rotation * Quaternion.Euler(-90f, 90f, 0f);
 
-                    if (reference != null)
+                    if (reference != null && Mouse.current != null)
                     {
                         if (Mouse.current.leftButton.isPressed && !isMouseDown)
                         {
                             Ray ray = TPC.ScreenPointToRay(Mouse.current.position.ReadValue());
-                            bool worked = Physics.Raycast(ray, out RaycastHit hit, 512f, NoInvisLayerMask());
+                            bool worked = Physics.Raycast(ray, out RaycastHit hit, 512f, ~0, QueryTriggerInteraction.Collide);
                             if (worked)
                             {
-                                ButtonCollider collide = hit.transform.gameObject.GetComponent<ButtonCollider>();
-                                if (collide != null)
-                                {
-                                    collide.OnTriggerEnter(buttonCollider);
-                                    buttonCooldown = -1f;
-                                }
+                                ButtonCollider collide = hit.transform.GetComponent<ButtonCollider>()
+                                    ?? hit.transform.GetComponentInParent<ButtonCollider>();
+                                collide?.PressFromMouse();
                             }
                         }
                         else
@@ -3318,6 +3325,39 @@ namespace iiMenu.Menu
             smoothTargetRotation = smoothTargetRotation == Quaternion.identity ? menu.transform.rotation : Quaternion.Lerp(smoothTargetRotation, menu.transform.rotation, Time.deltaTime * 10f);
 
             menu.transform.rotation = smoothTargetRotation;
+        }
+
+        private static void ProcessFirstPersonMouseClick()
+        {
+            if (!FirstPersonMouseMode || menu == null || Mouse.current == null)
+                return;
+
+            Camera clickCamera = TPC != null ? TPC : Camera.main;
+            if (clickCamera == null)
+                return;
+
+            bool mousePressed = Mouse.current.leftButton.isPressed;
+            if (mousePressed && !isMouseDown)
+            {
+                Ray ray = clickCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+                RaycastHit[] hits = Physics.RaycastAll(ray, 512f, ~0, QueryTriggerInteraction.Collide);
+                ButtonCollider clickedButton = null;
+                float nearestButtonDistance = float.MaxValue;
+                foreach (RaycastHit hit in hits)
+                {
+                    ButtonCollider candidate = hit.transform.GetComponent<ButtonCollider>()
+                        ?? hit.transform.GetComponentInParent<ButtonCollider>();
+                    if (candidate != null && hit.distance < nearestButtonDistance)
+                    {
+                        clickedButton = candidate;
+                        nearestButtonDistance = hit.distance;
+                    }
+                }
+
+                clickedButton?.PressFromMouse();
+            }
+
+            isMouseDown = mousePressed;
         }
 
         private static int menuOpenCount;
@@ -3539,7 +3579,7 @@ namespace iiMenu.Menu
         {
             ExtGradient Gradient = buttonColors[swapButtonColors ? 1 : 0];
 
-            switch (pageButtonType)
+            switch (pageButtonType == 3 || pageButtonType == 4 ? 1 : pageButtonType)
             {
                 case 1:
                     CreatePageButtonPair(
@@ -3882,10 +3922,8 @@ namespace iiMenu.Menu
             return button;
         }
 
-        /// <summary>
         /// Applies or removes an outline effect to the specified menu object, adjusting its appearance based on the
         /// provided state.
-        /// </summary>
         /// <remarks>If the specified object is not a direct child of the menu, the outline effect is
         /// applied using a general method. For menu child objects, a new primitive is created and styled to visually
         /// represent the outline. The appearance of the outline may vary depending on the value of shouldBeEnabled and
@@ -3917,10 +3955,8 @@ namespace iiMenu.Menu
                 RoundMenuObject(gameObject, 0.024f);
         }
 
-        /// <summary>
         /// Creates an outline effect around the specified GameObject to visually indicate its enabled or disabled
         /// state.
-        /// </summary>
         /// <remarks>The outline is created as a separate GameObject, matching the position, rotation, and
         /// scale of the target object. The outline color reflects the enabled or disabled state as determined by the
         /// application's color settings. This method does not modify the original GameObject.</remarks>
@@ -3942,9 +3978,7 @@ namespace iiMenu.Menu
             colorChanger.colors = buttonColors[shouldBeEnabled ? 1 : 0];
         }
 
-        /// <summary>
         /// Adds a black outline effect to the specified UI canvas object.
-        /// </summary>
         /// <remarks>This method adds a Unity UI Outline component to the target object's GameObject,
         /// configuring it with a thin black outline. If the object already has an Outline component, an additional one
         /// will be added, which may result in multiple outlines. The outline uses the graphic's alpha
@@ -3959,10 +3993,8 @@ namespace iiMenu.Menu
             outline.useGraphicAlpha = true;
         }
 
-        /// <summary>
         /// Replaces a menu object's appearance with a rounded version by constructing beveled edges and rounded corners
         /// around the specified GameObject.
-        /// </summary>
         /// <remarks>If the specified GameObject is not a direct child of the menu, only a basic rounding
         /// operation is performed. When applied to a menu child, the method disables the original renderer and
         /// constructs new primitives to visually represent a rounded, beveled menu item. The method also ensures that
@@ -4060,10 +4092,8 @@ namespace iiMenu.Menu
                 colorChanger.overrideTransparency = false;
         }
 
-        /// <summary>
         /// Replaces the specified GameObject with a visually rounded version by constructing a composite of primitive
         /// shapes with beveled edges.
-        /// </summary>
         /// <remarks>This method disables the original object's Renderer and creates new child primitives
         /// to approximate a rounded appearance. The original object's ColorChanger component, if present, will have its
         /// overrideTransparency property set to false. The method does not modify the original object's collider or
@@ -4156,9 +4186,7 @@ namespace iiMenu.Menu
 
         public static Material promptMaterial;
 
-        /// <summary>
         /// Prompts the user with a message. They can choose to accept or deny it.
-        /// </summary>
         /// <remarks>
         /// Prompts stack. If multiple prompts are added before the user responds to the first one, they will be shown in order.
         /// </remarks>
@@ -4178,9 +4206,7 @@ namespace iiMenu.Menu
                 ReloadMenu();
         }
 
-        /// <summary>
         /// Prompts the user with a message. They can choose to accept it.
-        /// </summary>
         /// <remarks>
         /// Prompts stack. If multiple prompts are added before the user responds to the first one, they will be shown in order.
         /// </remarks>
@@ -4198,9 +4224,7 @@ namespace iiMenu.Menu
                 ReloadMenu();
         }
 
-        /// <summary>
         /// Prompts the user with a message. This allows for keyboard input from the user. They may choose to accept or deny the prompt. To use the user's input, use the "keyboardInput" variable.
-        /// </summary>
         /// <remarks>
         /// Prompts stack. If multiple prompts are added before the user responds to the first one, they will be shown in order.
         /// </remarks>
@@ -4220,9 +4244,7 @@ namespace iiMenu.Menu
                 ReloadMenu();
         }
 
-        /// <summary>
         /// Prompts the user with a message. This allows for keyboard input from the user. They may choose to accept the prompt. To use the user's input, use the "keyboardInput" variable.
-        /// </summary>
         /// <remarks>
         /// Prompts stack. If multiple prompts are added before the user responds to the first one, they will be shown in order.
         /// </remarks>
@@ -4302,9 +4324,7 @@ namespace iiMenu.Menu
             return txt2d;
         }
 
-        /// <summary>
         /// Flushes/sends any queued RPCs to the server to prevent disconnection from RPC limits.
-        /// </summary>
         public static void RPCProtection()
         {
             if (!PhotonNetwork.InRoom)
@@ -4323,23 +4343,22 @@ namespace iiMenu.Menu
             } catch { LogManager.Log("RPC protection failed, are you in a lobby?"); }
         }
 
-        /// <summary>
         /// Returns the given URL's raw output as a string.
-        /// </summary>
         /// <param name="url">URL</param>
         /// <returns>Website Data</returns>
         public static string GetHttp(string url)
         {
-            WebRequest request = WebRequest.Create(url);
-            WebResponse response = request.GetResponse();
-            Stream data = response.GetResponseStream();
-            string html = "";
-
-            if (data == null) return html;
-            using StreamReader sr = new StreamReader(data);
-            html = sr.ReadToEnd();
-
-            return html;
+            try
+            {
+                using HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(12) };
+                http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+                return http.GetStringAsync(url).GetAwaiter().GetResult();
+            }
+            catch (Exception e)
+            {
+                LogManager.LogError($"GetHttp failed for {url}: {e.Message}");
+                return "";
+            }
         }
 
         private static readonly List<float> volumeArchive = new List<float>();
@@ -4348,9 +4367,7 @@ namespace iiMenu.Menu
         public static GameObject GunPointer;
         private static LineRenderer GunLine;
 
-        /// <summary>
         /// Renders a gun pointer and line from the player's target gun position.
-        /// </summary>
         /// <param name="overrideLayerMask">Layer Mask</param>
         /// <returns>Raycast and Pointer object</returns>
         public static (RaycastHit Ray, GameObject NewPointer) RenderGun(int? overrideLayerMask = null)
@@ -4675,9 +4692,7 @@ namespace iiMenu.Menu
             set => _giveGunTarget = value;
         }
 
-        /// <summary>
         /// Returns the gun input state.
-        /// </summary>
         /// <param name="isShooting">Trigger</param>
         /// <returns>Holding Button</returns>
         public static bool GetGunInput(bool isShooting)
@@ -4691,63 +4706,65 @@ namespace iiMenu.Menu
                 : GriplessGuns || (SwapGunHand ? leftGrab : rightGrab) || (HardGunLocks && gunLocked && !rightSecondary) || Mouse.current.rightButton.isPressed;
         }
 
-        /// <summary>
         /// Returns the gun direction vector based on the specified transform and the current GunDirection setting.
-        /// </summary>
         /// <param name="transform">The transform used to determine the gun's orientation.</param>
         /// <returns>A Vector3 representing the selected gun direction.</returns>
         public static Vector3 GetGunDirection(Transform transform) =>
             new[] { transform.forward, - transform.up, transform == GorillaTagger.Instance.rightHandTransform ? ControllerUtilities.GetTrueRightHand().forward : ControllerUtilities.GetTrueLeftHand().forward, GorillaTagger.Instance.headCollider.transform.forward } [GunDirection];
 
-        private const string FreeTtsEndpoint = "https://freetts.org/api";
-        private const string FreeTtsFallbackVoice = "en-US-JennyNeural";
+        private const string FreeTtsEndpoint = "https://lazypy.ro/tts";
+        private const string FreeTtsFallbackVoice = "Google Translate|en-us";
+        private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36";
 
         private static string GetFreeTtsVoice(int voiceIndex)
         {
             switch (voiceIndex)
             {
-                case 1: return "en-US-JennyNeural";
-                case 2: return "en-US-BrianNeural";
-                case 3: return "en-US-GuyNeural";
-                case 4: return "en-US-ChristopherNeural";
-                case 5: return "en-US-EricNeural";
-                case 6: return "en-US-AriaNeural";
-                case 7: return "en-GB-SoniaNeural";
-                case 8: return "en-GB-RyanNeural";
-                case 9: return "en-US-AriaNeural";
-                case 10: return "en-US-AnaNeural";
-                case 11: return "en-US-AndrewNeural";
-                case 12: return "en-GB-RyanNeural";
-                case 13: return "en-US-AndrewNeural";
-                case 14: return "en-US-AvaNeural";
-                case 15: return "en-US-DavisNeural";
-                case 16: return "en-US-GuyNeural";
-                case 17: return "en-US-JennyNeural";
-                case 18: return "en-US-ChristopherNeural";
-                case 19: return "en-US-EricNeural";
-                case 20: return "en-US-AndrewNeural";
-                case 21: return "en-US-AriaNeural";
-                case 22: return "en-US-GuyNeural";
-                case 23: return "en-US-AriaNeural";
-                case 24: return "en-GB-SoniaNeural";
-                default: return "en-US-AriaNeural";
+                case 1: return "Streamlabs|Kimberly";
+                case 2: return "Streamlabs|Brian";
+                case 3: return "Streamlabs|Matthew";
+                case 4: return "Streamlabs|Joey";
+                case 5: return "Streamlabs|Justin";
+                case 6: return "Streamlabs|Cristiano";
+                case 7: return "Streamlabs|Giorgio";
+                case 8: return "Streamlabs|Ewa";
+                case 9: return "TikTok|en_us_001";
+                case 10: return "TikTok|en_female_grandma";
+                case 11: return "TikTok|en_male_grinch";
+                case 12: return "TikTok|en_male_ukneighbor";
+                case 13: return "TikTok|en_us_ghostface";
+                case 14: return "TikTok|en_female_zombie";
+                case 15: return "TikTok|en_male_narration";
+                case 16: return "TikTok|en_male_pirate";
+                case 17: return "TikTok|en_male_m03_sunshine_soon";
+                case 18: return "TikTok|en_us_006";
+                case 19: return "TikTok|en_male_david_gingerman";
+                case 20: return "TikTok|en_male_chris";
+                case 21: return "TikTok|en_male_sing_funny_thanksgiving";
+                case 22: return "TikTok|en_male_santa_effect";
+                case 23: return "Google Translate|en-us";
+                case 24: return "Google Translate|en-gb";
+                case 25: return "VoiceForge|Dog";
+                case 26: return "VoiceForge|Jerkface";
+                case 27: return "VoiceForge|Robot";
+                case 28: return "VoiceForge|Vlad";
+                case 29: return "VoiceForge|Obama";
+                default: return FreeTtsFallbackVoice;
             }
         }
 
         private static IEnumerator RequestFreeTtsAudio(string text, string voice, Action<byte[], string> onComplete)
         {
-            string payload = JsonConvert.SerializeObject(new
-            {
-                text,
-                voice,
-                rate = "+0%",
-                pitch = "+0%"
-            });
+            string[] voiceParts = voice.Split(new[] { '|' }, 2);
+            string service = voiceParts.Length > 0 ? voiceParts[0] : "Google Translate";
+            string voiceName = voiceParts.Length > 1 ? voiceParts[1] : "en-us";
+            string requestUrl = $"{FreeTtsEndpoint}/request_tts.php?service={UnityWebRequest.EscapeURL(service)}&voice={UnityWebRequest.EscapeURL(voiceName)}&text={UnityWebRequest.EscapeURL(text)}";
 
-            using UnityWebRequest request = new UnityWebRequest($"{FreeTtsEndpoint}/tts", "POST");
-            request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(payload));
+            using UnityWebRequest request = new UnityWebRequest(requestUrl, "POST");
+            request.uploadHandler = new UploadHandlerRaw(Array.Empty<byte>());
             request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("User-Agent", BrowserUserAgent);
+            request.SetRequestHeader("Accept", "application/json, text/plain, */*");
             request.timeout = 20;
 
             yield return request.SendWebRequest();
@@ -4799,6 +4816,7 @@ namespace iiMenu.Menu
 
             using UnityWebRequest audioRequest = UnityWebRequest.Get(audioUrl);
             audioRequest.downloadHandler = new DownloadHandlerBuffer();
+            audioRequest.SetRequestHeader("User-Agent", BrowserUserAgent);
             audioRequest.timeout = 20;
             yield return audioRequest.SendWebRequest();
 
@@ -4808,10 +4826,8 @@ namespace iiMenu.Menu
                 onComplete?.Invoke(audioRequest.downloadHandler.data, null);
         }
 
-        /// <summary>
         /// Generates a text-to-speech audio clip from the provided text using various TTS services and invokes a
         /// callback with the resulting AudioClip.
-        /// </summary>
         /// <param name="text">The text to be converted to speech.</param>
         /// <param name="onComplete">Callback invoked with the generated AudioClip or null if the operation fails.</param>
         /// <param name="customFileName">Optional custom file name for the generated audio file.</param>
@@ -5096,26 +5112,20 @@ namespace iiMenu.Menu
             onComplete?.Invoke(audio);
         }
 
-        /// <summary>
         /// Initiates narration of the specified text by transcribing it to audio and playing it with adjusted volume.
-        /// </summary>
         /// <param name="text">The text to be narrated.</param>
         public static void NarrateText(string text) =>
             CoroutineManager.instance.StartCoroutine(TranscribeText(text, (audio) => Play2DAudio(audio, buttonClickSound / 10f)));
 
 
-        /// <summary>
         /// Initiates narration of the specified text by transcribing it to audio and playing it through your microphone.
-        /// </summary>
         /// <param name="text">The text to be narrated.</param>
         public static void SpeakText(string text)
         {
             SpeakText(text, false);
         }
 
-        /// <summary>
         /// Initiates narration of the specified text by transcribing it to audio and playing it through your microphone.
-        /// </summary>
         /// <param name="text">The text to be narrated.</param>
         /// <param name="disableMicrophone">If you'd like the microphone to stop recording while the audio is being played.</param>
         public static void SpeakText(string text, bool disableMicrophone = false) =>
@@ -5224,9 +5234,7 @@ namespace iiMenu.Menu
         private static bool allSnowballsInitialized;
         private static bool snowballDictComplete;
 
-        /// <summary>
         /// Retrieves a SnowballThrowable instance by its projectile name.
-        /// </summary>
         /// <param name="projectileName">The name of the projectile to retrieve.</param>
         /// <returns>The matching SnowballThrowable instance if found; otherwise, null.</returns>
         public static SnowballThrowable GetProjectile(string projectileName)
@@ -5310,12 +5318,10 @@ namespace iiMenu.Menu
         public static readonly Dictionary<Type, object[]> typePool = new Dictionary<Type, object[]>();
         private static readonly Dictionary<Type, float> receiveTypeDelay = new Dictionary<Type, float>();
 
-        /// <summary>
         /// Gets all objects of type <typeparamref name="T"/> in the scene using
         /// <see cref="UnityEngine.Object.FindObjectsByType{T}
         /// (UnityEngine.FindObjectsInactive, UnityEngine.FindObjectsSortMode)"/>
         /// with caching to reduce performance overhead.
-        /// </summary>
         /// <typeparam name="T">The Unity object type to find</typeparam>
         /// <param name="decayTime">How long the cached results remain valid</param>
         /// <returns>An array of all instances of <typeparamref name="T"/></returns>
@@ -5340,10 +5346,8 @@ namespace iiMenu.Menu
         private static float randomIndex;
         private static float randomDecayTime;
 
-        /// <summary>
         /// Returns a random instance of <typeparamref name="T"/> from the scene,
         /// using the cached results from <see cref="GetAllType{T}(float)"/>.
-        /// </summary>
         /// <typeparam name="T">The Unity object type to retrieve</typeparam>
         /// <param name="decayTime">How long the random selection remains unchanged</param>
         /// <returns>A random instance of <typeparamref name="T"/></returns>
@@ -5358,10 +5362,8 @@ namespace iiMenu.Menu
             return allOfType[(int)(randomIndex * allOfType.Length)];
         }
 
-        /// <summary>
         /// Clears the cached results created by <see cref="GetAllType{T}(float)"/>
         /// for the specified type.
-        /// </summary>
         /// <typeparam name="T">The Unity object type to clear from the cache</typeparam>
         public static void ClearType<T>() where T : Object
         {
@@ -5372,9 +5374,7 @@ namespace iiMenu.Menu
 
         private static readonly Dictionary<string, GameObject> objectPool = new Dictionary<string, GameObject>();
 
-        /// <summary>
         /// Retrieves a GameObject by name, using a cache to avoid repeated scene searches.
-        /// </summary>
         /// <param name="find">
         /// The name of the GameObject to locate in the scene.
         /// </param>
@@ -5430,9 +5430,7 @@ namespace iiMenu.Menu
         public static (Vector3 position, Quaternion rotation, Vector3 up, Vector3 forward, Vector3 right) TrueRightHand() =>
             ControllerUtilities.GetTrueRightHand();
 
-        /// <summary>
         /// Converts a position from world coordinates to the player's local coordinate space.
-        /// </summary>
         /// <remarks>This method is useful for determining the position of an object or point in relation
         /// to the player's current location and orientation within the game world.</remarks>
         /// <param name="world">The position in world coordinates to convert.</param>
@@ -5440,10 +5438,8 @@ namespace iiMenu.Menu
         public static Vector3 World2Player(Vector3 world) =>
             world - GorillaTagger.Instance.bodyCollider.transform.position + GorillaTagger.Instance.transform.position;
 
-        /// <summary>
         /// Sets the world-scale of a GameObject to a specified value, 
         /// taking into account the scale of its parent.
-        /// </summary>
         /// <param name="obj">The GameObject whose scale will be adjusted.</param>
         /// <param name="targetWorldScale">
         /// The desired scale of the GameObject in world space.
@@ -5493,9 +5489,7 @@ namespace iiMenu.Menu
 
         public static GameObject audioManager;
 
-        /// <summary>
         /// Plays a 2D audio clip at the specified volume using a singleton audio manager.
-        /// </summary>
         /// <param name="sound">The audio clip to play.</param>
         /// <param name="volume">The volume at which to play the audio clip. Defaults to 1f.</param>
         public static void Play2DAudio(AudioClip sound, float volume = 1f)
@@ -5514,15 +5508,16 @@ namespace iiMenu.Menu
             ausrc.PlayOneShot(sound);
         }
 
-        /// <summary>
         /// Plays an audio clip at a specified world position with configurable volume and spatial blend.
-        /// </summary>
         /// <param name="sound">The audio clip to play.</param>
         /// <param name="position">The world position where the audio should be played.</param>
         /// <param name="volume">The volume at which to play the audio clip. Defaults to 1f.</param>
         /// <param name="spatialBlend">The spatial blend value for 3D audio. Defaults to 1f.</param>
         public static void PlayPositionAudio(AudioClip sound, Vector3 position, float volume = 1f, float spatialBlend = 1f)
         {
+            if (sound == null)
+                return;
+
             GameObject audioManager = new GameObject("AudioMgr");
             audioManager.transform.position = position;
 
@@ -5538,9 +5533,7 @@ namespace iiMenu.Menu
 
         public static GameObject handAudioManager;
 
-        /// <summary>
         /// Plays a looping audio clip at the specified volume from either the left or right hand in the VR rig.
-        /// </summary>
         /// <param name="sound">The audio clip to play.</param>
         /// <param name="volume">The playback volume for the audio clip.</param>
         /// <param name="left">True to play audio from the left hand; false for the right hand.</param>
@@ -5568,10 +5561,8 @@ namespace iiMenu.Menu
         public static string ToTitleCase(string text) =>
             CultureInfo.CurrentCulture.TextInfo.ToTitleCase(text.ToLower());
 
-        /// <summary>
         /// Applies configured menu text transformations to the specified input string, including optional translation
         /// and case adjustments.
-        /// </summary>
         /// <remarks>The transformations applied depend on the current values of the menu settings, such
         /// as translation, lowercase, and uppercase modes. If both lowercase and uppercase modes are enabled, the
         /// uppercase transformation takes precedence.</remarks>
@@ -5624,10 +5615,8 @@ namespace iiMenu.Menu
             ReloadMenu();
         }
 
-        /// <summary>
         /// Applies menu appearance settings to the specified game object, such as outlining and rounding, based on
         /// current configuration.
-        /// </summary>
         /// <param name="gameObject">The game object to which the menu appearance settings will be applied.</param>
         /// <param name="shouldBeEnabled">A value indicating whether outlining should be enabled for the game object. The default is <see
         /// langword="true"/>.</param>
@@ -5640,10 +5629,8 @@ namespace iiMenu.Menu
                 RoundMenuObject(gameObject);
         }
 
-        /// <summary>
         /// Applies menu appearance settings to the specified canvas object, such as outlining, based on
         /// current configuration.
-        /// </summary>
         /// <param name="tmp">The canvas object to which the menu appearance settings will be applied.</param>
         public static void FollowMenuSettings(TMP_Text tmp, float? overlapTargetSpacing = null)
         {
@@ -5685,10 +5672,8 @@ namespace iiMenu.Menu
                 tmp.fontStyle = targetStyle;
         }
 
-        /// <summary>
         /// Applies menu appearance settings to the specified canvas object, such as outlining, based on
         /// current configuration.
-        /// </summary>
         /// <param name="canvasObject">The canvas object to which the menu appearance settings will be applied.</param>
         public static void FollowMenuSettings(MaskableGraphic canvasObject)
         {
@@ -5696,9 +5681,7 @@ namespace iiMenu.Menu
                 OutlineCanvasObject(canvasObject);
         }
 
-        /// <summary>
         /// Hashes the input string using SHA256 and returns the hexadecimal representation.
-        /// </summary>
         /// <param name="input">Input string to be hashed.</param>
         /// <returns>Output hashed string.</returns>
         public static string GetSHA256(string input)
@@ -5713,9 +5696,7 @@ namespace iiMenu.Menu
             return stringBuilder.ToString();
         }
 
-        /// <summary>
         /// Returns the current UTC timestamp formatted as an ISO 8601 string.
-        /// </summary>
         /// <returns>A string representing the current UTC date and time in ISO 8601 format.</returns>
         public static string CurrentTimestamp()
         {
@@ -5842,13 +5823,17 @@ namespace iiMenu.Menu
             if (disableMasterClientNotifications)
                 return;
 
+            ButtonInfo masterLabel = Buttons.GetIndex("MasterLabel");
+            if (masterLabel == null)
+                return;
+
             if (NetworkSystem.Instance.IsMasterClient)
             {
-                Buttons.GetIndex("MasterLabel").overlapText = "You are master client.";
+                masterLabel.overlapText = "You are master client.";
                 NotificationManager.SendNotification("<color=grey>[</color><color=purple>MASTER</color><color=grey>]</color> You are now master client.");
             }
             else
-                Buttons.GetIndex("MasterLabel").overlapText = "You are not master client.";
+                masterLabel.overlapText = "You are not master client.";
         }
 
         private static void OnPlayerJoin(NetPlayer Player)
@@ -5893,9 +5878,7 @@ namespace iiMenu.Menu
         private static void OnPlayerSerialize(VRRig rig) =>
             playerPing[rig] = rig.GetTruePing();
 
-        /// <summary>
         /// Serializes multiple PhotonViews owned by the local player, with optional filtering and timing adjustments.
-        /// </summary>
         /// <param name="exclude">If true, serializes all owned PhotonViews except those in the viewFilter; if false, serializes only those in
         /// the viewFilter.</param>
         /// <param name="viewFilter">An array of PhotonViews to include or exclude from serialization, depending on the exclude parameter.</param>
@@ -5934,10 +5917,8 @@ namespace iiMenu.Menu
                 SendSerialize(view, null, timeOffset, delay);
         }
 
-        /// <summary>
         /// Serializes and sends the state of a PhotonView to other clients in the room, with optional event options,
         /// time offset, and delay.
-        /// </summary>
         /// <param name="pv">The PhotonView to serialize and send.</param>
         /// <param name="options">Optional RaiseEventOptions to customize event sending.</param>
         /// <param name="timeOffset">Optional time offset to apply to the event timestamp.</param>
@@ -6223,10 +6204,8 @@ namespace iiMenu.Menu
             return noInvisLayerMask ?? GTPlayer.Instance.locomotionEnabledLayers;
         }
 
-        /// <summary>
         /// Toggles the state or performs the associated action for the specified button, such as navigating pages,
         /// toggling mods, or updating quick actions and favorites.
-        /// </summary>
         /// <remarks>This method supports a variety of button actions, including page navigation
         /// ("PreviousPage", "NextPage"), toggling mod states, managing quick actions and favorites, and handling custom
         /// bindings. Some actions may trigger notifications or require specific permissions, especially when invoked
@@ -6241,6 +6220,8 @@ namespace iiMenu.Menu
         {
             switch (buttonText)
             {
+                case "Discord RPC":
+                    return;
                 case "PreviousPage":
                 {
                     if (dynamicAnimations)
@@ -6442,9 +6423,7 @@ namespace iiMenu.Menu
                 ReloadMenu();
         }
 
-        /// <summary>
         /// Toggles the state of the specified button using the provided button information.
-        /// </summary>
         /// <param name="buttonInfo">An object containing information about the button to toggle. Cannot be null.</param>
         /// <param name="fromMenu">Indicates whether the toggle action was initiated from a menu. Set to <see langword="true"/> if triggered
         /// from a menu; otherwise, <see langword="false"/>.</param>
@@ -6453,10 +6432,8 @@ namespace iiMenu.Menu
         public static void Toggle(ButtonInfo buttonInfo, bool fromMenu = false, bool ignoreForce = false) =>
             Toggle(buttonInfo.buttonText, fromMenu, ignoreForce);
 
-        /// <summary>
         /// Toggles the incremental or decremental state of a button and updates its associated UI and behavior
         /// accordingly.
-        /// </summary>
         /// <remarks>This method updates the button's visual indicator and triggers the corresponding
         /// enable or disable method for the button. If certain boost conditions are met, the action may be performed
         /// multiple times. A notification is displayed to inform the user of the action taken.</remarks>
@@ -6970,7 +6947,7 @@ jgs \_   _/ |Oo\
             get => 0.8f / (PageSize + buttonOffset);
         }
 
-        public static int LastPage => (DisplayedItemCount + PageSize - 1) / PageSize - 1;
+        public static int LastPage => Math.Max(0, (DisplayedItemCount + Math.Max(1, PageSize) - 1) / Math.Max(1, PageSize) - 1);
 
         [Obsolete("currentCategoryIndex is obsolete. Use Buttons.CurrentCategoryIndex instead.")]
 #pragma warning disable IDE1006 // Naming Styles
@@ -7010,18 +6987,29 @@ jgs \_   _/ |Oo\
         public static bool keyboardWithToggleButton;
         private static bool desktopHintShown;
 
-        /// <summary>
         /// True when running flat/desktop (no usable headset). XRSettings.isDeviceActive
         /// can report true when the XR loader initializes without an HMD attached
         /// (e.g. OpenVR/OpenXR loaders present), so check XRDevice.isPresent too.
-        /// </summary>
-        /// <summary>
         /// True while the menu was opened/controlled via the physical keyboard —
         /// the only case where we own the OS cursor. VR controller opens leave it alone,
         /// so the menu stays fully VR and desktop compatible with no XR detection.
-        /// </summary>
+        public static bool FirstPersonMouseMode
+        {
+            get
+            {
+                try
+                {
+                    return menu != null && Buttons.GetIndex("First Person Camera")?.enabled == true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         public static bool MenuWantsCursor => menu != null &&
-            (UnityInput.Current.GetKey(KeyCode.Q) || keyboardWithToggleButton || (inTextInput && isKeyboardPc));
+            (FirstPersonMouseMode || UnityInput.Current.GetKey(KeyCode.Q) || keyboardWithToggleButton || (inTextInput && isKeyboardPc));
 
         private static bool xrStateLogged;
         private static bool cursorFreedByMenu;
@@ -7073,6 +7061,9 @@ jgs \_   _/ |Oo\
         public static bool isRightHand;
         public static bool bothHands;
         public static bool wristMenu;
+        public static bool throwableMenu;
+        public static bool throwableFollowPlayer;
+        public static bool throwableMenuGestures;
         public static bool explodeMenu;
         public static bool watchMenu;
         public static bool watchUsed;

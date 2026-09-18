@@ -536,7 +536,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1793,7 +1793,10 @@ namespace iiMenu.Mods
                 macroPlaybackRangeIndex = rangeNames.Length - 1;
 
             macroPlaybackRange = rangeAmounts[macroPlaybackRangeIndex];
-            Buttons.GetIndex("Change Macro Playback Range").overlapText = "Change Macro Playback Range <color=grey>[</color><color=green>" + rangeNames[macroPlaybackRangeIndex] + "</color><color=grey>]</color>";
+
+            ButtonInfo rangeButton = Buttons.GetIndex("Change Macro Playback Range");
+            if (rangeButton != null)
+                rangeButton.overlapText = "Change Macro Playback Range <color=grey>[</color><color=green>" + rangeNames[macroPlaybackRangeIndex] + "</color><color=grey>]</color>";
         }
 
         public struct PlayerPosition
@@ -1932,19 +1935,27 @@ namespace iiMenu.Mods
 
             public static Macro LoadJSON(string json)
             {
-                var obj = JObject.Parse(json);
+                JObject obj = JObject.Parse(json);
 
                 var macro = new Macro
                 {
-                    name = (string)obj["name"],
-                    enabled = (bool)obj["enabled"],
+                    name = obj.TryGetValue("name", out JToken nameToken) ? (string)nameToken : null,
+                    enabled = obj.TryGetValue("enabled", out JToken enabledToken) && (bool?)enabledToken == true,
                     positions = new List<PlayerPosition>()
                 };
 
-                foreach (var token in (JArray)obj["positions"])
-                    macro.positions.Add(PlayerPosition.FromJObject((JObject)token));
+                JArray positionArray = obj["positions"] as JArray;
+                if (positionArray != null)
+                {
+                    foreach (JToken token in positionArray)
+                    {
+                        if (token is JObject positionObject)
+                            macro.positions.Add(PlayerPosition.FromJObject(positionObject));
+                    }
+                }
 
-                macro.macroStepDuration = obj.TryGetValue("step-time", out JToken stepTimeToken) ? (float)stepTimeToken : 0.1f;
+                float stepDuration = obj.TryGetValue("step-time", out JToken stepTimeToken) ? ((float?)stepTimeToken ?? defaultMacroStep) : defaultMacroStep;
+                macro.macroStepDuration = stepDuration > 0f ? stepDuration : defaultMacroStep;
 
                 return macro;
             }
@@ -1963,20 +1974,41 @@ namespace iiMenu.Mods
         }
 
         public static Dictionary<string, Macro> macros = new Dictionary<string, Macro>();
+
+        public static string MacrosDirectory =>
+            Path.GetFullPath($"{PluginInfo.BaseDirectory}/Macros");
+
+        private static int failedMacroLoads;
+
         public static void LoadMacros()
         {
             macros.Clear();
+            failedMacroLoads = 0;
 
-            string[] files = Directory.GetFiles($"{PluginInfo.BaseDirectory}/Macros");
+            string directory = MacrosDirectory;
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            string[] files = Directory.GetFiles(directory);
             for (int i = 0; i < files.Length; i++)
             {
                 string file = files[i];
                 if (!file.EndsWith(".json")) continue;
 
                 string fileName = Path.GetFileNameWithoutExtension(file);
-                Macro macro = Macro.LoadJSON(File.ReadAllText(file));
+                try
+                {
+                    Macro loadedMacro = Macro.LoadJSON(File.ReadAllText(file));
+                    if (string.IsNullOrEmpty(loadedMacro.name))
+                        loadedMacro.name = fileName;
 
-                macros[fileName] = macro;
+                    macros[fileName] = loadedMacro;
+                }
+                catch (Exception exception)
+                {
+                    failedMacroLoads++;
+                    LogManager.LogError($"Failed to load macro {fileName}: {exception.Message}");
+                }
             }
 
             List<ButtonInfo> buttons = new List<ButtonInfo>
@@ -1984,42 +2016,56 @@ namespace iiMenu.Mods
                 new ButtonInfo { buttonText = "Exit Macros", method =() => Buttons.CurrentCategoryName = "Movement Mods", isTogglable = false, toolTip = "Returns you back to the movement mods."},
             };
 
-            int index = 0;
+            if (macros.Count == 0)
+                buttons.Add(new ButtonInfo { buttonText = "No Macros Found", overlapText = failedMacroLoads > 0 ? $"{failedMacroLoads} macro file(s) failed to load" : "Record one with the Record button", label = true });
+
             foreach (KeyValuePair<string, Macro> macroData in macros)
             {
                 Macro macro = macroData.Value;
                 string macroName = macroData.Key;
                 
-                buttons.Add(new ButtonInfo { buttonText = $"Macro{macroName}", overlapText = macro.name, enabled = macro.enabled, enableMethod =() => ToggleMacro(macroName, true), method =() => ExecuteMacroButton(macro), disableMethod = () => ToggleMacro(macroName, false), toolTip = $"Toggles on and off the {macro.name} macro." });
-                index++;
+                buttons.Add(new ButtonInfo { buttonText = $"Macro{macroName}", overlapText = macro.name, enabled = macro.enabled, enableMethod =() => ToggleMacro(macroName, true), method =() => ExecuteMacroButton(macro), disableMethod = () => ToggleMacro(macroName, false), toolTip = $"Toggles on and off the {macro.name} macro. Hold <color=green>right trigger</color> near where the recording started to play it." });
             }
 
             buttons.AddRange(new[]
             {
                 new ButtonInfo { buttonText = "Record <color=grey>[</color><color=green>T</color><color=grey>]</color>", method = RecordMacro, toolTip = "Record your macros with your <color=green>left trigger</color>." },
-                new ButtonInfo { buttonText = "Open Macros Folder", method = OpenMacrosFolder, isTogglable = false, toolTip = "Opens the folder in which your plugins are located." },
+                new ButtonInfo { buttonText = "Open Macros Folder", method = OpenMacrosFolder, isTogglable = false, toolTip = "Opens the folder your macros are saved in." },
                 new ButtonInfo { buttonText = "Reload Macros", method = LoadMacros, isTogglable = false, toolTip = "Reloads your macros." },
                 new ButtonInfo { buttonText = "Disable Macros", enableMethod =() => disableMacros = true, disableMethod =() => disableMacros = false, toolTip = "Disables all macros." }
             });
             Buttons.buttons[Buttons.GetCategory("Macros")] = buttons.ToArray();
+
+            if (failedMacroLoads > 0)
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>MACROS</color><color=grey>]</color> {failedMacroLoads} macro file(s) could not be loaded. Check the console for details.", 5000);
         }
 
         public static void OpenMacrosFolder()
         {
-            string filePath = FileUtilities.GetGamePath() + $"/{PluginInfo.BaseDirectory}/Macros";
+            string filePath = MacrosDirectory;
+            if (!Directory.Exists(filePath))
+                Directory.CreateDirectory(filePath);
+
             Process.Start(filePath);
         }
 
         public static void ToggleMacro(string macroName, bool enabled)
         {
-            string filePath = $"{PluginInfo.BaseDirectory}/Macros/{macroName}.json";
-            if (!File.Exists(filePath))
+            if (!macros.TryGetValue(macroName, out Macro macro))
                 return;
 
-            Macro macro = macros[macroName];
             macro.enabled = enabled;
+            macros[macroName] = macro;
 
-            File.WriteAllText(filePath, macro.DumpJSON());
+            string filePath = Path.Combine(MacrosDirectory, macroName + ".json");
+            try
+            {
+                File.WriteAllText(filePath, macro.DumpJSON());
+            }
+            catch (Exception exception)
+            {
+                LogManager.LogError($"Failed to save macro {macroName}: {exception.Message}");
+            }
         }
 
         public static bool recordingMacro;
@@ -2064,6 +2110,14 @@ namespace iiMenu.Mods
         public static void FinalizeRecording()
         {
             List<PlayerPosition> savedRecordingData = recordingData;
+            recordingData = new List<PlayerPosition>();
+
+            if (savedRecordingData.Count == 0)
+            {
+                NotificationManager.SendNotification("<color=grey>[</color><color=red>RECORDING</color><color=grey>]</color> That recording was too short to save.", 5000);
+                return;
+            }
+
             Prompt("Would you like to save your macro?", () =>
             {
                 PromptText("Please name your macro:", () =>
@@ -2080,10 +2134,20 @@ namespace iiMenu.Mods
                         macroStepDuration = defaultMacroStep
                     };
 
-                    string filePath = $"{PluginInfo.BaseDirectory}/Macros/{FormatMacroName(name)}.json";
+                    string filePath = Path.Combine(MacrosDirectory, FormatMacroName(name) + ".json");
 
-                    File.WriteAllText(filePath, macro.DumpJSON());
-                    LoadMacros();
+                    try
+                    {
+                        File.WriteAllText(filePath, macro.DumpJSON());
+                        LoadMacros();
+
+                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>RECORDING</color><color=grey>]</color> Saved {name} to your macros folder.", 5000);
+                    }
+                    catch (Exception exception)
+                    {
+                        LogManager.LogError($"Failed to save macro {name}: {exception.Message}");
+                        NotificationManager.SendNotification("<color=grey>[</color><color=red>RECORDING</color><color=grey>]</color> Could not save your macro. Check the console for details.", 5000);
+                    }
                 }, null, "Done", "Cancel");
             });
         }
@@ -2091,11 +2155,17 @@ namespace iiMenu.Mods
         public static Coroutine activeMacro;
         public static IEnumerator PlayMacro(Macro macro, int startFromPosition = 0)
         {
+            if (macro.positions == null || macro.positions.Count == 0 || macro.macroStepDuration <= 0f)
+                yield break;
+
             List<PlayerPosition> positions = macro.positions;
             PlayerPosition startPosition = PlayerPosition.CurrentPosition();
 
             if (startFromPosition > 0 && startFromPosition < positions.Count)
                 positions = positions.GetRange(startFromPosition, positions.Count - startFromPosition);
+
+            if (positions.Count == 0)
+                yield break;
 
             float macroStartTime = Time.time;
             float macroEndTime = positions.Count * macro.macroStepDuration;
@@ -2113,7 +2183,7 @@ namespace iiMenu.Mods
 
                 int currentMacroPosition = Mathf.FloorToInt(elapsed / macro.macroStepDuration);
 
-                currentMacroPosition = Mathf.Clamp(currentMacroPosition, 0, positions.Count);
+                currentMacroPosition = Mathf.Clamp(currentMacroPosition, 0, positions.Count - 1);
 
                 PlayerPosition lastPosition = currentMacroPosition - 1 < 0 ? startPosition : positions[currentMacroPosition - 1];
                 PlayerPosition currentPosition = positions[currentMacroPosition];
@@ -2215,7 +2285,16 @@ namespace iiMenu.Mods
         {
             if (disableMacros)
                 return;
-            
+
+            if (macro.positions == null || macro.positions.Count == 0)
+            {
+                activeMacro = null;
+                didMacro = false;
+                return;
+            }
+
+            Vector3 currentPosition = GorillaTagger.Instance.bodyCollider.transform.position;
+
             didMacro = midpointMacros && (didMacro
                 ? rightTrigger >= 0.5f
                 : activeMacro != null);
@@ -2227,7 +2306,7 @@ namespace iiMenu.Mods
             if (midpointMacros)
             {
                 position = macro.positions
-                    .Select((position, index) => new { position, index, distance = Vector3.Distance(GorillaTagger.Instance.bodyCollider.transform.position, position.position) })
+                    .Select((position, index) => new { position, index, distance = Vector3.Distance(currentPosition, position.position) })
                     .OrderBy(x => x.distance)
                     .FirstOrDefault()
                     .index;
@@ -2246,7 +2325,7 @@ namespace iiMenu.Mods
                     return;
             }
 
-            if (Vector3.Distance(GorillaTagger.Instance.bodyCollider.transform.position, startPosition.position) < 1f)
+            if (Vector3.Distance(currentPosition, startPosition.position) < macroPlaybackRange)
                 activeMacro = CoroutineManager.instance.StartCoroutine(PlayMacro(macro, position));
         }
 
@@ -3497,7 +3576,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (!hasAdded)
@@ -3784,7 +3863,7 @@ namespace iiMenu.Mods
                                 Vector3 dir = vrrig.transform.Find("rig/hand.R").up;
                                 Physics.SphereCast(vrrig.rightHandTransform.position + dir * 0.1f, 0.3f, dir, out var Ray, 512f, NoInvisLayerMask());
                                 {
-                                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                                    VRRig gunTarget = GetRigFromHit(Ray);
                                     if (gunTarget && gunTarget.isLocal)
                                     {
                                         sithlord = vrrig;
@@ -3798,7 +3877,7 @@ namespace iiMenu.Mods
                                 Vector3 dir = vrrig.transform.Find("rig/hand.L").up;
                                 Physics.SphereCast(vrrig.leftHandTransform.position + dir * 0.1f, 0.3f, dir, out var Ray, 512f, NoInvisLayerMask());
                                 {
-                                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                                    VRRig gunTarget = GetRigFromHit(Ray);
                                     if (gunTarget && gunTarget.isLocal)
                                     {
                                         sithlord = vrrig;
@@ -4476,25 +4555,73 @@ namespace iiMenu.Mods
         }
 
         public static GameObject airSwimPart;
+        private static GameObject airSwimTemplate;
+        private static float nextAirSwimLookup;
+        private static bool airSwimLookupFailed;
+
         public static void AirSwim()
         {
+            if (GorillaTagger.Instance == null || GorillaTagger.Instance.headCollider == null || GTPlayer.Instance == null)
+                return;
+
             if (airSwimPart == null)
             {
-                airSwimPart = Object.Instantiate(GetObject("Environment Objects/LocalObjects_Prefab/ForestToBeach/ForestToBeach_Prefab_V4/CaveWaterVolume"));
-                airSwimPart.transform.localScale = new Vector3(5f, 5f, 5f);
-                airSwimPart.GetComponent<Renderer>().enabled = false;
+                if (airSwimTemplate == null && Time.time >= nextAirSwimLookup)
+                {
+                    nextAirSwimLookup = Time.time + 2f;
+                    airSwimTemplate = GetObject("Environment Objects/LocalObjects_Prefab/ForestToBeach/ForestToBeach_Prefab_V4/CaveWaterVolume");
+
+                    if (airSwimTemplate == null)
+                    {
+                        WaterVolume waterVolume = GetAllType<WaterVolume>().FirstOrDefault();
+                        airSwimTemplate = waterVolume != null ? waterVolume.gameObject : null;
+                    }
+
+                    if (airSwimTemplate == null && !airSwimLookupFailed)
+                    {
+                        airSwimLookupFailed = true;
+                        NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Air Swim could not find a water volume in this game scene.", 5000);
+                    }
+                }
+
+                if (airSwimTemplate == null)
+                    return;
+
+                try
+                {
+                    airSwimPart = Object.Instantiate(airSwimTemplate);
+                    airSwimPart.name = "iiMenu Air Swim Volume";
+                    airSwimPart.transform.localScale = new Vector3(5f, 5f, 5f);
+                    foreach (Renderer renderer in airSwimPart.GetComponentsInChildren<Renderer>(true))
+                        renderer.enabled = false;
+                }
+                catch (Exception exception)
+                {
+                    airSwimPart = null;
+                    if (!airSwimLookupFailed)
+                    {
+                        airSwimLookupFailed = true;
+                        LogManager.LogError("Air Swim could not create its water volume: " + exception.Message);
+                    }
+                    return;
+                }
             }
-            else
-            {
+
+            if (GTPlayer.Instance.audioManager != null)
                 GTPlayer.Instance.audioManager.UnsetMixerSnapshot();
-                airSwimPart.transform.position = GorillaTagger.Instance.headCollider.transform.position + new Vector3(0f, 2.5f, 0f);
-            }
+
+            airSwimPart.transform.position = GorillaTagger.Instance.headCollider.transform.position + new Vector3(0f, 2.5f, 0f);
         }
 
         public static void DisableAirSwim()
         {
             if (airSwimPart != null)
                 Object.Destroy(airSwimPart);
+
+            airSwimPart = null;
+            airSwimTemplate = null;
+            airSwimLookupFailed = false;
+            nextAirSwimLookup = 0f;
         }
 
         public static void SetSwimSpeed(float speed = 3f) =>
@@ -4539,7 +4666,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4587,7 +4714,7 @@ namespace iiMenu.Mods
                 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4736,7 +4863,7 @@ namespace iiMenu.Mods
                 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4859,7 +4986,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4972,7 +5099,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5044,33 +5171,94 @@ namespace iiMenu.Mods
             };
         }
 
+        private static bool annoyPlayerGunFailureLogged;
+        private static bool intercourseGunFailureLogged;
+
+        private static bool CanRunTargetedGun()
+        {
+            return VRRig.LocalRig != null
+                && VRRig.LocalRig.head != null
+                && VRRig.LocalRig.head.rigTarget != null
+                && VRRig.LocalRig.leftHand != null
+                && VRRig.LocalRig.leftHand.rigTarget != null
+                && VRRig.LocalRig.rightHand != null
+                && VRRig.LocalRig.rightHand.rigTarget != null
+                && VRRig.LocalRig.leftIndex != null
+                && VRRig.LocalRig.leftMiddle != null
+                && VRRig.LocalRig.leftThumb != null
+                && VRRig.LocalRig.rightIndex != null
+                && VRRig.LocalRig.rightMiddle != null
+                && VRRig.LocalRig.rightThumb != null
+                && GorillaTagger.Instance != null
+                && PhotonNetwork.InRoom;
+        }
+
+        private static void DisableBrokenTargetedGun(string buttonName, ref bool failureLogged, Exception exception)
+        {
+            if (!failureLogged)
+            {
+                failureLogged = true;
+                LogManager.LogError(buttonName + " disabled because the current Gorilla Tag rig is incompatible: " + exception.Message);
+            }
+
+            gunLocked = false;
+            lockTarget = null;
+            if (VRRig.LocalRig != null)
+                VRRig.LocalRig.enabled = true;
+
+            ButtonInfo button = Buttons.GetIndex(buttonName);
+            if (button != null)
+                button.enabled = false;
+        }
+
         public static void AnnoyPlayerGun()
         {
-            if (GetGunInput(false))
+            if (!CanRunTargetedGun())
             {
-                var GunData = RenderGun();
-                RaycastHit Ray = GunData.Ray;
+                gunLocked = false;
+                lockTarget = null;
+                return;
+            }
+
+            try
+            {
+                if (!GetGunInput(false))
+                {
+                    if (gunLocked)
+                    {
+                        gunLocked = false;
+                        VRRig.LocalRig.enabled = true;
+                    }
+
+                    return;
+                }
+
+                var gunData = RenderGun();
+                RaycastHit ray = gunData.Ray;
+
+                if (gunLocked && (lockTarget == null || lockTarget.IsLocal()))
+                {
+                    gunLocked = false;
+                    lockTarget = null;
+                    VRRig.LocalRig.enabled = true;
+                }
 
                 if (gunLocked && lockTarget != null)
                 {
                     VRRig.LocalRig.enabled = false;
 
                     Vector3 position = lockTarget.transform.position + RandomVector3();
-
                     VRRig.LocalRig.transform.position = position;
                     VRRig.LocalRig.transform.LookAt(lockTarget.transform.position);
-
                     VRRig.LocalRig.head.rigTarget.transform.rotation = RandomQuaternion();
                     VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + RandomVector3();
                     VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + RandomVector3();
-
                     VRRig.LocalRig.leftHand.rigTarget.transform.rotation = RandomQuaternion();
                     VRRig.LocalRig.rightHand.rigTarget.transform.rotation = RandomQuaternion();
 
                     VRRig.LocalRig.leftIndex.calcT = 0f;
                     VRRig.LocalRig.leftMiddle.calcT = 0f;
                     VRRig.LocalRig.leftThumb.calcT = 0f;
-
                     VRRig.LocalRig.leftIndex.LerpFinger(1f, false);
                     VRRig.LocalRig.leftMiddle.LerpFinger(1f, false);
                     VRRig.LocalRig.leftThumb.LerpFinger(1f, false);
@@ -5078,30 +5266,26 @@ namespace iiMenu.Mods
                     VRRig.LocalRig.rightIndex.calcT = 0f;
                     VRRig.LocalRig.rightMiddle.calcT = 0f;
                     VRRig.LocalRig.rightThumb.calcT = 0f;
-
                     VRRig.LocalRig.rightIndex.LerpFinger(1f, false);
                     VRRig.LocalRig.rightMiddle.LerpFinger(1f, false);
                     VRRig.LocalRig.rightThumb.LerpFinger(1f, false);
 
                     Sound.SoundSpam(337, true);
                 }
-                if (GetGunInput(true))
+
+                if (GetGunInput(true) && ray.collider != null)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                    if (gunTarget && !gunTarget.IsLocal())
+                    VRRig gunTarget = GetRigFromHit(ray);
+                    if (gunTarget != null && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
                         lockTarget = gunTarget;
                     }
                 }
             }
-            else
+            catch (Exception exception)
             {
-                if (gunLocked)
-                {
-                    gunLocked = false;
-                    VRRig.LocalRig.enabled = true;
-                }
+                DisableBrokenTargetedGun("Annoy Player Gun", ref annoyPlayerGunFailureLogged, exception);
             }
         }
 
@@ -5178,7 +5362,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5277,7 +5461,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         if (!PhotonNetwork.InRoom) return;
@@ -5416,7 +5600,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         gunLocked = true;
@@ -5525,7 +5709,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -5557,7 +5741,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         gunLocked = true;
@@ -5601,7 +5785,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && !gunLocked)
                     {
                         gunLocked = true;
@@ -5638,77 +5822,89 @@ namespace iiMenu.Mods
 
         public static void IntercourseGun()
         {
-            if (GetGunInput(false))
+            if (!CanRunTargetedGun())
             {
-                var GunData = RenderGun();
-                RaycastHit Ray = GunData.Ray;
+                gunLocked = false;
+                lockTarget = null;
+                return;
+            }
 
-                if (gunLocked && lockTarget != null)
+            try
+            {
+                if (GetGunInput(false))
                 {
-                    VRRig.LocalRig.enabled = false;
+                    var gunData = RenderGun();
+                    RaycastHit ray = gunData.Ray;
 
-                    if (!Buttons.GetIndex("Reverse Intercourse").enabled)
+                    if (gunLocked && (lockTarget == null || lockTarget.IsLocal()))
                     {
-                        VRRig.LocalRig.transform.position = lockTarget.transform.position + lockTarget.transform.forward * -(0.2f + Mathf.Sin(Time.frameCount / 8f) * 0.1f);
-                        VRRig.LocalRig.transform.rotation = lockTarget.transform.rotation;
+                        gunLocked = false;
+                        lockTarget = null;
+                        VRRig.LocalRig.enabled = true;
+                    }
 
-                        VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * -0.2f + lockTarget.transform.up * -0.4f;
-                        VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * 0.2f + lockTarget.transform.up * -0.4f;
-
-                        VRRig.LocalRig.leftHand.rigTarget.transform.rotation = lockTarget.transform.rotation;
-                        VRRig.LocalRig.rightHand.rigTarget.transform.rotation = lockTarget.transform.rotation;
-                    } else
+                    if (gunLocked && lockTarget != null)
                     {
-                        VRRig.LocalRig.transform.position = lockTarget.transform.position + lockTarget.transform.forward * (0.2f + Mathf.Sin(Time.frameCount / 8f) * 0.1f);
-                        VRRig.LocalRig.transform.rotation = lockTarget.transform.rotation;
+                        VRRig.LocalRig.enabled = false;
 
-                        VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * -0.2f + lockTarget.transform.up * -0.4f;
-                        VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * 0.2f + lockTarget.transform.up * -0.4f;
+                        if (!Buttons.GetIndex("Reverse Intercourse").enabled)
+                        {
+                            VRRig.LocalRig.transform.position = lockTarget.transform.position + lockTarget.transform.forward * -(0.2f + Mathf.Sin(Time.frameCount / 8f) * 0.1f);
+                            VRRig.LocalRig.transform.rotation = lockTarget.transform.rotation;
+                            VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * -0.2f + lockTarget.transform.up * -0.4f;
+                            VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * 0.2f + lockTarget.transform.up * -0.4f;
+                            VRRig.LocalRig.leftHand.rigTarget.transform.rotation = lockTarget.transform.rotation;
+                            VRRig.LocalRig.rightHand.rigTarget.transform.rotation = lockTarget.transform.rotation;
+                        }
+                        else
+                        {
+                            VRRig.LocalRig.transform.position = lockTarget.transform.position + lockTarget.transform.forward * (0.2f + Mathf.Sin(Time.frameCount / 8f) * 0.1f);
+                            VRRig.LocalRig.transform.rotation = lockTarget.transform.rotation;
+                            VRRig.LocalRig.leftHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * -0.2f + lockTarget.transform.up * -0.4f;
+                            VRRig.LocalRig.rightHand.rigTarget.transform.position = lockTarget.transform.position + lockTarget.transform.right * 0.2f + lockTarget.transform.up * -0.4f;
+                            VRRig.LocalRig.leftHand.rigTarget.transform.rotation = Quaternion.Euler(lockTarget.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f));
+                            VRRig.LocalRig.rightHand.rigTarget.transform.rotation = Quaternion.Euler(lockTarget.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f));
+                            VRRig.LocalRig.head.rigTarget.transform.rotation = lockTarget.transform.rotation;
+                        }
 
-                        VRRig.LocalRig.leftHand.rigTarget.transform.rotation = Quaternion.Euler(lockTarget.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f));
-                        VRRig.LocalRig.rightHand.rigTarget.transform.rotation = Quaternion.Euler(lockTarget.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f));
+                        FixRigHandRotation();
+                        IntercourseNoises();
 
+                        VRRig.LocalRig.leftIndex.calcT = 0f;
+                        VRRig.LocalRig.leftMiddle.calcT = 0f;
+                        VRRig.LocalRig.leftThumb.calcT = 0f;
+                        VRRig.LocalRig.leftIndex.LerpFinger(1f, false);
+                        VRRig.LocalRig.leftMiddle.LerpFinger(1f, false);
+                        VRRig.LocalRig.leftThumb.LerpFinger(1f, false);
+                        VRRig.LocalRig.rightIndex.calcT = 0f;
+                        VRRig.LocalRig.rightMiddle.calcT = 0f;
+                        VRRig.LocalRig.rightThumb.calcT = 0f;
+                        VRRig.LocalRig.rightIndex.LerpFinger(1f, false);
+                        VRRig.LocalRig.rightMiddle.LerpFinger(1f, false);
+                        VRRig.LocalRig.rightThumb.LerpFinger(1f, false);
                         VRRig.LocalRig.head.rigTarget.transform.rotation = lockTarget.transform.rotation;
                     }
 
-                    FixRigHandRotation();
-                    IntercourseNoises();
-
-                    VRRig.LocalRig.leftIndex.calcT = 0f;
-                    VRRig.LocalRig.leftMiddle.calcT = 0f;
-                    VRRig.LocalRig.leftThumb.calcT = 0f;
-
-                    VRRig.LocalRig.leftIndex.LerpFinger(1f, false);
-                    VRRig.LocalRig.leftMiddle.LerpFinger(1f, false);
-                    VRRig.LocalRig.leftThumb.LerpFinger(1f, false);
-
-                    VRRig.LocalRig.rightIndex.calcT = 0f;
-                    VRRig.LocalRig.rightMiddle.calcT = 0f;
-                    VRRig.LocalRig.rightThumb.calcT = 0f;
-
-                    VRRig.LocalRig.rightIndex.LerpFinger(1f, false);
-                    VRRig.LocalRig.rightMiddle.LerpFinger(1f, false);
-                    VRRig.LocalRig.rightThumb.LerpFinger(1f, false);
-
-                    VRRig.LocalRig.head.rigTarget.transform.rotation = lockTarget.transform.rotation;
-                }
-                if (GetGunInput(true))
-                {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                    if (gunTarget && !gunTarget.IsLocal())
+                    if (GetGunInput(true) && ray.collider != null)
                     {
-                        gunLocked = true;
-                        lockTarget = gunTarget;
+                        VRRig gunTarget = GetRigFromHit(ray);
+                        if (gunTarget != null && !gunTarget.IsLocal())
+                        {
+                            gunLocked = true;
+                            lockTarget = gunTarget;
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (gunLocked)
+                else if (gunLocked)
                 {
                     gunLocked = false;
+                    lockTarget = null;
                     VRRig.LocalRig.enabled = true;
                 }
+            }
+            catch (Exception exception)
+            {
+                DisableBrokenTargetedGun("Intercourse Gun", ref intercourseGunFailureLogged, exception);
             }
         }
 
@@ -5856,7 +6052,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;

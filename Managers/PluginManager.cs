@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using static iiMenu.Menu.Main;
 using static iiMenu.Utilities.FileUtilities;
@@ -129,8 +129,20 @@ namespace iiMenu.Managers
             if (File.Exists($"{PluginInfo.BaseDirectory}/Plugins/" + filename))
                 File.Delete($"{PluginInfo.BaseDirectory}/Plugins/" + filename);
 
-            WebClient stream = new WebClient();
-            stream.DownloadFile(url, $"{PluginInfo.BaseDirectory}/Plugins/" + filename);
+            string dest = $"{PluginInfo.BaseDirectory}/Plugins/" + filename;
+            try
+            {
+                using HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+                http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+                byte[] bytes = http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+                File.WriteAllBytes(dest, bytes);
+            }
+            catch (Exception e)
+            {
+                LogManager.LogError($"Failed to download plugin {name} from {url}: {e.Message}");
+                NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Failed to download " + name + ".");
+                return;
+            }
 
             LoadPlugins();
             NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Successfully downloaded " + name + " to your plugins.");

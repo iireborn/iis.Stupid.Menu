@@ -8,14 +8,6 @@
 
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
-    <!--
-      MSB3277 (websocket-sharp 1.0.2.0 vs 1.0.2.32414): the vendored snapshot in
-      References/Managed contains an older websocket-sharp than the one the vendored
-      Assembly-CSharp.dll was compiled against. The menu only uses websocket-sharp's
-      string.IsNullOrEmpty() extension, identical in both versions, and at runtime the
-      game loads its own copy — so this is a compile-time-only unification notice,
-      not a real version mismatch in the shipped plugin. Deliberately left as-is.
-    -->
     <NoWarn>$(NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
 
@@ -28,13 +20,13 @@
   <ItemGroup>
     <None Remove="LICENSE" />
     <None Remove="Resources\Client\*" />
+    <Compile Remove="IiServersShim.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Client\*" />
   </ItemGroup>
 
-  <!-- AssemblyPublicizer usage inspired from GorillaShirts -->
   <ItemGroup>
 	  <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
 	    <PrivateAssets>all</PrivateAssets>
@@ -285,7 +277,7 @@
       <HintPath>$(ProjectDir)References\Managed\Unity.InputSystem.ForUI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Localization">
-      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Unity.Localization.dll</HintPath>
+      <HintPath>$(ProjectDir)References\Managed\Unity.Localization.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Mathematics">
       <HintPath>$(ProjectDir)References\Managed\Unity.Mathematics.dll</HintPath>

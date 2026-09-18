@@ -47,6 +47,7 @@ namespace iiMenu
             // Set console title
             Console.Title = $"ii's Stupid Menu // Build {PluginInfo.Version}";
             instance = this;
+            Application.quitting += OnApplicationQuitting;
 
             string logoLines = PluginInfo.Logo.Split(@"
 ")
@@ -87,6 +88,8 @@ namespace iiMenu
                     Directory.CreateDirectory(DirectoryTarget);
             }
 
+            FirstLaunch = false;
+
             PatchHandler.PatchAll(true);
 
             // Ugily hard-coded but works so well
@@ -102,8 +105,15 @@ namespace iiMenu
             GorillaTagger.OnPlayerSpawned(LoadMenu);
         }
 
+        private void OnApplicationQuitting()
+        {
+            try { IiServersManager.ShutdownForGameExit(); } catch { }
+        }
+
         private void OnDestroy()
         {
+            Application.quitting -= OnApplicationQuitting;
+            try { IiServersManager.ShutdownForGameExit(); } catch { }
             Main.UnloadMenu();
             try { Utilities.AssetUtilities.ReleaseAll(); } catch { }
         }
@@ -116,7 +126,6 @@ namespace iiMenu
             Loader.AddComponent<CoroutineManager>();
             Loader.AddComponent<NotificationManager>();
             Loader.AddComponent<CustomBoardManager>();
-
             Loader.AddComponent<UI>();
 
             DontDestroyOnLoad(Loader);

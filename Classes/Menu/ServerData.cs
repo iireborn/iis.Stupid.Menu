@@ -44,13 +44,13 @@ namespace iiMenu.Classes.Menu
     public class ServerData : MonoBehaviour
     {
         #region Configuration
-        public static readonly bool ServerDataEnabled = true; // Disables Console and admin panel
+        public static readonly bool ServerDataEnabled = true;
         public static bool DisableTelemetry = false; // Disables telemetry data being sent to the server
 
         // Warning: These endpoints should not be modified unless hosting a custom server. Use with caution.
         public const string ServerEndpoint = "https://gtag.useless.best/v1/api"; // Beacon / reportban / telemetry / syncdata
         public static readonly string MenuVersionEndpoint = $"{ServerEndpoint}/menuversion"; // Version + DLL hash of the current release
-        public const string ConfigEndpoint = "https://iimenu-lts-serverdata.vercel.app"; // Menu configuration (serverdata.json)
+        public const string ConfigEndpoint = ServerEndpoint;
         public static readonly string ServerDataEndpoint = $"{ConfigEndpoint}/serverdata.json";
         #endregion
 
@@ -61,6 +61,7 @@ namespace iiMenu.Classes.Menu
 
         private static float DataLoadTime = -1f;
         private static float ReloadTime = -1f;
+        private static readonly bool LegacyServerDataEnabled = false;
 
         private static int LoadAttempts;
 
@@ -88,6 +89,11 @@ namespace iiMenu.Classes.Menu
         private static float nextBeaconTime;
         private static float nextBeaconRetryTime;
         private static bool beaconFailureLogged;
+        private static int beaconFailureCount;
+        private static float nextMenuVersionRetryTime;
+        private static bool menuVersionRateLimitLogged;
+        private static bool menuVersionFailureLogged;
+        private static int menuVersionFailureCount;
 
         #region Menu Status
         public static bool MenuStatusChecked; // True once the first menustatus check has completed
@@ -128,7 +134,7 @@ namespace iiMenu.Classes.Menu
                 SendBeacon();
             }
 
-            if (DataLoadTime > 0f && Time.time > DataLoadTime && GorillaComputer.instance.isConnectedToMaster)
+            if (LegacyServerDataEnabled && DataLoadTime > 0f && Time.time > DataLoadTime && GorillaComputer.instance.isConnectedToMaster)
             {
                 DataLoadTime = Time.time + 5f;
 
@@ -144,7 +150,7 @@ namespace iiMenu.Classes.Menu
                 instance.StartCoroutine(LoadServerData());
             }
 
-            if (ReloadTime > 0f)
+            if (LegacyServerDataEnabled && ReloadTime > 0f)
             {
                 if (Time.time > ReloadTime)
                 {
@@ -152,7 +158,7 @@ namespace iiMenu.Classes.Menu
                     instance.StartCoroutine(LoadServerData());
                 }
             }
-            else
+            else if (LegacyServerDataEnabled)
             {
                 if (GorillaComputer.instance.isConnectedToMaster)
                     ReloadTime = Time.time + 5f;
@@ -239,6 +245,9 @@ namespace iiMenu.Classes.Menu
 
         public static IEnumerator CheckMenuVersion()
         {
+            if (Time.time < nextMenuVersionRetryTime)
+                yield break;
+
             using (UnityWebRequest request = UnityWebRequest.Get(MenuVersionEndpoint))
             {
                 request.timeout = 10;
@@ -246,9 +255,31 @@ namespace iiMenu.Classes.Menu
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
-                    LogManager.LogError("Menu version check failed: " + request.error);
+                    bool retryable = request.responseCode == 408 || request.responseCode == 429 || request.responseCode >= 500;
+                    if (retryable)
+                    {
+                        menuVersionFailureCount++;
+                        nextMenuVersionRetryTime = Time.time + Mathf.Min(300f, 30f * Mathf.Max(1, menuVersionFailureCount));
+
+                        if (request.responseCode == 429 && !menuVersionRateLimitLogged)
+                        {
+                            menuVersionRateLimitLogged = true;
+                            LogManager.Log("Menu version check was rate-limited; retrying later.");
+                        }
+                        else if (request.responseCode != 429 && !menuVersionFailureLogged)
+                        {
+                            menuVersionFailureLogged = true;
+                            LogManager.Log("Menu version service is temporarily unavailable; retrying later.");
+                        }
+                    }
+                    else
+                        LogManager.LogError("Menu version check failed: " + request.error);
                     yield break;
                 }
+
+                menuVersionFailureCount = 0;
+                menuVersionFailureLogged = false;
+                menuVersionRateLimitLogged = false;
 
                 JObject data;
                 try
@@ -263,7 +294,11 @@ namespace iiMenu.Classes.Menu
 
                 string version = (string)data["version"];
                 string publishedHash = (string)data["sha256"];
-                UpdateDownloadUrl = (string)data["downloadUrl"];
+                string candidate = ((string)data["downloadUrl"] ?? "").Trim();
+                UpdateDownloadUrl = (candidate.StartsWith("https://github.com/iireborn/iis.Stupid.Menu/releases/download/", StringComparison.Ordinal)
+                    && !candidate.Contains("..")
+                    && candidate.IndexOfAny(new[] { '"', '\'', '$', '`', '&', '|', ';', '\\', ' ', '\t', '\r', '\n', '<', '>', '^', '%' }) < 0
+                    && candidate.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)) ? candidate : null;
                 UpdateReleaseUrl = (string)data["releaseUrl"];
                 LatestVersion = version;
                 MenuVersionChecked = true;
@@ -544,9 +579,7 @@ namespace iiMenu.Classes.Menu
 
         public static string InstallId;
 
-        /// <summary>
         /// Returns this installation's beacon id, generating and persisting one on first use.
-        /// </summary>
         public static string GetOrCreateInstallId()
         {
             if (!string.IsNullOrEmpty(InstallId))
@@ -565,13 +598,9 @@ namespace iiMenu.Classes.Menu
             return InstallId;
         }
 
-        /// <summary>
         /// Pings the beacon endpoint, which tracks the total live user count.
-        /// </summary>
-        /// <summary>
         /// Keeps the install marked as a live user on the beacon endpoint. Called on menu start,
         /// then refreshed on an interval (the server expires users that stop beaconing).
-        /// </summary>
         public static void SendBeacon() =>
             instance.StartCoroutine(BeaconCoroutine());
 
@@ -586,7 +615,8 @@ namespace iiMenu.Classes.Menu
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                nextBeaconRetryTime = Time.time + BeaconInterval;
+                beaconFailureCount++;
+                nextBeaconRetryTime = Time.time + Mathf.Min(BeaconInterval * Mathf.Max(1, beaconFailureCount), 300f);
                 if (!beaconFailureLogged)
                 {
                     beaconFailureLogged = true;
@@ -595,10 +625,9 @@ namespace iiMenu.Classes.Menu
                 yield break;
             }
 
+            beaconFailureCount = 0;
             beaconFailureLogged = false;
 
-            // The beacon is intentionally silent on success. It runs periodically,
-            // so logging every successful refresh needlessly floods the console.
         }
 
         public static bool IsPlayerSteam(VRRig Player)
@@ -653,9 +682,7 @@ namespace iiMenu.Classes.Menu
             yield return request.SendWebRequest();
         }
 
-        /// <summary>
         /// Returns a rig's cosmetics as a list for sync payloads.
-        /// </summary>
         public static List<string> CosmeticsList(VRRig rig) =>
             rig == null ? new List<string> { "none" } : (rig._playerOwnedCosmetics ?? new HashSet<string> { "none" }).Take(10).ToList();
         #endregion

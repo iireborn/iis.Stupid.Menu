@@ -24,6 +24,7 @@ using ExitGames.Client.Photon;
 using GorillaLocomotion;
 using GorillaNetworking;
 using GorillaTagScripts;
+using iiMenu.Classes.Menu;
 using iiMenu.Extensions;
 using iiMenu.Managers;
 using iiMenu.Menu;
@@ -50,16 +51,27 @@ namespace iiMenu.Mods
         private static bool antiOculusReportHooked;
         public static void GeneralSafety()
         {
-            if (!Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Disconnect</color><color=grey>]</color>").enabled) AntiReportDisconnect();
-            if (!Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Anti Cheat</color><color=grey>]</color>").enabled) AntiCheatPatches.SendReportPatch.AntiACReport = true;
-            if (!Buttons.GetIndex("Anti Moderator").enabled) AntiModerator();
-            if (!Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Oculus</color><color=grey>]</color>").enabled && !antiOculusReportHooked) { antiOculusReportHooked = true; EnableAntiOculusReport(); }
+            ButtonInfo antiReportButton = Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Disconnect</color><color=grey>]</color>");
+            if (antiReportButton != null && !antiReportButton.enabled)
+                AntiReportDisconnect();
+
+            ButtonInfo antiModeratorButton = Buttons.GetIndex("Anti Moderator");
+            if (antiModeratorButton != null && !antiModeratorButton.enabled)
+                AntiModerator();
         }
 
         public static void DisableGeneral()
         {
-            if (!Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Anti Cheat</color><color=grey>]</color>").enabled) AntiCheatPatches.SendReportPatch.AntiACReport = false;
-            if (!Buttons.GetIndex("Anti Report <color=grey>[</color><color=green>Oculus</color><color=grey>]</color>").enabled) DisableAntiOculusReport();
+            smartAntiReport = false;
+            antiMute = false;
+            AntiCheatPatches.SendReportPatch.AntiACReport = false;
+            reportRig = null;
+
+            if (antiOculusReportHooked)
+            {
+                DisableAntiOculusReport();
+                antiOculusReportHooked = false;
+            }
         }
 
         public static void NoFinger()
@@ -180,6 +192,7 @@ namespace iiMenu.Mods
             }
             NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> You are not meant to spam Flush RPCs. Only call it once after you are done spamming RPCs.");
         }
+
         public static void AntiLurker()
         {
             LurkerGhost lurker = Overpowered.Lurker;
@@ -203,9 +216,9 @@ namespace iiMenu.Mods
         public static void ChangeAntiReportRange(bool positive = true)
         {
             string[] rangeNames = {
-                "Default", // The report button
-                "Large", // The report button within the range of 3 people
-                "Massive" // The entire fucking board
+                "Default",
+                "Large",
+                "Massive"
             };
             float[] distances = {
                 0.35f,
@@ -231,7 +244,7 @@ namespace iiMenu.Mods
         public static string buttonClickPlayer;
 
         public static bool SmartAntiReport(NetPlayer linePlayer) =>
-            smartAntiReport && linePlayer.UserId == buttonClickPlayer && Time.frameCount == buttonClickTime && PhotonNetwork.CurrentRoom.IsVisible && !PhotonNetwork.CurrentRoom.CustomProperties.ToString().Contains("MODDED");
+            smartAntiReport && linePlayer != null && PhotonNetwork.CurrentRoom != null && linePlayer.UserId == buttonClickPlayer && Time.frameCount == buttonClickTime && PhotonNetwork.CurrentRoom.IsVisible && !PhotonNetwork.CurrentRoom.CustomProperties.ToString().Contains("MODDED");
 
         public static void EventReceived_SmartAntiReport(EventData data)
         {
@@ -274,44 +287,93 @@ namespace iiMenu.Mods
 
                 if (antiMute)
                     Visuals.VisualizeAura(line.muteButton.gameObject.transform.position, threshold, Color.red);
+
+                if (smartAntiReport && visualizePressRadius)
+                {
+                    Visuals.VisualizeAura(report.position, antiReportPressThreshold, Color.yellow);
+
+                    if (antiMute)
+                        Visuals.VisualizeAura(line.muteButton.gameObject.transform.position, antiReportPressThreshold, Color.yellow);
+                }
             }
         }
 
-        private static bool OverlappingButton(VRRig vrrig, Vector3 position) =>
+        public static int antiReportPressIndex = 2;
+        public static float antiReportPressThreshold = 0.15f;
+
+        public static void ChangeAntiReportPressDistance(bool positive = true)
+        {
+            float[] amounts = { 0.05f, 0.1f, 0.15f, 0.25f };
+            string[] names = { "Touch", "Small", "Default", "Large" };
+
+            if (positive)
+                antiReportPressIndex++;
+            else
+                antiReportPressIndex--;
+
+            antiReportPressIndex %= names.Length;
+            if (antiReportPressIndex < 0)
+                antiReportPressIndex = names.Length - 1;
+
+            antiReportPressThreshold = amounts[antiReportPressIndex];
+
+            ButtonInfo pressButton = Buttons.GetIndex("Change Anti Report Press Distance");
+            if (pressButton != null)
+                pressButton.overlapText = "Change Anti Report Press Distance <color=grey>[</color><color=green>" + names[antiReportPressIndex] + "</color><color=grey>]</color>";
+        }
+
+        private static bool OverlappingButton(VRRig vrrig, Vector3 position, float? range = null) =>
             new[] {
                 vrrig.rightHandTransform.position,
                 vrrig.leftHandTransform.position,
                 vrrig.rightHand.syncPos,
                 vrrig.leftHand.syncPos
-            }.Any(handPos => Vector3.Distance(handPos, position) < threshold);
+            }.Any(handPos => Vector3.Distance(handPos, position) < (range ?? threshold));
+
+        private static bool antiReportMissingBoardLogged;
 
         public static bool antiMute;
 
         public static VRRig reportRig;
         public static void AntiReport(Action<VRRig, Vector3> onReport)
         {
-            if (!NetworkSystem.Instance.InRoom) return;
+            if (!NetworkSystem.Instance.InRoom || PhotonNetwork.CurrentRoom == null) return;
 
             if (reportRig != null)
             {
+                if (reportRig.IsLocal())
+                {
+                    reportRig = null;
+                    return;
+                }
+
                 onReport?.Invoke(reportRig, reportRig.transform.position);
                 reportRig = null;
-                AchievementManager.UnlockAchievement(new AchievementManager.Achievement
-                {
-                    name = "Troublemaker",
-                    description = "Evade a player report.",
-                    icon = "Images/Achievements/troublemaker.png"
-                });
                 return;
             }
 
+            bool foundLocalLine = false;
             foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
             {
                 if (line.linePlayer != NetworkSystem.Instance.LocalPlayer) continue;
-                Transform report = line.reportButton.gameObject.transform;
 
-                foreach (var vrrig in from vrrig in VRRigCache.ActiveRigs where !vrrig.isLocal where OverlappingButton(vrrig, report.position) || (antiMute && OverlappingButton(vrrig, line.muteButton.gameObject.transform.position)) where !smartAntiReport || SmartAntiReport(line.linePlayer) select vrrig)
+                foundLocalLine = true;
+                Transform report = line.reportButton.gameObject.transform;
+                Transform mute = line.muteButton != null ? line.muteButton.gameObject.transform : null;
+
+                foreach (var vrrig in from vrrig in VRRigCache.ActiveRigs
+                                      where !vrrig.isLocal
+                                      let hovering = OverlappingButton(vrrig, report.position) || (antiMute && mute != null && OverlappingButton(vrrig, mute.position))
+                                      let pressing = OverlappingButton(vrrig, report.position, antiReportPressThreshold) || (antiMute && mute != null && OverlappingButton(vrrig, mute.position, antiReportPressThreshold))
+                                      where (smartAntiReport ? (SmartAntiReport(line.linePlayer) || pressing) : hovering)
+                                      select vrrig)
                     onReport?.Invoke(vrrig, report.transform.position);
+            }
+
+            if (!foundLocalLine && !antiReportMissingBoardLogged)
+            {
+                antiReportMissingBoardLogged = true;
+                LogManager.LogError("Anti Report could not find your scoreboard line in this room, so it cannot detect reports. A room with a spawned scoreboard is required.");
             }
         }
 
@@ -325,7 +387,7 @@ namespace iiMenu.Mods
 
                 if (!(Time.time > antiReportDelay)) return;
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected.");
+                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, you have been disconnected.");
             });
         }
 
@@ -338,7 +400,7 @@ namespace iiMenu.Mods
                 RPCProtection();
 
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
+                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, you have been disconnected and will be reconnected shortly.");
             });
         }
 
@@ -352,7 +414,7 @@ namespace iiMenu.Mods
                 RPCProtection();
 
                 antiReportDelay = Time.time + 1f;
-                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerFromVRRig(vrrig).NickName + " attempted to report you, you have been disconnected and will be reconnected shortly.");
+                NotificationManager.SendNotification("<color=grey>[</color><color=purple>ANTI-REPORT</color><color=grey>]</color> " + GetPlayerName(vrrig) + " attempted to report you, you have been disconnected and will be reconnected shortly.");
             });
         }
 
@@ -362,13 +424,20 @@ namespace iiMenu.Mods
             {
                 if (data.Code == 200)
                 {
+                    var sender = PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(data.Sender);
+                    if (sender.IsLocal)
+                        return;
+
                     string rpcName = PhotonNetwork.PhotonServerSettings.RpcList[int.Parse(((Hashtable)data.CustomData)[5].ToString())];
                     object[] args = (object[])((Hashtable)data.CustomData)[4];
                     if (rpcName == "RPC_PlayHandTap" && (int)args[0] == 67)
                     {
-                        VRRig target = GetVRRigFromPlayer(PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(data.Sender));
+                        VRRig target = GetVRRigFromPlayer(sender);
+                        if (target == null)
+                            return;
+
                         if (Vector3.Distance(target.leftHandTransform.position, target.rightHandTransform.position) < 0.1f)
-                            AntiReportFRT(PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(data.Sender));
+                            AntiReportFRT(sender);
                     }
                 }
             }
@@ -392,13 +461,13 @@ namespace iiMenu.Mods
                 antiReportNotifyDelay = Time.time + 0.1f;
 
                 if (notifyText == "")
-                    notifyText = GetPlayerFromVRRig(vrrig).NickName;
+                    notifyText = GetPlayerName(vrrig);
                 else
                 {
                     if (notifyText.Contains("&"))
-                        notifyText = GetPlayerFromVRRig(vrrig).NickName + ", " + notifyText;
+                        notifyText = GetPlayerName(vrrig) + ", " + notifyText;
                     else
-                        notifyText += " & " + GetPlayerFromVRRig(vrrig).NickName;
+                        notifyText += " & " + GetPlayerName(vrrig);
                 }
             });
 
@@ -413,13 +482,13 @@ namespace iiMenu.Mods
             AntiReport((vrrig, position) =>
             {
                 if (notifyText == null)
-                    notifyText = GetPlayerFromVRRig(vrrig).NickName;
+                    notifyText = GetPlayerName(vrrig);
                 else
                 {
                     if (notifyText.Contains("&"))
-                        notifyText = GetPlayerFromVRRig(vrrig).NickName + ", " + notifyText;
+                        notifyText = GetPlayerName(vrrig) + ", " + notifyText;
                     else
-                        notifyText += " & " + GetPlayerFromVRRig(vrrig).NickName;
+                        notifyText += " & " + GetPlayerName(vrrig);
                 }
             });
 
@@ -429,8 +498,13 @@ namespace iiMenu.Mods
                 NotificationManager.information["Anti-Report"] = notifyText;
         }
 
-        public static void AntiReportFRT(Player subject) =>
+        public static void AntiReportFRT(Player subject)
+        {
+            if (subject == null || subject.IsLocal)
+                return;
+
             reportRig = subject.VRRig();
+        }
 
         public static void AntiModerator()
         {
@@ -438,7 +512,6 @@ namespace iiMenu.Mods
             {
                 try
                 {
-
                     VRRig plr = vrrig;
                     NetPlayer player = GetPlayerFromVRRig(plr);
                     if (player != null)
@@ -449,7 +522,6 @@ namespace iiMenu.Mods
                         float b = 0f;
                         try
                         {
-
                             r = plr.playerColor.r * 255;
                             g = plr.playerColor.r * 255;
                             b = plr.playerColor.r * 255;
@@ -482,7 +554,6 @@ namespace iiMenu.Mods
             {
                 try
                 {
-
                     VRRig plr = vrrig;
                     NetPlayer player = GetPlayerFromVRRig(plr);
                     if (player != null)
@@ -493,7 +564,6 @@ namespace iiMenu.Mods
                         float b = 0f;
                         try
                         {
-
                             r = plr.playerColor.r * 255;
                             g = plr.playerColor.r * 255;
                             b = plr.playerColor.r * 255;
@@ -725,7 +795,6 @@ namespace iiMenu.Mods
 
             toRemove.Clear();
 
-            // The network rig doesn't exist during the join window — nothing to spoof with yet
             if (GorillaTagger.Instance == null || GorillaTagger.Instance.myVRRig == null)
                 return;
 
@@ -741,7 +810,7 @@ namespace iiMenu.Mods
                     ChangeName(fName.EnforceLength(12), true);
 
                     if (!TryGetPlayerFromVRRig(rig, out NetPlayer rigPlayer))
-                        continue; // rig not fully initialized yet — retried next frame
+                        continue;
 
                     GorillaTagger.Instance.myVRRig.SendRPC("RPC_InitializeNoobMaterial", rigPlayer, Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
                     nameSpoofRigs.Add(rig);
@@ -767,14 +836,13 @@ namespace iiMenu.Mods
 
             toRemove.Clear();
 
-            // The network rig doesn't exist during the join window — nothing to spoof with yet
             if (GorillaTagger.Instance == null || GorillaTagger.Instance.myVRRig == null)
                 return;
 
             foreach (var rig in VRRigCache.ActiveRigs.Where(rig => !rig.isLocal).Where(rig => !colorSpoofRigs.Contains(rig)))
             {
                 if (!TryGetPlayerFromVRRig(rig, out NetPlayer rigPlayer))
-                    continue; // rig not fully initialized yet — retried next frame
+                    continue;
 
                 GorillaTagger.Instance.myVRRig.SendRPC("RPC_InitializeNoobMaterial", rigPlayer, Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
                 colorSpoofRigs.Add(rig);
@@ -826,6 +894,281 @@ namespace iiMenu.Mods
                 pingSpoofValue = 10000;
 
             Buttons.GetIndex("Change Ping Spoof Value").overlapText = "Change Ping Spoof Value <color=grey>[</color><color=green>" + pingSpoofValue + "</color><color=grey>]</color>";
+        }
+
+
+        private static readonly List<ButtonInfo> panicSavedButtons = new List<ButtonInfo>();
+
+        public static bool panicActive;
+
+        public static void PanicButton()
+        {
+            if (!panicActive)
+            {
+                panicSavedButtons.Clear();
+                panicSavedButtons.AddRange(Buttons.buttons.SelectMany(list => list).Where(button => button.enabled && button.isTogglable));
+
+                foreach (ButtonInfo button in panicSavedButtons)
+                {
+                    button.enabled = false;
+                    try { button.disableMethod?.Invoke(); } catch { /* panic must never throw */ }
+                }
+
+                try { CloseMenu(); } catch { }
+                try { ChangeIdentityRegular(); } catch { }
+                try { RPCProtection(); } catch { }
+
+                panicActive = true;
+                NotificationManager.SendNotification("<color=grey>[</color><color=red>PANIC</color><color=grey>]</color> All mods disabled and identity reset. Tap the button again to restore.");
+            }
+            else
+            {
+                foreach (ButtonInfo button in panicSavedButtons)
+                {
+                    button.enabled = true;
+                    try { button.enableMethod?.Invoke(); } catch { }
+                }
+
+                panicSavedButtons.Clear();
+                panicActive = false;
+                NotificationManager.SendNotification("<color=grey>[</color><color=red>PANIC</color><color=grey>]</color> Previous mod state restored.");
+            }
+        }
+
+        public static void RestorePanicState() => PanicButton();
+
+
+        private const string WatchlistFileName = "Watchlist.txt";
+        private static readonly HashSet<string> watchlist = new HashSet<string>();
+        private static bool watchlistLoaded;
+        private static float watchlistSaveCooldown;
+
+        private static string WatchlistFilePath => $"{PluginInfo.BaseDirectory}/{WatchlistFileName}";
+
+        public static int watchdogIntervalIndex = 2;
+        public static float watchdogInterval = 1f;
+
+        public static void ChangeWatchdogInterval(bool positive = true)
+        {
+            float[] intervals = { 0.25f, 0.5f, 1f, 2f };
+            string[] names = { "Frequent", "Fast", "Normal", "Relaxed" };
+
+            if (positive)
+                watchdogIntervalIndex++;
+            else
+                watchdogIntervalIndex--;
+
+            watchdogIntervalIndex %= intervals.Length;
+            if (watchdogIntervalIndex < 0)
+                watchdogIntervalIndex = intervals.Length - 1;
+
+            watchdogInterval = intervals[watchdogIntervalIndex];
+
+            ButtonInfo intervalButton = Buttons.GetIndex("Change Watchdog Interval");
+            if (intervalButton != null)
+                intervalButton.overlapText = "Change Watchdog Interval <color=grey>[</color><color=green>" + names[watchdogIntervalIndex] + "</color><color=grey>]</color>";
+        }
+
+        public static void ReloadWatchlist()
+        {
+            watchlistLoaded = false;
+            watchlist.Clear();
+            EnsureWatchlistLoaded();
+
+            NotificationManager.SendNotification($"<color=grey>[</color><color=red>WATCHDOG</color><color=grey>]</color> Watchlist reloaded — {watchlist.Count} entr{(watchlist.Count == 1 ? "y" : "ies")}.");
+        }
+
+        public static void OpenWatchlistFolder()
+        {
+            EnsureWatchlistLoaded();
+
+            try
+            {
+                string folder = Path.GetDirectoryName(Path.GetFullPath(WatchlistFilePath));
+                if (string.IsNullOrEmpty(folder))
+                    return;
+
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                System.Diagnostics.Process.Start(folder);
+            }
+            catch (Exception exception)
+            {
+                LogManager.LogError($"Failed to open the watchlist folder: {exception.Message}");
+            }
+        }
+
+        private static void EnsureWatchlistLoaded()
+        {
+            if (watchlistLoaded)
+                return;
+
+            watchlistLoaded = true;
+            try
+            {
+                if (!File.Exists(WatchlistFilePath))
+                    File.WriteAllText(WatchlistFilePath, "# One player ID (or exact name) per line.\n# Anyone on this list triggers Watchdog Auto-Leave when they join or are in your room.\n");
+
+                foreach (string rawLine in File.ReadAllLines(WatchlistFilePath))
+                {
+                    string line = rawLine.Trim();
+                    if (line.Length == 0 || line.StartsWith("#"))
+                        continue;
+
+                    watchlist.Add(line);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError($"Failed to load watchlist: {ex.Message}");
+            }
+        }
+
+        private static void SaveWatchlist()
+        {
+            try
+            {
+                File.WriteAllLines(WatchlistFilePath, watchlist.OrderBy(id => id));
+            }
+            catch (Exception ex)
+            {
+                LogManager.LogError($"Failed to save watchlist: {ex.Message}");
+            }
+        }
+
+        public static void WatchdogMarkAll()
+        {
+            EnsureWatchlistLoaded();
+
+            if (!NetworkSystem.Instance.InRoom)
+                return;
+
+            foreach (NetPlayer player in PhotonNetwork.PlayerList)
+            {
+                if (player == NetworkSystem.Instance.LocalPlayer)
+                    continue;
+
+                if (!string.IsNullOrEmpty(player.UserId))
+                    watchlist.Add(player.UserId);
+                else if (!string.IsNullOrEmpty(player.NickName))
+                    watchlist.Add(player.NickName);
+            }
+
+            SaveWatchlist();
+            NotificationManager.SendNotification($"<color=grey>[</color><color=red>WATCHDOG</color><color=grey>]</color> Marked {PhotonNetwork.PlayerList.Length - 1} player(s). Total watchlist size: {watchlist.Count}.");
+        }
+
+        public static void WatchdogClear()
+        {
+            EnsureWatchlistLoaded();
+            watchlist.Clear();
+            SaveWatchlist();
+            NotificationManager.SendNotification("<color=grey>[</color><color=red>WATCHDOG</color><color=grey>]</color> Watchlist cleared.");
+        }
+
+        public static void WatchdogAutoLeave()
+        {
+            EnsureWatchlistLoaded();
+
+            if (!NetworkSystem.Instance.InRoom || PhotonNetwork.CurrentRoom == null || watchlist.Count == 0)
+                return;
+
+            if (!(Time.time > watchlistSaveCooldown))
+                return;
+            watchlistSaveCooldown = Time.time + watchdogInterval;
+
+            foreach (NetPlayer player in PhotonNetwork.PlayerList)
+            {
+                if (player == NetworkSystem.Instance.LocalPlayer)
+                    continue;
+
+                bool flagged = (!string.IsNullOrEmpty(player.UserId) && watchlist.Contains(player.UserId))
+                            || (!string.IsNullOrEmpty(player.NickName) && watchlist.Contains(player.NickName));
+
+                if (!flagged)
+                    continue;
+
+                string who = string.IsNullOrEmpty(player.NickName) ? player.UserId : player.NickName;
+                NetworkSystem.Instance.ReturnToSinglePlayer();
+                RPCProtection();
+                NotificationManager.SendNotification($"<color=grey>[</color><color=red>WATCHDOG</color><color=grey>]</color> {who} is on your watchlist — disconnected.");
+                return;
+            }
+        }
+
+
+        private static bool micMutedByGate;
+        private static float micGateThreatTime;
+
+        public static bool visualizePressRadius = true;
+        public static int micGateHoldIndex = 2;
+        public static float micGateHold = 1f;
+
+        public static void ChangeMicGateHoldTime(bool positive = true)
+        {
+            float[] holds = { 0f, 0.5f, 1f, 2f };
+            string[] names = { "Instant", "Short", "Normal", "Long" };
+
+            if (positive)
+                micGateHoldIndex++;
+            else
+                micGateHoldIndex--;
+
+            micGateHoldIndex %= holds.Length;
+            if (micGateHoldIndex < 0)
+                micGateHoldIndex = holds.Length - 1;
+
+            micGateHold = holds[micGateHoldIndex];
+
+            ButtonInfo holdButton = Buttons.GetIndex("Change Mic Gate Hold Time");
+            if (holdButton != null)
+                holdButton.overlapText = "Change Mic Gate Hold Time <color=grey>[</color><color=green>" + names[micGateHoldIndex] + "</color><color=grey>]</color>";
+        }
+
+        public static void MicSafetyGate()
+        {
+            bool threat = false;
+
+            if (NetworkSystem.Instance.InRoom && PhotonNetwork.CurrentRoom != null)
+            {
+                foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
+                {
+                    if (line.linePlayer != NetworkSystem.Instance.LocalPlayer)
+                        continue;
+
+                    Transform report = line.reportButton.gameObject.transform;
+                    threat = VRRigCache.ActiveRigs.Any(vrrig => !vrrig.isLocal && OverlappingButton(vrrig, report.position) || (antiMute && OverlappingButton(vrrig, line.muteButton.gameObject.transform.position)));
+                    break;
+                }
+            }
+
+            Recorder mic = GorillaTagger.Instance != null ? GorillaTagger.Instance.myRecorder : null;
+            if (mic == null)
+                return;
+
+            if (threat)
+                micGateThreatTime = Time.time;
+
+            if (threat && !micMutedByGate)
+            {
+                micMutedByGate = true;
+                mic.IsRecording = false;
+                NotificationManager.SendNotification("<color=grey>[</color><color=purple>MIC GATE</color><color=grey>]</color> Someone is near your report button — mic muted.");
+            }
+            else if (!threat && micMutedByGate && Time.time > micGateThreatTime + micGateHold)
+            {
+                micMutedByGate = false;
+                mic.IsRecording = true;
+            }
+        }
+
+        public static void DisableMicSafetyGate()
+        {
+            if (micMutedByGate && GorillaTagger.Instance != null && GorillaTagger.Instance.myRecorder != null)
+                GorillaTagger.Instance.myRecorder.IsRecording = true;
+
+            micMutedByGate = false;
         }
 
         public static readonly string[] namePrefix = {
@@ -882,14 +1225,7 @@ namespace iiMenu.Mods
         public static void ChangeBadgeTier(bool positive = true)
         {
             string[] badgeNames = {
-                "Wood",
-                "Rock",
-                "Bronze",
-                "Silver",
-                "Gold",
-                "Platinum",
-                "Crystal",
-                "Banana"
+                "Wood", "Rock", "Bronze", "Silver", "Gold", "Platinum", "Crystal", "Banana"
             };
 
             if (positive)
@@ -930,25 +1266,17 @@ namespace iiMenu.Mods
 
         public static void PullYourID()
         {
-  
             string directoryPath = Path.Combine(Paths.PluginPath, folderName);
             string filePath = Path.Combine(directoryPath, fileName);
 
             try
             {
-
                 if (!Directory.Exists(directoryPath))
-                {
                     Directory.CreateDirectory(directoryPath);
-                }
-
 
                 string playFabId = "Not Logged In";
-
                 if (PlayFabClientAPI.IsClientLoggedIn())
-                {
                     playFabId = "No Custom ID";
-                }
 
                 string photonName = "Not Connected";
                 string photonId = "No ID";
@@ -961,7 +1289,6 @@ namespace iiMenu.Mods
                                : PhotonNetwork.LocalPlayer.UserId;
                 }
 
-
                 string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}]\n" +
                                   $"--- PLAYFAB ---\n" +
                                   $"ID:   {playFabId}\n" +
@@ -969,7 +1296,6 @@ namespace iiMenu.Mods
                                   $"Name: {photonName}\n" +
                                   $"ID:   {photonId}\n" +
                                   new string('=', 30) + "\n";
-
 
                 File.AppendAllText(filePath, logEntry);
                 Debug.Log($"[iimenu] IDs and Name successfully logged to: {filePath}");

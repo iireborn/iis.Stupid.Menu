@@ -131,13 +131,42 @@ namespace iiMenu.Menu
             watermark.material = new Material(watermark.material);
             watermarkImage = LoadTextureFromResource($"{PluginInfo.ClientResourcePath}.icon.png");
 
-            if (!Plugin.FirstLaunch)
-            {
-                GameObject closeMessage = uiPrefab.transform.Find("Canvas")?.Find("HideMessage")?.gameObject;
-                closeMessage?.SetActive(false);
-            }
+            GameObject closeMessage = uiPrefab.transform.Find("Canvas")?.Find("HideMessage")?.gameObject;
+            closeMessage?.SetActive(false);
+            HideLegacyLtsPanel();
 
             Update();
+        }
+
+        private void HideLegacyLtsPanel()
+        {
+            if (uiPrefab == null)
+                return;
+
+            foreach (TMP_Text text in Resources.FindObjectsOfTypeAll<TMP_Text>())
+                HideLegacyTextPanel(text.transform, text.text);
+
+            foreach (UnityEngine.UI.Text text in Resources.FindObjectsOfTypeAll<UnityEngine.UI.Text>())
+                HideLegacyTextPanel(text.transform, text.text);
+
+            Transform canvas = uiPrefab.transform.Find("Canvas");
+            canvas?.Find("HideMessage")?.gameObject.SetActive(false);
+        }
+
+        private static void HideLegacyTextPanel(Transform textTransform, string value)
+        {
+            value ??= string.Empty;
+            if (value.IndexOf("LTS", System.StringComparison.OrdinalIgnoreCase) < 0 &&
+                value.IndexOf("Why LTS", System.StringComparison.OrdinalIgnoreCase) < 0 &&
+                value.IndexOf("Welcome to the ii", System.StringComparison.OrdinalIgnoreCase) < 0 &&
+                value.IndexOf("Sounds good", System.StringComparison.OrdinalIgnoreCase) < 0)
+                return;
+
+            Transform panel = textTransform;
+            while (panel.parent != null && panel.parent.name != "Canvas" && !panel.name.Contains("Message"))
+                panel = panel.parent;
+
+            panel.gameObject.SetActive(false);
         }
 
         private bool isOpen = true;
@@ -161,9 +190,16 @@ namespace iiMenu.Menu
         private List<Image> imageObjects = new List<Image>();
 
         private float uiUpdateDelay;
+        private float legacyPanelCheckTime;
 
         private void Update()
         {
+            if (Time.time >= legacyPanelCheckTime)
+            {
+                legacyPanelCheckTime = Time.time + 1f;
+                HideLegacyLtsPanel();
+            }
+
             if (UnityInput.Current.GetKeyDown(KeyCode.Backslash))
                 ToggleGUI();
 

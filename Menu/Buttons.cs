@@ -73,6 +73,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Master Mods", method =() => CurrentCategoryName = "Master Mods", isTogglable = false, toolTip = "Opens the master mods."},
                 new ButtonInfo { buttonText = "Overpowered Mods", method =() => CurrentCategoryName = "Overpowered Mods", isTogglable = false, toolTip = "Opens the overpowered mods."},
                 new ButtonInfo { buttonText = "Experimental Mods", method =() => CurrentCategoryName = "Experimental Mods", isTogglable = false, toolTip = "Opens the experimental mods."},
+                new ButtonInfo { buttonText = "External Mods", method = ExternalModsManager.EnterExternalMods, isTogglable = false, toolTip = "One-click installer for external mods (Utilla, WalkSim Fixed, TooMuchInfo, LibrePad). Always pulls the latest GitHub release and drops the .dll into BepInEx/plugins — then restart."},
                 new ButtonInfo { buttonText = "Detected Mods", method = Detected.EnterDetectedTab, isTogglable = false, toolTip = "Opens the detected mods."},
 
                 new ButtonInfo { buttonText = "Achievements", method = AchievementManager.EnterAchievementTab, isTogglable = false, toolTip = "Opens the achievements page."},
@@ -113,6 +114,9 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Physical Menu", enableMethod = Settings.PhysicalMenuOn, disableMethod = Settings.PhysicalMenuOff, toolTip = "Freezes the menu in world space."},
                 new ButtonInfo { buttonText = "Bark Menu", enableMethod =() => barkMenu = true, disableMethod =() => barkMenu = false, toolTip = "Allows you to spawn the menu similar to bark by banging on your chest."},
                 new ButtonInfo { buttonText = "Wrist Menu", enableMethod =() => wristMenu = true, disableMethod =() => wristMenu = false, toolTip = "Turns the menu into a weird wrist watch, click your hand to open it."},
+                new ButtonInfo { buttonText = "Throwable Ring Menu", enableMethod =() => throwableMenu = true, disableMethod =() => { throwableMenu = false; throwableFollowPlayer = false; throwableMenuGestures = false; ThrowableMenuManager.Cleanup(); }, toolTip = "Hold the menu button to grab an orange disc, release it to throw the menu forward."},
+                new ButtonInfo { buttonText = "Throwable Menu Follow", enableMethod =() => { if (throwableMenu) throwableFollowPlayer = true; else { Buttons.GetIndex("Throwable Menu Follow").enabled = false; NotificationManager.SendNotification("Enable Throwable Ring Menu first."); } }, disableMethod =() => { throwableFollowPlayer = false; throwableMenuGestures = false; Buttons.GetIndex("Throwable Menu Gestures").enabled = false; }, toolTip = "Throwable Ring Menu only: keeps the thrown menu in front of you while it is open."},
+                new ButtonInfo { buttonText = "Throwable Menu Gestures", enableMethod =() => { if (throwableMenu && throwableFollowPlayer) throwableMenuGestures = true; else { Buttons.GetIndex("Throwable Menu Gestures").enabled = false; NotificationManager.SendNotification("Enable Throwable Ring Menu and Throwable Menu Follow first."); } }, disableMethod =() => throwableMenuGestures = false, toolTip = "Hold your left hand open like a stop sign, then gesture with your right hand to smoothly move the followed menu."},
                 new ButtonInfo { buttonText = "Watch Menu", enableMethod = Settings.WatchMenuOn, method = Settings.CheckWatchMenu, disableMethod = Settings.WatchMenuOff, toolTip = "Turns the menu into a watch, click your joystick to toggle, and move your joystick to select a mod."},
                 new ButtonInfo { buttonText = "Shiny Menu", enableMethod =() => shinyMenu = true, disableMethod =() => shinyMenu = false, toolTip = "Makes the menu's textures use the old shader."},
                 new ButtonInfo { buttonText = "Transparent Menu", enableMethod =() => transparentMenu = true, disableMethod =() => transparentMenu = false, toolTip = "Makes the menu transparent."},
@@ -157,8 +161,12 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Animated Title", enableMethod =() => animatedTitle = true, disableMethod =() => animatedTitle = false, toolTip = "Animates the title of the menu."},
                 new ButtonInfo { buttonText = "Voice Commands", enableMethod = Settings.VoiceRecognitionOn, method = Settings.CheckFocus, disableMethod = Settings.VoiceRecognitionOff, toolTip = "Enable and disable mods using your voice. Activate it like how you would any other voice assistant, such as \"Jarvis, Platforms\"."},
                 new ButtonInfo { buttonText = "Chain Voice Commands", toolTip = "Makes voice commands chain together, so you don't have to repeatedly ask it to listen to you."},
-                new ButtonInfo { buttonText = "AI Assistant", enableMethod =() => CoroutineManager.instance.StartCoroutine(Settings.DictationOn()), method = Settings.CheckFocus, disableMethod = Settings.DictationOff, toolTip = "A voice assistant with artificial intelligence capabilities."},
-                new ButtonInfo { buttonText = "Click GUI", enableMethod = Settings.EnableClickGUI, method = Settings.ClickGUI, disableMethod = Settings.DisableClickGUI, toolTip = "A modern version of the menu."},
+                new ButtonInfo { buttonText = "AI Assistant", enableMethod =() => CoroutineManager.instance.StartCoroutine(Settings.DictationOn()), method = Settings.CheckFocus, disableMethod = Settings.DictationOff, toolTip = "A voice assistant with artificial intelligence capabilities. Say your wake word (default \"System\") to wake it up."},
+                new ButtonInfo { buttonText = "Wake Assistant", method = VoiceAssistant.ManualWake, isTogglable = false, toolTip = "Wakes the assistant without saying the wake word, so you can test it or use it on PC."},
+                new ButtonInfo { buttonText = "Change Wake Word", overlapText = "Change Wake Word <color=grey>[</color><color=green>System</color><color=grey>]</color>", method =() => VoiceAssistant.ChangeWakeWord(), enableMethod =() => VoiceAssistant.ChangeWakeWord(), disableMethod =() => VoiceAssistant.ChangeWakeWord(false), incremental = true, isTogglable = false, toolTip = "The word the assistant listens for, such as System or Jarvis. \"Hey <word>\" works too."},
+                new ButtonInfo { buttonText = "Assistant Voice", enableMethod =() => VoiceAssistant.voiceEnabled = true, disableMethod =() => VoiceAssistant.voiceEnabled = false, toolTip = "Gives the assistant a voice with the menu TTS, on top of the Narrate Assistant toggles."},
+                new ButtonInfo { buttonText = "Assistant Greeting", enableMethod =() => VoiceAssistant.greetingEnabled = true, disableMethod =() => VoiceAssistant.greetingEnabled = false, toolTip = "Says \"Hey there! How can I help?\" when it hears the wake word. Edit iiMenu_Greeting.txt to change the line."},
+                new ButtonInfo { buttonText = "Voice Assistant Orb", enableMethod =() => { VoiceAssistant.orbEnabled = true; VoiceAssistant.SetState(VoiceAssistant.State); }, disableMethod =() => { VoiceAssistant.orbEnabled = false; VoiceAssistant.Hide(true); }, toolTip = "Spinning orb that appears in front of you while the assistant is listening, thinking or talking."},
 
                 new ButtonInfo { buttonText = "Narrate Assistant", toolTip = "Narrates what the voice assistant says locally."},
                 new ButtonInfo { buttonText = "Global Narrate Assistant", toolTip = "Narrates what the voice assistant says globally."},
@@ -302,6 +310,8 @@ namespace iiMenu.Menu
 
             new[] { // Room Settings [3]
                 new ButtonInfo { buttonText = "Exit Room Settings", method =() => CurrentCategoryName = "Settings", isTogglable = false, toolTip = "Returns you back to the settings menu."},
+                new ButtonInfo { buttonText = "Open Room Mods", method =() => CurrentCategoryName = "Room Mods", isTogglable = false, toolTip = "Opens disconnect, reconnect, join, create, and other room controls."},
+                new ButtonInfo { buttonText = "iiServers", method = IiServersManager.EnterIiServers, isTogglable = false, toolTip = "Opens the iiServers connection page for II_BAN1 and II_BAN2."},
 
                 new ButtonInfo { buttonText = "20 Player Rooms", toolTip = "Changes Create Public and Create Private to 20 player capacity." },
                 new ButtonInfo { buttonText = "crTime", overlapText = "Change Reconnect Time <color=grey>[</color><color=green>5</color><color=grey>]</color>", method =() => Settings.ChangeReconnectTime(), enableMethod =() => Settings.ChangeReconnectTime(), disableMethod =() => Settings.ChangeReconnectTime(false), incremental = true, isTogglable = false, toolTip = "Changes the amount of time waited before attempting to reconnect again."},
@@ -415,6 +425,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Create Private", method =() => { if (GetIndex("20 Player Rooms").enabled) Important.CreateRoom($"@{Important.RandomRoomName()}", false); else Important.CreateRoom(Important.RandomRoomName(), false); }, isTogglable = false, toolTip = "Creates a private room."},
 
                 new ButtonInfo { buttonText = "Fast Disconnect", method =() => SinglePlayerPatch.enabled = true, disableMethod =() =>  SinglePlayerPatch.enabled = false, toolTip = "Uses the fastest method of disconnecting possible."},
+                new ButtonInfo { buttonText = "iiServers", method = IiServersManager.EnterIiServers, isTogglable = false, toolTip = "Private Photon Cloud for banned players. Fetches AppId from https://gtag.useless.best/v1/api/iiservers (no credentials needed). Connect toggles to II_BAN1/II_BAN2 (10 each, 20 CCU). OFF restores official - no restart needed."},
                 new ButtonInfo { buttonText = "Join Menu Room", method =() => PhotonNetworkController.Instance.AttemptToJoinSpecificRoom($"<$II_{PluginInfo.Version}>", JoinType.Solo), isTogglable = false, toolTip = "Connects you to a room that is exclusive to ii's <b>Stupid</b> Menu users." },
 
                 new ButtonInfo { buttonText = "Bypass Join Room Type", enableMethod =() => JoinedRoomPatch.enabled = true, disableMethod =() => JoinedRoomPatch.enabled = false, toolTip = "Bypasses the immediate disconnection when trying to join a room that is in another map."},
@@ -469,7 +480,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Restart Gorilla Tag", aliases = new[] { "Restart Game", "Restart App" }, method = () => Prompt("Are you sure you want to restart Gorilla Tag?", Important.RestartGame), isTogglable = false, toolTip = "Restarts Gorilla Tag." },
                 new ButtonInfo { buttonText = "Open Gorilla Tag Folder", method = Important.OpenGorillaTagFolder, isTogglable = false, toolTip = "Opens the folder in which your game is located." },
 
-                new ButtonInfo { buttonText = "Discord RPC", aliases = new[] { "Self Tracker" }, method = Important.DiscordRPC, disableMethod = Important.DisableDiscordRPC, toolTip = "Gives you a indicator on Discord that you are using ii's Stupid Menu."},
                 new ButtonInfo { buttonText = "Media Integration", aliases = new[] { "Spotify" }, enableMethod = Important.EnsureIntegrationProgram, method = Important.MediaIntegration, disableMethod = Important.DisableMediaIntegration, toolTip = "Shows you what media you are watching/listening to in the top left. To switch media, open the menu and use your left joystick."},
 
                 new ButtonInfo { buttonText = "Anti Hand Tap", enableMethod =() => HandTapPatch.enabled = true, disableMethod =() => HandTapPatch.enabled = false, toolTip = "Stops all hand tap sounds from being played."},
@@ -568,22 +578,29 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Cosmetic Notifications", method = Safety.CosmeticNotifications, toolTip = "Sends you a notification if there is a Finger Painter, Illustrator, Administrator, Stick, Forest Guide, or Another Axiom Creator in your room."},
                 new ButtonInfo { buttonText = "Steam Detector", method = Important.SteamDetector, toolTip = "Detects when a player in your room is on Steam."},
 
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Disconnect</color><color=grey>]</color>", method = Safety.AntiReportDisconnect, toolTip = "Disconnects you from the room when anyone comes near your report button."},
+
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Reconnect</color><color=grey>]</color>", method = Safety.AntiReportReconnect, toolTip = "Disconnects and rejoins the room when anyone comes near your report button."},
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Join Random</color><color=grey>]</color>", method = Safety.AntiReportJoinRandom, toolTip = "Disconnects and joins a random new room when anyone comes near your report button."},
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Notify</color><color=grey>]</color>", method = Safety.AntiReportNotify, toolTip = "Notifies you when anyone comes near your report button, without disconnecting you."},
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Overlay</color><color=grey>]</color>", method = Safety.AntiReportOverlay, toolTip = "Shows a persistent overlay naming who is near your report button."},
+                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Oculus</color><color=grey>]</color>", enableMethod = Safety.EnableAntiOculusReport, disableMethod = Safety.DisableAntiOculusReport, toolTip = "Disconnects you when you get reported with the Oculus report menu."},
+
                 new ButtonInfo { buttonText = "Bypass Automod", method = Safety.BypassAutomod, toolTip = "Attempts to bypass automod muting yourself and others."},
                 new ButtonInfo { buttonText = "Bypass Mod Checkers", enableMethod =() => PropertiesPatches.enabled = true, method = Safety.BypassModCheckers, disableMethod =() => PropertiesPatches.enabled = false, toolTip = "Tells players using mod checkers that you have no mods."},
                 new ButtonInfo { buttonText = "Bypass Cosmetic Check", method =() => RequestPatch.bypassCosmeticCheck = true, disableMethod =() => RequestPatch.bypassCosmeticCheck = false, toolTip = "Turns off the networking for any cosmetic mods, stopping people from seeing if you're using one."},
                 new ButtonInfo { buttonText = "Anti Predictions", enableMethod = Safety.AntiPredictions, disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Prevents people from checking if your predictions are too high."},
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Disconnect</color><color=grey>]</color>", method = Safety.AntiReportDisconnect, toolTip = "Disconnects you from the room when anyone comes near your report button."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Reconnect</color><color=grey>]</color>", method = Safety.AntiReportReconnect, toolTip = "Disconnects and reconnects you from the room when anyone comes near your report button."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Join Random</color><color=grey>]</color>", method = Safety.AntiReportJoinRandom, toolTip = "Connects you to a random the room when anyone comes near your report button."},
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Oculus</color><color=grey>]</color>", enableMethod = Safety.EnableAntiOculusReport, disableMethod = Safety.DisableAntiOculusReport, toolTip = "Disconnects you from the room when you get reported with the Oculus report menu."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Anti Cheat</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiACReport = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiACReport = false, toolTip = "Disconnects you from the room when you get reported by the anti cheat."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Notify</color><color=grey>]</color>", method = Safety.AntiReportNotify, toolTip = "Tells you when people come near your report button, but doesn't do anything."},
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Overlay</color><color=grey>]</color>", method = Safety.AntiReportOverlay, toolTip = "Shows you an overlay when people come near your report button, but doesn't do anything."},
 
                 new ButtonInfo { buttonText = "Show Anti Cheat Reports <color=grey>[</color><color=green>Self</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatSelf = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatSelf = false, toolTip = "Gives you a notification every time you have been reported by the anti cheat."},
                 new ButtonInfo { buttonText = "Show Anti Cheat Reports <color=grey>[</color><color=green>All</color><color=grey>]</color>", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatAll = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatAll = false, toolTip = "Gives you a notification every time anyone has been reported by the anti cheat."},
+
+                new ButtonInfo { buttonText = "Panic Button", method = Safety.PanicButton, toolTip = "Disables all mods, closes the menu, resets your identity and flushes RPCs. Tap again to restore your previous mods."},
+                new ButtonInfo { buttonText = "Watchdog Auto-Leave", method = Safety.WatchdogAutoLeave, toolTip = "Automatically disconnects whenever a player on your watchlist joins or is in the room."},
+                new ButtonInfo { buttonText = "Watchdog Mark All", aliases = new[] { "Mark All Players" }, method = Safety.WatchdogMarkAll, isTogglable = false, toolTip = "Adds everyone currently in the room to the Watchdog watchlist."},
+                new ButtonInfo { buttonText = "Watchdog Clear", method = Safety.WatchdogClear, isTogglable = false, toolTip = "Clears the Watchdog watchlist file."},
+                new ButtonInfo { buttonText = "Mic Safety Gate", method = Safety.MicSafetyGate, disableMethod = Safety.DisableMicSafetyGate, toolTip = "Mutes your microphone whenever someone can reach your report button, un-mutes when clear."},
 
                 new ButtonInfo { buttonText = "Change Identity", method = Safety.ChangeIdentity, isTogglable = false, toolTip = "Changes your name and color to something a new player would have."},
                 new ButtonInfo { buttonText = "Change Identity <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method = Safety.ChangeIdentityRegular, isTogglable = false, toolTip = "Changes your name and color to something a regular player would have."},
@@ -1100,9 +1117,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Report Gun", method = Fun.ReportGun, toolTip = "Reports whoever your hand desires for cheating."},
                 new ButtonInfo { buttonText = "Report All", method = Fun.ReportAll, isTogglable = false, toolTip = "Reports everyone in the room for cheating."},
 
-                new ButtonInfo { buttonText = "Trigger Anti Report Gun", method = Fun.TriggerAntiReportGun, toolTip = "Triggers whoever your hand desires' anti report if enabled."},
-                new ButtonInfo { buttonText = "Trigger Anti Report All", method = Fun.TriggerAntiReportAll, disableMethod =() => VRRig.LocalRig.enabled = true, toolTip = "Triggers everyone in the room's anti report if enabled."},
-                new ButtonInfo { buttonText = "Bypass Anti Report", method = Fun.BypassAntiReport, disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Bypasses anti report mods when reporting players."},
 
                 new ButtonInfo { buttonText = "Break Mod Checkers", enableMethod = Fun.BreakModCheckers, disableMethod = Safety.BypassModCheckers, toolTip = "Tells players using mod checkers that you have every mod possible."},
                 new ButtonInfo { buttonText = "Custom Mod Spoofer", method = Fun.CustomModSpoofer, isTogglable = false, toolTip = "Make mod checkers see only what you allow."},
@@ -1810,7 +1824,6 @@ namespace iiMenu.Menu
 
                 new ButtonInfo { buttonText = "Snowball Launch Gun", method = Overpowered.SnowballLaunchGun, toolTip = "Launches whoever your hand desires like a launch pad."},
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Snowball Fling</color><color=grey>]</color>", method = Overpowered.AntiReportSnowballFling, toolTip = "Flings whoever tries to report you with the snowballs."}
             },
 
             new[] { // Master Mods [16]
@@ -1918,7 +1931,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Block Crash Gun", overlapText = "Building Block Crash Gun", method = Overpowered.BlockCrashGun, toolTip = "Crashes whoever your hand desires if they are inside of the block map."},
                 new ButtonInfo { buttonText = "Block Crash All <color=grey>[</color><color=green>T</color><color=grey>]</color>", overlapText = "Building Block Crash All <color=grey>[</color><color=green>T</color><color=grey>]</color>", method = Overpowered.BlockCrashAll, toolTip = "Crashes everybody inside of the block map."},
 
-                new ButtonInfo { buttonText = "Block Anti Report", enableMethod = Fun.EnableAtticAntiReport, method = Fun.AtticAntiReport, toolTip = "Automatically builds blocks around your report button."},
 
                 new ButtonInfo { buttonText = "Block Draw Gun", overlapText = "Building Block Draw Gun", method = Fun.AtticDrawGun, toolTip = "Draw wherever your hand desires."},
                 new ButtonInfo { buttonText = "Block Build Gun", overlapText = "Building Block Build Gun",method = Fun.AtticBuildGun, toolTip = "Draw wherever your hand desires with no delay."},
@@ -2087,7 +2099,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Crash Server", enableMethod =() => SerializePatch.OverrideSerialization = () => false, method =() => Overpowered.FreezeServer(0.1f, 40), disableMethod =() => SerializePatch.OverrideSerialization = null, toolTip = "Crashes the room." },
                 new ButtonInfo { buttonText = "Za Warudo <color=grey>[</color><color=green>T</color><color=grey>]</color>", enableMethod = Overpowered.ZaWarudo_enableMethod, method = Overpowered.ZaWarudo, toolTip = "Freeze all, but with special effects." },
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Fling</color><color=grey>]</color>", method = Overpowered.AntiReportFling, toolTip = "Flings whoever tries to report you."},
 
                 new ButtonInfo { buttonText = "Lag Gun", method = Overpowered.LagGun, toolTip = "Lags whoever your hand desires."},
                 new ButtonInfo { buttonText = "Lag All", method = Overpowered.LagAll, toolTip = "Lags everyone in the room."},
@@ -2098,7 +2109,6 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Deafen Gun", method = Overpowered.DeafenGun, toolTip = "Makes whoever your hand deseries not be able to hear anyone else."},
                 new ButtonInfo { buttonText = "Deafen All", method = Overpowered.DeafenAll, toolTip = "Makes everyone not be able to hear anyone except you."},
 
-                new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Lag</color><color=grey>]</color>", method = Overpowered.AntiReportLag, toolTip = "Lags whoever tries to report you."},
 
                 new ButtonInfo { buttonText = "Barrel Punch Mod", method = Overpowered.BarrelPunchMod, toolTip = "Flings people when you punch them."},
 
@@ -2283,16 +2293,22 @@ namespace iiMenu.Menu
 
             new[] { // Safety Settings [28]
                 new ButtonInfo { buttonText = "Exit Safety Settings", method =() => CurrentCategoryName = "Settings", isTogglable = false, toolTip = "Returns you back to the settings menu."},
-
-                new ButtonInfo { buttonText = "Change Anti Report Distance", overlapText = "Change Anti Report Distance <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method =() => Safety.ChangeAntiReportRange(), enableMethod =() => Safety.ChangeAntiReportRange(), disableMethod =() => Safety.ChangeAntiReportRange(false), incremental = true, isTogglable = false, toolTip = "Changes the distance threshold for the anti report mods."},
                 new ButtonInfo { buttonText = "Change FPS Spoof Value", overlapText = "Change FPS Spoof Value <color=grey>[</color><color=green>90</color><color=grey>]</color>", method =() => Safety.ChangeFPSSpoofValue(), enableMethod =() => Safety.ChangeFPSSpoofValue(), disableMethod =() => Safety.ChangeFPSSpoofValue(false), incremental = true, isTogglable = false, toolTip = "Changes the target FPS for the FPS Spoof mod."},
                 new ButtonInfo { buttonText = "Change Ping Spoof Value", overlapText = "Change Ping Spoof Value <color=grey>[</color><color=green>200</color><color=grey>]</color>", method =() => Safety.ChangePingSpoofValue(), enableMethod =() => Safety.ChangePingSpoofValue(), disableMethod =() => Safety.ChangePingSpoofValue(false), incremental = true, isTogglable = false, toolTip = "Changes the target ping for the Ping Spoof mod."},
 
+                new ButtonInfo { buttonText = "Change Anti Report Distance", overlapText = "Change Anti Report Distance <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method =() => Safety.ChangeAntiReportRange(), enableMethod =() => Safety.ChangeAntiReportRange(), disableMethod =() => Safety.ChangeAntiReportRange(false), incremental = true, isTogglable = false, toolTip = "Changes the distance threshold for the anti report mods."},
                 new ButtonInfo { buttonText = "Hide Anti Cheat Report Reasons", enableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatReasonHide = true, disableMethod =() => AntiCheatPatches.SendReportPatch.AntiCheatReasonHide = false, toolTip = "Hides the reason for Show Anti Cheat Reports."},
 
                 new ButtonInfo { buttonText = "Visualize Anti Report", method = Safety.VisualizeAntiReport, toolTip = "Visualizes the distance threshold for the anti report mods."},
-                new ButtonInfo { buttonText = "Smart Anti Report", enableMethod = Safety.EnableSmartAntiReport, disableMethod = Safety.DisableSmartAntiReport, toolTip = "Makes the anti report mods only activate in non-modded public lobbies."},
-                new ButtonInfo { buttonText = "Anti Mute", enableMethod =() => Safety.antiMute = true, disableMethod =() => Safety.antiMute = false, toolTip = "Includes the mute button with the anti report mods." }
+                new ButtonInfo { buttonText = "Smart Anti Report", enableMethod = Safety.EnableSmartAntiReport, disableMethod = Safety.DisableSmartAntiReport, toolTip = "Only reacts to an actual press on the report button instead of a hand hovering near it. Set how close a press has to be below."},
+                new ButtonInfo { buttonText = "Anti Mute", enableMethod =() => Safety.antiMute = true, disableMethod =() => Safety.antiMute = false, toolTip = "Includes the mute button with the anti report mods." },
+
+                new ButtonInfo { buttonText = "Change Anti Report Press Distance", overlapText = "Change Anti Report Press Distance <color=grey>[</color><color=green>Default</color><color=grey>]</color>", method =() => Safety.ChangeAntiReportPressDistance(), enableMethod =() => Safety.ChangeAntiReportPressDistance(), disableMethod =() => Safety.ChangeAntiReportPressDistance(false), incremental = true, isTogglable = false, toolTip = "How close a hand has to be before Smart Anti Report treats it as an actual report press."},
+                new ButtonInfo { buttonText = "Change Watchdog Interval", overlapText = "Change Watchdog Interval <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method =() => Safety.ChangeWatchdogInterval(), enableMethod =() => Safety.ChangeWatchdogInterval(), disableMethod =() => Safety.ChangeWatchdogInterval(false), incremental = true, isTogglable = false, toolTip = "How often Watchdog Auto-Leave checks the room against your watchlist."},
+                new ButtonInfo { buttonText = "Reload Watchlist", method = Safety.ReloadWatchlist, isTogglable = false, toolTip = "Re-reads Watchlist.txt without rejoining the room."},
+                new ButtonInfo { buttonText = "Open Watchlist Folder", method = Safety.OpenWatchlistFolder, isTogglable = false, toolTip = "Opens the folder that holds Watchlist.txt." },
+                new ButtonInfo { buttonText = "Change Mic Gate Hold Time", overlapText = "Change Mic Gate Hold Time <color=grey>[</color><color=green>Normal</color><color=grey>]</color>", method =() => Safety.ChangeMicGateHoldTime(), enableMethod =() => Safety.ChangeMicGateHoldTime(), disableMethod =() => Safety.ChangeMicGateHoldTime(false), incremental = true, isTogglable = false, toolTip = "How long the mic stays muted after the last player leaves your report button."},
+                new ButtonInfo { buttonText = "Visualize Anti Report Press Radius", enableMethod =() => Safety.visualizePressRadius = true, disableMethod =() => Safety.visualizePressRadius = false, toolTip = "Shows the press radius Smart Anti Report uses as a yellow aura." }
             },
 
             new ButtonInfo[] { }, // Temporary Category [29]
@@ -2394,6 +2410,7 @@ namespace iiMenu.Menu
                 new ButtonInfo { buttonText = "Exit Credits", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page." },
 
                 new ButtonInfo { buttonText = "Old Devs", method =() => NotificationManager.SendNotification("The original developers of ii's <b>Stupid</b> Menu.", 5000), isTogglable = false, toolTip = "The original developers of ii's <b>Stupid</b> Menu." },
+                new ButtonInfo { buttonText = "Zlothy", method =() => Process.Start("https://github.com/gorillan0t/Sentinel/blob/master/Sentinel/Disc.cs"), isTogglable = false, toolTip = "Disc design and deployment inspiration: github.com/gorillan0t/Sentinel/blob/master/Sentinel/Disc.cs" },
                 new ButtonInfo { buttonText = "Useless", method =() => Process.Start(serverLink), isTogglable = false, toolTip = "Useless — discord.gg/iidk" },
 
                 new ButtonInfo { buttonText = "GPL v3", method =() => Process.Start("https://www.gnu.org/licenses/gpl-3.0.html"), isTogglable = false, toolTip = "The GNU General Public License Version 3 is the license that my menu uses. It proveides a \"free, copyleft license for software and other kinds of works.\""},
@@ -2546,6 +2563,26 @@ namespace iiMenu.Menu
             {
                 new ButtonInfo { buttonText = "Exit Patreon Settings", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
                 new ButtonInfo { buttonText = "Disable Patreon Indicators", enableMethod =() => PatreonManager.IndicatorsEnabled = false, disableMethod =() => PatreonManager.IndicatorsEnabled = true, toolTip = "Disables the memberships that appear above people's head with the menu."}
+            },
+
+            new[] // External Mods [49]
+            {
+                new ButtonInfo { buttonText = "Exit External Mods", method =() => CurrentCategoryName = "Main", isTogglable = false, toolTip = "Returns you back to the main page."},
+                new ButtonInfo { buttonText = "Restart Gorilla Tag", method =() => Important.RestartGame(), isTogglable = false, toolTip = "At the top as requested. Restarts Gorilla Tag so newly installed external mods load."},
+                new ButtonInfo { buttonText = "Install Utilla", overlapText = "Utilla <color=grey>[</color><color=cyan>GitHub Latest</color><color=grey>]</color>", method =() => ExternalModsManager.DownloadLatest(ExternalModsManager.Mods[0]), isTogglable = false, toolTip = "Installs the latest Utilla from GitHub (iireborn/Utilla) to BepInEx/plugins. Then restart."},
+                new ButtonInfo { buttonText = "Install WalkSim Fixed", overlapText = "WalkSim Fixed <color=grey>[</color><color=cyan>GitHub Latest</color><color=grey>]</color>", method =() => ExternalModsManager.DownloadLatest(ExternalModsManager.Mods[1]), isTogglable = false, toolTip = "Installs the latest Walksim-Fixed from GitHub (iireborn/Walksim-Fixed) to BepInEx/plugins. Then restart."},
+                new ButtonInfo { buttonText = "Install TooMuchInfo", overlapText = "TooMuchInfo <color=grey>[</color><color=cyan>GitHub Latest</color><color=grey>]</color>", method =() => ExternalModsManager.DownloadLatest(ExternalModsManager.Mods[2]), isTogglable = false, toolTip = "Installs the latest TooMuchInfo from GitHub (iireborn/TooMuchInfo) to BepInEx/plugins. Then restart."},
+                new ButtonInfo { buttonText = "Install LibrePad Updated", overlapText = "LibrePad Updated <color=grey>[</color><color=cyan>GitHub Latest</color><color=grey>]</color>", method =() => ExternalModsManager.DownloadLatest(ExternalModsManager.Mods[3]), isTogglable = false, toolTip = "Installs the latest LibrePad-Updated from GitHub (iireborn/LibrePad-Updated) to BepInEx/plugins. Then restart."},
+                new ButtonInfo { buttonText = "Open Plugins Folder", method =() => System.Diagnostics.Process.Start(FileUtilities.GetGamePath() + "/BepInEx/plugins"), isTogglable = false, toolTip = "Opens BepInEx/plugins in Explorer."},
+            },
+
+            new[] // iiServers [50]
+            {
+                new ButtonInfo { buttonText = "Exit iiServers", method =() => CurrentCategoryName = "Room Mods", isTogglable = false, toolTip = "Back to Room Mods."},new ButtonInfo { buttonText = "Connect to iiServers", enableMethod = IiServersManager.Connect, disableMethod = IiServersManager.Disconnect, toolTip = "Live swap to private Photon Cloud. ON fetches AppId/AppVersion/Region from https://gtag.useless.best/v1/api/iiservers -> disconnects official -> reconnects -> auto-joins II_BAN1 else II_BAN2 (10+10 = 20 CCU). OFF restores official - no restart needed. Bypasses PlayFab bans. Empty rooms = 0 CCU." },
+                new ButtonInfo { buttonText = "Join II_BAN1", method =() => IiServersManager.JoinSpecific(IiServersManager.Room1), isTogglable = false, toolTip = "Joins II_BAN1 (10 max) on iiServers."},
+                new ButtonInfo { buttonText = "Join II_BAN2", method =() => IiServersManager.JoinSpecific(IiServersManager.Room2), isTogglable = false, toolTip = "Joins II_BAN2 (10 max)."},
+                new ButtonInfo { buttonText = "iiServers Status", isTogglable = false, toolTip = "Shows iiServers vs official and MOTD."},
+                new ButtonInfo { buttonText = "Refresh iiServers Config", method =() => { if (CoroutineManager.instance != null) IiServersManager.RefreshIiServersButtons(); }, isTogglable = false, toolTip = "Re-fetches AppId/Version from API."},
             }
         };
 
@@ -2594,7 +2631,9 @@ namespace iiMenu.Menu
             "Achievements",
             "Mod List",
             "Patreon Mods",
-            "Patreon Settings"
+            "Patreon Settings",
+            "External Mods",
+            "iiServers"
         };
 
         public static int _currentCategoryIndex;
@@ -2605,7 +2644,8 @@ namespace iiMenu.Menu
             get => _currentCategoryIndex;
             set
             {
-                _currentCategoryIndex = value;
+                int max = Math.Min(buttons.Length, categoryNames.Length) - 1;
+                _currentCategoryIndex = max < 0 ? 0 : Math.Max(0, Math.Min(value, max));
                 pageNumber = 0;
                 pageOffset = 0;
 
@@ -2615,16 +2655,17 @@ namespace iiMenu.Menu
 
         public static string CurrentCategoryName
         {
-            get => Buttons.categoryNames[CurrentCategoryIndex];
-            set =>
-                CurrentCategoryIndex = Buttons.GetCategory(value);
+            get => categoryNames.Length == 0 ? "Main" : categoryNames[Math.Max(0, Math.Min(CurrentCategoryIndex, categoryNames.Length - 1))];
+            set
+            {
+                int category = Buttons.GetCategory(value);
+                CurrentCategoryIndex = category < 0 ? 0 : category;
+            }
         }
 
         private static readonly Dictionary<string, (int Category, int Index)> cacheGetIndex = new Dictionary<string, (int Category, int Index)>(); // Looping through 800 elements is not a light task :/
 
-        /// <summary>
         /// Returns the ButtonInfo for the given button text.
-        /// </summary>
         /// <param name="buttonText">Button Name</param>
         /// <returns>Button</returns>
         public static ButtonInfo GetIndex(string buttonText)
@@ -2669,17 +2710,13 @@ namespace iiMenu.Menu
             return null;
         }
 
-        /// <summary>
         /// Returns the category index for the given category name.
-        /// </summary>
         /// <param name="categoryName">Category Name</param>
         /// <returns>Category Index</returns>
         public static int GetCategory(string categoryName) =>
             categoryNames.ToList().IndexOf(categoryName);
 
-        /// <summary>
         /// Adds a category to the button list.
-        /// </summary>
         /// <remarks>
         /// A button will not be automatically added to the main category. It must be manually created with <see cref="AddButton(int, ButtonInfo, int)"/>
         /// </remarks>
@@ -2698,9 +2735,7 @@ namespace iiMenu.Menu
             return buttons.Length - 1;
         }
 
-        /// <summary>
         /// Removes a category from the button list.
-        /// </summary>
         /// <remarks>
         /// Any buttons leading to the category will not be removed from the main category. They must be manually removed with <see cref="RemoveButton(int, string, int)"/>
         /// </remarks>
@@ -2716,9 +2751,7 @@ namespace iiMenu.Menu
             categoryNames = categoryList.ToArray();
         }
 
-        /// <summary>
         /// Adds a button to the specified category.
-        /// </summary>
         /// <param name="category">Category</param>
         /// <param name="button">Button</param>
         /// <param name="index">Index Position</param>
@@ -2733,9 +2766,7 @@ namespace iiMenu.Menu
             buttons[category] = buttonInfoList.ToArray();
         }
 
-        /// <summary>
         /// Adds multiple buttons to the specified category.
-        /// </summary>
         /// <param name="category">Category</param>
         /// <param name="buttons">Buttons</param>
         /// <param name="index">Index Position</param>
@@ -2753,9 +2784,7 @@ namespace iiMenu.Menu
             Buttons.buttons[category] = buttonInfoList.ToArray();
         }
 
-        /// <summary>
         /// Removes a button from the specified category.
-        /// </summary>
         /// <param name="category">Category</param>
         /// <param name="name">Button Name</param>
         /// <param name="index">Index Position</param>
@@ -2831,7 +2860,6 @@ new ButtonInfo { buttonText = "Lag Aura", method = Overpowered.LagAura, toolTip 
 new ButtonInfo { buttonText = "Lowercase Name", method =() => Fun.LowercaseName(), isTogglable = false, toolTip = "Makes your name lowercase." },
 new ButtonInfo { buttonText = "Long Name", method =() => Fun.LongName(), isTogglable = false, toolTip = "Makes your name really long." },
 
-new ButtonInfo { buttonText = "Shaders", enableMethod =() => Fun.EnableShaders(), disableMethod =() => Fun.DisableShaders(), toolTip = "Adds bloom, motion blur, and slight saturation to the game. Credits to leah / tagmonkevr for the code."},
 
 new ButtonInfo { buttonText = "Barrel Minigun <color=grey>[</color><color=green>G</color><color=grey>]</color>", method =() => OverpoweredObjectMinigun(-1724683316), toolTip = "Spawns barrels out of your hand."},
 new ButtonInfo { buttonText = "Core Minigun <color=grey>[</color><color=green>G</color><color=grey>]</color>", method =() => OverpoweredObjectMinigun(166197108), toolTip = "Spawns collectible cores out of your hand."},
@@ -2864,7 +2892,6 @@ new ButtonInfo { buttonText = "Glasses on Grip <color=grey>[</color><color=green
 new ButtonInfo { buttonText = "Master Crash Gun", method =() => Overpowered.MasterCrashGun(), toolTip = "Crashes whoever your hand desires if you're master client."},
 new ButtonInfo { buttonText = "Master Crash All <color=grey>[</color><color=green>T</color><color=grey>]</color>", method =() => Overpowered.MasterCrashAll(), toolTip = "Crashes everybody in the room when holding <color=green>trigger</color> if you're master client."},
 
-new ButtonInfo { buttonText = "Attic Anti Report", enableMethod =() => Fun.EnableAtticAntiReport(), method =() => Fun.AtticAntiReport(), toolTip = "Automatically builds a block around your report button."},
 
 new ButtonInfo { buttonText = "Attic Draw Gun", method =() => Fun.AtticDrawGun(), toolTip = "Draw wherever your hand desires."},
 new ButtonInfo { buttonText = "Attic Build Gun", method =() => Fun.AtticBuildGun(), toolTip = "Draw wherever your hand desires with no delay."},
@@ -2917,7 +2944,6 @@ new ButtonInfo { buttonText = "Firecracker Instant Crash All <color=grey>[</colo
 new ButtonInfo { buttonText = "Repair Kick", method =() => Overpowered.RepairKick(), isTogglable = false, toolTip = "Swaps the target used for kicking, to hopefully repair any kick mods."},
 new ButtonInfo { buttonText = "Auto Repair Kick", method =() => Overpowered.AutoRepairKick(), toolTip = "Automatically swaps the target used for kicking, to hopefully repair any kick mods without needing to manually press that button."},
 
-new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Kick</color><color=grey>]</color>", method =() => Overpowered.AntiReportKick(), toolTip = "Kicks whoever tries to report you."},
 new ButtonInfo { buttonText = "Leaderboard Kick", method =() => Overpowered.LeaderboardKick(), disableMethod =() => Overpowered.DisableLeaderboardKick(), toolTip = "Changes the report button into a kick button."},
 
 new ButtonInfo { buttonText = "Kick Gun", method =() => Overpowered.KickGun(), toolTip = "Kicks whoever your hand desires."},
@@ -2984,8 +3010,6 @@ new ButtonInfo { buttonText = "Unacid Self", method =() => Fun.UnacidSelf(), isT
 new ButtonInfo { buttonText = "Unacid Gun", method =() => Fun.UnacidGun(), toolTip = "Unturns whoever your hand desires into acid." },
 new ButtonInfo { buttonText = "Unacid All", method =() => Fun.UnacidAll(), isTogglable = false, toolTip = "Unturns everyone into acid." },
 
-new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Lag</color><color=grey>]</color>", method =() => Safety.AntiReportLag(), toolTip = "Lags whoever comes near your report button."},
-new ButtonInfo { buttonText = "Anti Report <color=grey>[</color><color=green>Crash</color><color=grey>]</color>", method =() => Safety.AntiReportCrash(), toolTip = "Crashes whoever comes near your report button."}
 
 new ButtonInfo { buttonText = "Crash Gun", method =() => Overpowered.CrashGun(), toolTip = "Crashes or lags whoever your hand desires." },
 new ButtonInfo { buttonText = "Crash All <color=grey>[</color><color=green>T</color><color=grey>]</color>", method =() => Overpowered.CrashAll(), toolTip = "Crashes every quest player, and lags/crashes every steam player when holding <color=green>trigger</color>" },

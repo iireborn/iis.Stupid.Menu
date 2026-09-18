@@ -248,75 +248,8 @@ exit";
         }
 
         private static DiscordRpcClient discord;
-        private static DateTime? startTime;
-        private static DateTime? endTime;
-        private static float updateTime;
         public static void DiscordRPC()
         {
-            if (discord == null)
-            {
-                discord = new DiscordRpcClient("1436519874368114850")
-                {
-                    Logger = new Managers.DiscordRPC.Logging.DiscordLogManager()
-                };
-
-                discord.Initialize();
-            }
-
-            if (NetworkSystem.Instance.InRoom)
-            {
-                endTime = null;
-
-                if (startTime == null)
-                    startTime = DateTime.UtcNow;
-            }
-            else
-            {
-                startTime = null;
-
-                if (endTime == null)
-                    endTime = DateTime.UtcNow;
-            }
-
-            if (Time.time > updateTime)
-            {
-                updateTime = Time.time + 1f;
-                bool inRoom = NetworkSystem.Instance.InRoom;
-                string roomName = inRoom ? NetworkSystem.Instance.RoomName : "-";
-                string gameMode = inRoom && GorillaGameManager.instance != null
-                    ? GorillaGameManager.instance.GameType().ToString().ToLower()
-                    : "alone";
-
-                discord.SetPresence(new RichPresence
-                {
-                    Details = inRoom ? $"Playing {gameMode}" : "Playing alone",
-                    State = inRoom ? $"Room: {roomName} ({PhotonNetwork.PlayerList.Length}/{PhotonNetwork.CurrentRoom.MaxPlayers})" : "Not in a room",
-                    Assets = new Managers.DiscordRPC.Assets
-                    {
-                        LargeImageKey = "cone",
-                        LargeImageText = "ii's Stupid Menu",
-                        SmallImageKey = inRoom ? "online" : "offline",
-                        SmallImageText = inRoom ? "Online" : "Offline"
-                    },
-                    Timestamps = inRoom ? new Timestamps
-                    {
-                        Start = startTime ?? endTime ?? DateTime.UtcNow
-                    } : null,
-                    Buttons = new[]
-                    {
-                        new Button
-                        {
-                            Label = "Discord Server",
-                            Url = serverLink
-                        },
-                        new Button
-                        {
-                            Label = "Download",
-                            Url = "https://github.com/CubicCreeper/iis.Stupid.Menu-LTS/"
-                        }
-                    }
-                });
-            }
         }
 
         public static void DisableDiscordRPC()

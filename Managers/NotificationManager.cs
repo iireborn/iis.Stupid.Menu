@@ -317,6 +317,9 @@ namespace iiMenu.Managers
         /// decay time.</param>
         public static void SendNotification(string notificationText, int clearTime = -1)
         {
+            if (IsDiscordRpcNotification(notificationText))
+                return;
+
             if (clearTime < 0)
                 clearTime = notificationDecayTime;
 
@@ -401,6 +404,16 @@ namespace iiMenu.Managers
             {
                 LogManager.LogError($"Notification failed, object probably nil due to third person ; {notificationText} {e.Message}");
             }
+        }
+
+        private static bool IsDiscordRpcNotification(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return false;
+
+            string normalized = NoRichtextTags(text).Replace(" ", "").Replace("_", "").ToLowerInvariant();
+            return normalized.Contains("discordrpc") &&
+                   (normalized.Contains("disabled") || normalized.Contains("unavailable"));
         }
 
         public static void PlayNotificationSound() =>

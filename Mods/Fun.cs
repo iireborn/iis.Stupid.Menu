@@ -358,7 +358,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -756,7 +756,7 @@ namespace iiMenu.Mods
 
                     if (GetGunInput(true))
                     {
-                        VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                        VRRig gunTarget = GetRigFromHit(Ray);
                         if (gunTarget && !gunTarget.IsLocal())
                         {
                             gunLocked = true;
@@ -825,7 +825,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -849,7 +849,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -877,7 +877,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > muteDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         foreach (var line in GorillaScoreboardTotalUpdater.allScoreboardLines.Where(line => line.linePlayer == GetPlayerFromVRRig(gunTarget)))
@@ -919,7 +919,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true) && Time.time > muteDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         NetPlayer player = GetPlayerFromVRRig(gunTarget);
@@ -970,7 +970,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1014,51 +1014,8 @@ namespace iiMenu.Mods
 
         public static void BypassAntiReport()
         {
-            SerializePatch.OverrideSerialization = () =>
-            {
-
-                bool isNearReportButton = false;
-                List<int> people = new List<int> { };
-                try
-                {
-                    foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines)
-                    {
-                        Transform report = line.reportButton.gameObject.transform;
-                        float D1 = Vector3.Distance(GorillaTagger.Instance.rightHandTransform.position, report.position);
-                        float D2 = Vector3.Distance(GorillaTagger.Instance.leftHandTransform.position, report.position);
-
-                        if (D1 < 0.5f || D2 < 0.5f)
-                        {
-                            people.Add(line.linePlayer.ActorNumber);
-                            isNearReportButton = true;
-                        }
-                    }
-                }
-                catch { }
-
-                if (GorillaTagger.Instance.myVRRig != null && isNearReportButton)
-                {
-                    MassSerialize(true, new PhotonView[] { GorillaTagger.Instance.myVRRig.GetView });
-
-                    Vector3 positionArchiveLeft = VRRig.LocalRig.leftHand.rigTarget.transform.position;
-                    Vector3 positionArchiveRight = VRRig.LocalRig.rightHand.rigTarget.transform.position;
-                    SendSerialize(GorillaTagger.Instance.myVRRig.GetView, new RaiseEventOptions() { TargetActors = PhotonNetwork.PlayerListOthers.Where(player => !people.ToArray().Contains(player.ActorNumber)).Select(player => player.ActorNumber).ToArray() });
-
-                    VRRig.LocalRig.leftHand.rigTarget.transform.position = GorillaTagger.Instance.headCollider.transform.position - (GorillaTagger.Instance.headCollider.transform.forward * 100f);
-                    VRRig.LocalRig.rightHand.rigTarget.transform.position = GorillaTagger.Instance.headCollider.transform.position - (GorillaTagger.Instance.headCollider.transform.forward * 100f);
-
-                    SendSerialize(GorillaTagger.Instance.myVRRig.GetView, new RaiseEventOptions() { TargetActors = people.ToArray() });
-
-                    VRRig.LocalRig.leftHand.rigTarget.transform.position = positionArchiveLeft;
-                    VRRig.LocalRig.rightHand.rigTarget.transform.position = positionArchiveRight;
-
-                    RPCProtection();
-
-                    return false;
-                }
-
-                return true;
-            };
+            SerializePatch.OverrideSerialization = null;
+            NotificationManager.SendNotification("Bypass Anti Report is disabled; reports use the normal game pipeline.");
         }
 
         public static void BreakModCheckers()
@@ -1370,11 +1327,11 @@ namespace iiMenu.Mods
         private static float lastTimeDingied;
         public static void QuestNoises()
         {
-            if (rightTrigger > 0.5f && Time.time > lastTimeDingied)
-            {
-                lastTimeDingied = Time.time + VRRig.LocalRig.fxSettings.GetDelay(10);
-                RoomSystem.SendMonkePointsRedeemed(50);
-            }
+            if (rightTrigger <= 0.5f || Time.time <= lastTimeDingied || VRRig.LocalRig == null)
+                return;
+
+            lastTimeDingied = Time.time + 0.15f;
+            RoomSystem.SendMonkePointsRedeemed(50);
         }
 
         private static float delaybetweenscore;
@@ -1552,7 +1509,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -1590,7 +1547,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -1628,7 +1585,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (PhotonNetwork.IsMasterClient)
@@ -1696,7 +1653,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1788,7 +1745,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                         SetPlayerState(gunTarget, (GRPlayer.GRPlayerState)state);
                 }
@@ -1815,7 +1772,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > killDelay)
                     {
                         killDelay = Time.time + 0.1f;
@@ -2193,7 +2150,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         if (RecorderPatch.enabled)
@@ -2868,13 +2825,11 @@ Piece Name: {gunTarget.name}";
             GTPlayer.Instance.hoverTiltAdjustsForwardFactor = 0.2f;
         }
 
-        /// <summary>
         /// Sets hover permission on the local player across game versions.
         /// The 1.1.145 update removed GTPlayer.SetHoverAllowed in favor of the
         /// isHoverAllowed property; older builds still expose the two-argument method.
         /// Resolved via reflection so a future rename degrades to a warning instead
         /// of a MissingMethodException killing the mod.
-        /// </summary>
         private static MemberInfo hoverAllowedMember;
         private static bool hoverAllowedLookupDone;
 
@@ -3008,7 +2963,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -3786,7 +3741,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -3830,7 +3785,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4385,7 +4340,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4418,7 +4373,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4479,7 +4434,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4659,7 +4614,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4714,7 +4669,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4749,7 +4704,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4784,7 +4739,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -4819,7 +4774,7 @@ Piece Name: {gunTarget.name}";
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -6245,7 +6200,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true) && Time.time > stealIdentityDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         ChangeName(GetPlayerFromVRRig(gunTarget).NickName);
@@ -6266,7 +6221,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true) && Time.time > stealCosmeticsDelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.All, gunTarget.cosmeticSet.ToPackedIDArray(), gunTarget.tryOnSet.ToPackedIDArray(), false);
@@ -6405,44 +6360,77 @@ Piece Name: {gunTarget.name}";
         }
 
         private static List<string> ownedArchive;
+        private static List<string> ownedBalloonsArchive;
+        private static List<string> tryOnCosmetics;
+        private static List<string> tryOnBalloonsArchive;
+
+        private static CosmeticsController GetCosmeticsController()
+        {
+            return CosmeticsController.instance;
+        }
+
         private static string[] GetOwnedCosmetics()
         {
-            if (ownedArchive != null) return ownedArchive.ToArray();
-            ownedArchive = new List<string>();
-            foreach (var cosmeticItem in CosmeticsController.instance.allCosmetics.Where(cosmeticItem => VRRig.LocalRig._playerOwnedCosmetics.Contains(cosmeticItem.itemName)))
-                ownedArchive.Add(cosmeticItem.itemName);
-            
+            CosmeticsController cosmetics = GetCosmeticsController();
+            if (cosmetics == null || VRRig.LocalRig == null || cosmetics.allCosmetics == null || VRRig.LocalRig._playerOwnedCosmetics == null)
+                return Array.Empty<string>();
+
+            if (ownedArchive != null)
+                return ownedArchive.ToArray();
+
+            ownedArchive = cosmetics.allCosmetics
+                .Where(item => VRRig.LocalRig._playerOwnedCosmetics.Contains(item.itemName))
+                .Select(item => item.itemName)
+                .ToList();
             return ownedArchive.ToArray();
         }
-        private static List<string> tryOnCosmetics;
+
         private static string[] GetTryOnCosmetics()
         {
-            if (tryOnCosmetics != null) return tryOnCosmetics.ToArray();
-            tryOnCosmetics = new List<string>();
-            foreach (var cosmeticItem in CosmeticsController.instance.allCosmetics.Where(cosmeticItem => cosmeticItem.canTryOn))
-                tryOnCosmetics.Add(cosmeticItem.itemName);
+            CosmeticsController cosmetics = GetCosmeticsController();
+            if (cosmetics == null || cosmetics.allCosmetics == null)
+                return Array.Empty<string>();
+
+            if (tryOnCosmetics != null)
+                return tryOnCosmetics.ToArray();
+
+            tryOnCosmetics = cosmetics.allCosmetics
+                .Where(item => item.canTryOn)
+                .Select(item => item.itemName)
+                .ToList();
             return tryOnCosmetics.ToArray();
         }
 
         private static string[] GetTryOnBalloons()
         {
-            if (tryOnCosmetics != null) return tryOnCosmetics.ToArray();
-            tryOnCosmetics = new List<string>();
-            foreach (var cosmeticItem in CosmeticsController.instance.allCosmetics.Where(cosmeticItem => cosmeticItem.canTryOn && cosmeticItem.overrideDisplayName.ToLower().Contains("balloon")))
-                tryOnCosmetics.Add(cosmeticItem.itemName);
-            
-            return tryOnCosmetics.ToArray();
+            CosmeticsController cosmetics = GetCosmeticsController();
+            if (cosmetics == null || cosmetics.allCosmetics == null)
+                return Array.Empty<string>();
+
+            if (tryOnBalloonsArchive != null)
+                return tryOnBalloonsArchive.ToArray();
+
+            tryOnBalloonsArchive = cosmetics.allCosmetics
+                .Where(item => item.canTryOn && (item.overrideDisplayName ?? string.Empty).IndexOf("balloon", StringComparison.OrdinalIgnoreCase) >= 0)
+                .Select(item => item.itemName)
+                .ToList();
+            return tryOnBalloonsArchive.ToArray();
         }
 
         private static string[] GetOwnedBalloons()
         {
-            if (ownedArchive == null)
-            {
-                ownedArchive = new List<string>();
-                foreach (var cosmeticItem in CosmeticsController.instance.allCosmetics.Where(cosmeticItem => VRRig.LocalRig._playerOwnedCosmetics.Contains(cosmeticItem.itemName) && cosmeticItem.overrideDisplayName.ToLower().Contains("balloon")))
-                    ownedArchive.Add(cosmeticItem.itemName);
-            }
-            return ownedArchive.ToArray();
+            CosmeticsController cosmetics = GetCosmeticsController();
+            if (cosmetics == null || VRRig.LocalRig == null || cosmetics.allCosmetics == null || VRRig.LocalRig._playerOwnedCosmetics == null)
+                return Array.Empty<string>();
+
+            if (ownedBalloonsArchive != null)
+                return ownedBalloonsArchive.ToArray();
+
+            ownedBalloonsArchive = cosmetics.allCosmetics
+                .Where(item => VRRig.LocalRig._playerOwnedCosmetics.Contains(item.itemName) && (item.overrideDisplayName ?? string.Empty).IndexOf("balloon", StringComparison.OrdinalIgnoreCase) >= 0)
+                .Select(item => item.itemName)
+                .ToList();
+            return ownedBalloonsArchive.ToArray();
         }
 
 
@@ -6454,10 +6442,10 @@ Piece Name: {gunTarget.name}";
                 delay = Time.time + 0.05f;
                 string[] owned = VRRig.LocalRig.inTryOnRoom ? GetTryOnCosmetics() : GetOwnedCosmetics();
                 int amnt = Math.Clamp(owned.Length, 0, 15);
-                if (amnt > 0)
+                if (amnt > 0 && CosmeticsController.instance != null && VRRig.LocalRig != null && GorillaTagger.Instance?.myVRRig != null)
                 {
                     List<string> randomCosmetics = new List<string>();
-                    for (int i = 0; i <= amnt; i++)
+                    for (int i = 0; i < amnt; i++)
                         randomCosmetics.Add(owned[Random.Range(0, owned.Length)]);
                     
                     if (VRRig.LocalRig.inTryOnRoom)
@@ -6483,10 +6471,10 @@ Piece Name: {gunTarget.name}";
                 delay = Time.time + 0.05f;
                 string[] owned = VRRig.LocalRig.inTryOnRoom ? GetTryOnBalloons() : GetOwnedBalloons();
                 int amnt = Math.Clamp(owned.Length, 0, 15);
-                if (amnt > 0)
+                if (amnt > 0 && CosmeticsController.instance != null && VRRig.LocalRig != null && GorillaTagger.Instance?.myVRRig != null)
                 {
                     List<string> randomCosmetics = new List<string>();
-                    for (int i = 0; i <= amnt; i++)
+                    for (int i = 0; i < amnt; i++)
                         randomCosmetics.Add(owned[Random.Range(0, owned.Length)]);
 
                     if (VRRig.LocalRig.inTryOnRoom)
@@ -6512,10 +6500,10 @@ Piece Name: {gunTarget.name}";
                 delay = Time.time + 0.05f;
                 string[] owned = VRRig.LocalRig.inTryOnRoom ? GetTryOnCosmetics() : GetOwnedCosmetics();
                 int amnt = Math.Clamp(owned.Length, 0, 15);
-                if (amnt > 0)
+                if (amnt > 0 && CosmeticsController.instance != null && VRRig.LocalRig != null && GorillaTagger.Instance?.myVRRig != null)
                 {
                     List<string> randomCosmetics = new List<string>();
-                    for (int i = 0; i <= amnt; i++)
+                    for (int i = 0; i < amnt; i++)
                         randomCosmetics.Add(owned[Random.Range(0, owned.Length)]);
                     if (VRRig.LocalRig.inTryOnRoom)
                     {
@@ -6570,23 +6558,58 @@ Piece Name: {gunTarget.name}";
         }
 
         private static int[] archiveCosmetics;
+        private static bool cosmeticSpoofUnavailableNotified;
+
         public static void TryOnAnywhere()
         {
-            string[] cosmeticArray = { "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU." };
+            CosmeticsController cosmetics = CosmeticsController.instance;
+            if (cosmetics == null || VRRig.LocalRig == null || GorillaTagger.Instance?.myVRRig == null)
+            {
+                if (!cosmeticSpoofUnavailableNotified)
+                {
+                    cosmeticSpoofUnavailableNotified = true;
+                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Cosmetic Spoof is unavailable until cosmetics finish loading.", 5000);
+                }
+                return;
+            }
 
-            archiveCosmetics = CosmeticsController.instance.currentWornSet.ToPackedIDArray();
-            CosmeticsController.instance.currentWornSet = new CosmeticsController.CosmeticSet(cosmeticArray, CosmeticsController.instance);
-            VRRig.LocalRig.cosmeticSet = new CosmeticsController.CosmeticSet(cosmeticArray, CosmeticsController.instance);
-            GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.All, PackCosmetics(cosmeticArray), CosmeticsController.instance.tryOnSet.ToPackedIDArray(), false);
-            RPCProtection();
+            try
+            {
+                string[] cosmeticArray = { "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU.", "LMAJU." };
+                archiveCosmetics = cosmetics.currentWornSet.ToPackedIDArray();
+                cosmetics.currentWornSet = new CosmeticsController.CosmeticSet(cosmeticArray, cosmetics);
+                VRRig.LocalRig.cosmeticSet = new CosmeticsController.CosmeticSet(cosmeticArray, cosmetics);
+                GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.All, PackCosmetics(cosmeticArray), cosmetics.tryOnSet.ToPackedIDArray(), false);
+                RPCProtection();
+                cosmeticSpoofUnavailableNotified = false;
+            }
+            catch (Exception exception)
+            {
+                if (!cosmeticSpoofUnavailableNotified)
+                {
+                    cosmeticSpoofUnavailableNotified = true;
+                    LogManager.LogError("Cosmetic Spoof could not initialize: " + exception.Message);
+                }
+            }
         }
 
         public static void TryOffAnywhere()
         {
-            CosmeticsController.instance.currentWornSet = new CosmeticsController.CosmeticSet(archiveCosmetics, CosmeticsController.instance);
-            VRRig.LocalRig.cosmeticSet = new CosmeticsController.CosmeticSet(archiveCosmetics, CosmeticsController.instance);
-            GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.All, archiveCosmetics, CosmeticsController.instance.tryOnSet.ToPackedIDArray(), false);
-            RPCProtection();
+            CosmeticsController cosmetics = CosmeticsController.instance;
+            if (cosmetics == null || archiveCosmetics == null || VRRig.LocalRig == null || GorillaTagger.Instance?.myVRRig == null)
+                return;
+
+            try
+            {
+                cosmetics.currentWornSet = new CosmeticsController.CosmeticSet(archiveCosmetics, cosmetics);
+                VRRig.LocalRig.cosmeticSet = new CosmeticsController.CosmeticSet(archiveCosmetics, cosmetics);
+                GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.All, archiveCosmetics, cosmetics.tryOnSet.ToPackedIDArray(), false);
+                RPCProtection();
+            }
+            catch (Exception exception)
+            {
+                LogManager.LogError("Cosmetic Spoof could not restore cosmetics: " + exception.Message);
+            }
         }
 
         public static void AddCosmeticToCart(string cosmetic)
@@ -6734,7 +6757,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true) && Time.time > idgundelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         idgundelay = Time.time + 0.5f;
@@ -6822,7 +6845,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true) && Time.time > idgundelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         idgundelay = Time.time + 0.5f;
@@ -6909,7 +6932,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true) && Time.time > idgundelay)
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         idgundelay = Time.time + 0.5f;
@@ -7003,7 +7026,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > creationDateDelay)
                     {
                         creationDateDelay = Time.time + 0.5f;
@@ -7128,7 +7151,7 @@ Piece Name: {gunTarget.name}";
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
+                    VRRig gunTarget = GetRigFromHit(Ray);
                     if (gunTarget && !gunTarget.IsLocal() && Time.time > creationDateDelay)
                     {
                         creationDateDelay = Time.time + 0.5f;

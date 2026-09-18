@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -741,8 +741,6 @@ namespace iiMenu.Mods
             }
             NotificationManager.SendNotification("<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Removed all rebinds.");
         }
-
-        // The code below is fully safe. I know, it seems suspicious.
         public static void UpdateMenu()
         {
             switch (SystemInfo.operatingSystemFamily)
@@ -1017,8 +1015,6 @@ exit 0";
 
             Buttons.GetIndex("Change Menu Button").overlapText = "Change Menu Button <color=grey>[</color><color=green>" + buttonNames[menuButtonIndex] + "</color><color=grey>]</color>";
         }
-
-        // I know there's better ways to do this. Trust me.
         public static void ChangeMenuTheme(bool increment = true)
         {
             if (increment) 
@@ -4187,8 +4183,17 @@ exit 0";
             if (!File.Exists(filePath))
             {
                 LogManager.Log("Downloading CustomFont.ttf");
-                WebClient stream = new WebClient();
-                stream.DownloadFile($"{PluginInfo.ServerResourcePath}/Fonts/LiberationSans.ttf", filePath);
+                try
+                {
+                    using HttpClient http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+                    http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+                    byte[] bytes = http.GetByteArrayAsync($"{PluginInfo.ServerResourcePath}/Fonts/LiberationSans.ttf").GetAwaiter().GetResult();
+                    File.WriteAllBytes(filePath, bytes);
+                }
+                catch (Exception e)
+                {
+                    LogManager.LogError($"Failed to download CustomFont.ttf: {e.Message}");
+                }
             }
 
             chosenFont = TMP_FontAsset.CreateFontAsset(new Font($"{FileUtilities.GetGamePath()}/{filePath}"));
@@ -4590,8 +4595,6 @@ exit 0";
             pointerOffset = pointerPos[pointerIndex];
             try { reference.transform.localPosition = pointerOffset; } catch { }
         }
-
-        // Credits to Scintilla for the idea
         public static void ChangeGunVariation(bool positive = true)
         {
             string[] VariationNames = {
@@ -4709,20 +4712,7 @@ exit 0";
 
         public static void DisorganizeMenu()
         {
-            if (!disorganized)
-            {
-                disorganized = true;
-                foreach (ButtonInfo[] buttonArray in Buttons.buttons)
-                {
-                    if (buttonArray.Length > 0)
-                    {
-                        for (int i = 0; i < buttonArray.Length; i++)
-                            Buttons.buttons[Buttons.GetCategory("Main")] = Buttons.buttons[Buttons.GetCategory("Main")].Concat(new[] { buttonArray[i] }).ToArray();
-
-                        Array.Clear(buttonArray, 0, buttonArray.Length);
-                    }
-                }
-            }
+            NotificationManager.SendNotification("Disorganize Menu is disabled because it hides category buttons.");
         }
 
         public static void AnnoyingModeOff()
@@ -4760,8 +4750,6 @@ exit 0";
 
             lastFocused = Application.isFocused;
         }
-
-        // Thanks to kingofnetflix for inspiration and support with voice recognition
         private static KeywordRecognizer mainPhrases;
         private static KeywordRecognizer modPhrases;
         private static string[] keyWords = { "jarvis", "ii", "i i", "eye eye", "siri", "google", "alexa", "dummy", "computer", "stinky", "silly", "stupid", "console", "go go gadget", "monika", "wikipedia", "gideon", "a i", "ai", "a.i", "chat gpt", "chatgpt", "grok", "grock", "garmin" };
@@ -4771,7 +4759,7 @@ exit 0";
             if (!File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt"))
                 File.WriteAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt", keyWords);
             keyWords = File.ReadAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt");
-            mainPhrases = new KeywordRecognizer(keyWords);
+            mainPhrases = new KeywordRecognizer(VoiceAssistant.BuildWakeWords(keyWords));
             mainPhrases.OnPhraseRecognized += ModRecognition;
             mainPhrases.Start();          
         }
@@ -4780,6 +4768,7 @@ exit 0";
         public static void ModRecognition(PhraseRecognizedEventArgs args)
         {
             mainPhrases.Stop();
+            VoiceAssistant.FlashListening();
 
             if (!Buttons.GetIndex("Chain Voice Commands").enabled)
                 timeoutCoroutine = CoroutineManager.instance.StartCoroutine(Timeout(string.Empty));
@@ -4901,8 +4890,6 @@ exit 0";
             modPhrases = null;
             PhraseRecognitionSystem.Shutdown();
         }
-
-        // Thanks to kingofnetflix for inspiration and support with voice recognition
         public static DictationRecognizer drec;
         public static KeywordRecognizer krec;
         public static bool debugDictation;
@@ -4911,8 +4898,14 @@ exit 0";
 
         public static IEnumerator DictationOn()
         {
-            
+            ButtonInfo mod = Buttons.GetIndex("AI Assistant");
+            NotificationManager.SendNotification("<color=grey>[</color><color=cyan>SYSTEM</color><color=grey>]</color> AI Assistant is under construction.", 4000);
+            if (mod != null) mod.enabled = false;
+            yield break;
+        }
 
+        public static IEnumerator DictationOn_REAL()
+        {
             ButtonInfo mod = Buttons.GetIndex("AI Assistant");
 
             if (Application.platform == RuntimePlatform.WindowsPlayer && Environment.OSVersion.Version.Major < 10)
@@ -4931,56 +4924,115 @@ exit 0";
                 File.WriteAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt", keyWords);
             keyWords = File.ReadAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt");
 
-            while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
+            VoiceAssistant.PrewarmSounds();
+
+            float captureDeadline = Time.time + 8f;
+            while (vc.enabled && Time.time < captureDeadline)
                 yield return null;
 
-            string[] kw = keyWords;
-            if (narratorName == "Mommy ASMR")
-               kw = kw.Concat(new[] { "mommy", "momma" }).ToArray();
+            while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped && Time.time < captureDeadline)
+                yield return null;
 
-            krec = new KeywordRecognizer(kw);
+            if (vc.enabled || PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
+            {
+                LogManager.Log("Voice assistant: another voice mod is still holding the microphone, so the wake word listener was not started.");
+                PromptSingle("Another voice mod is still using your microphone. Turn AI Assistant back on once it is off.", () => mod.enabled = false, "Ok");
+                yield break;
+            }
 
-            krec.OnPhraseRecognized += (args) => CoroutineManager.instance.StartCoroutine(DictationRecognizer());
-            krec.Start();
+            EnsureWakeRecognizer();
             yield break;
+        }
+
+        private static void EnsureWakeRecognizer()
+        {
+            if (!File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt"))
+                File.WriteAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt", keyWords);
+            keyWords = File.ReadAllLines($"{PluginInfo.BaseDirectory}/iiMenu_Keywords.txt");
+
+            string[] kw = VoiceAssistant.BuildWakeWords(keyWords);
+            if (narratorName == "Mommy ASMR")
+                kw = kw.Concat(new[] { "mommy", "momma" }).ToArray();
+
+            if (krec == null || !krec.Keywords.SequenceEqual(kw))
+            {
+                DisposeWakeRecognizer();
+
+                LogManager.Log("Voice assistant: building the wake word recognizer.");
+                krec = new KeywordRecognizer(kw);
+                krec.OnPhraseRecognized += (args) => CoroutineManager.instance.StartCoroutine(DictationRecognizer());
+            }
+
+            try
+            {
+                if (PhraseRecognitionSystem.Status == SpeechSystemStatus.Stopped)
+                    PhraseRecognitionSystem.Restart();
+
+                if (!krec.IsRunning)
+                    krec.Start();
+
+                if (!krec.IsRunning)
+                {
+                    LogManager.Log("Voice assistant: the restarted system refused the existing wake word recognizer, rebuilding it.");
+                    DisposeWakeRecognizer();
+
+                    krec = new KeywordRecognizer(kw);
+                    krec.OnPhraseRecognized += (args) => CoroutineManager.instance.StartCoroutine(DictationRecognizer());
+                    krec.Start();
+                }
+
+                LogManager.Log($"Voice assistant: wake word listener armed (system {PhraseRecognitionSystem.Status}, recognizer running {krec.IsRunning}).");
+            }
+            catch (System.Exception exception)
+            {
+                LogManager.LogError($"Voice assistant: could not start the wake word recognizer: {exception.Message}");
+            }
         }
 
         public static IEnumerator DictationRecognizer()
         {
+            NotificationManager.SendNotification("<color=grey>[</color><color=cyan>SYSTEM</color><color=grey>]</color> AI Assistant is under construction.", 4000);
+            VoiceAssistant.Hide();
+            yield break;
+        }
+
+        public static IEnumerator DictationRecognizer_REAL()
+        {
             ButtonInfo mod = Buttons.GetIndex("AI Assistant");
 
-           
+            yield return null;
+
+            LogManager.Log("Voice assistant: wake word heard.");
 
             PhraseRecognitionSystem.Shutdown();
-            while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
+
+            float shutdownDeadline = Time.time + 2f;
+            while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped && Time.time < shutdownDeadline)
                 yield return null;
 
-            switch (narratorName)
-            {
-                case "Mommy ASMR":
-                    DictationPlay(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/TTS/yes_sweetheart.ogg", "Audio/TTS/yes_sweetheart.ogg"), buttonClickVolume / 10f);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=#ffb6c1>MOMMY</color><color=grey>]</color> Yes, sweetheart?", 3000);
-                    break;
-                default:
-                    DictationPlay(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/select.ogg", "Audio/Menu/select.ogg"), buttonClickVolume / 10f);
-                    NotificationManager.SendNotification("<color=grey>[</color><color=purple>VOICE</color><color=grey>]</color> Listening...", 3000);
-                    break;
-            }
+            StopDictationRecognizer();
+
+            VoiceAssistant.Greet(false);
 
             if (debugDictation)
                 LogManager.Log("Dictation listening");
 
             drec = new DictationRecognizer();
+
             drec.DictationResult += (text, confidence) =>
             {
-                if (debugDictation)
-                    LogManager.Log($"Dictation result: {text}");
-                if (cancelKeywords.Contains(text.ToLower()))
+                if (string.IsNullOrWhiteSpace(text))
+                    return;
+
+                LogManager.Log($"Voice assistant: dictation result \"{text}\" (confidence {confidence}).");
+
+                if (cancelKeywords.Contains(text.Trim().ToLowerInvariant()))
                 {
                     if (dynamicSounds)
                         DictationPlay(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg"), buttonClickVolume / 10f);
-                        
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> {(text.ToLower() == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
+
+                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> {(text.Trim().ToLowerInvariant() == "i hate you" ? "I hate you too." : "Cancelling...")}", 3000);
+                    VoiceAssistant.Hide();
                     CoroutineManager.instance.StartCoroutine(DictationRestart());
                     return;
                 }
@@ -4993,37 +5045,50 @@ exit 0";
                     default:
                         NotificationManager.SendNotification($"<color=grey>[</color><color=blue>AI</color><color=grey>]</color> Generating response..");
                         break;
-
                 }
-                
-                
+
                 CoroutineManager.instance.StartCoroutine(AIManager.AskAI(text));
-                return;
-                    
             };
 
             drec.DictationComplete += (completionCause) =>
             {
-                if (debugDictation)
-                    LogManager.Log($"completion cause: {completionCause}");
-                if (completionCause.ToString() == "TimeoutExceeded")
+                LogManager.Log($"Voice assistant: dictation complete - {completionCause} (state {VoiceAssistant.State}).");
+
+                if (VoiceAssistant.State == VoiceAssistant.OrbState.Listening)
                 {
-                    if (dynamicSounds)
-                        DictationPlay(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg"), buttonClickVolume / 10f);
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>AI</color><color=grey>]</color> Cancelling...", 3000);
+                    if (completionCause == DictationCompletionCause.TimeoutExceeded)
+                    {
+                        if (dynamicSounds)
+                            DictationPlay(LoadSoundFromURL($"{PluginInfo.ServerResourcePath}/Audio/Menu/close.ogg", "Audio/Menu/close.ogg"), buttonClickVolume / 10f);
+
+                        LogManager.Log("Voice assistant: no speech heard - restarting the wake word listener.");
+                        VoiceAssistant.Hide();
+                        CoroutineManager.instance.StartCoroutine(DictationRestart());
+                        return;
+                    }
+
+                    VoiceAssistant.Hide();
+                }
+                else if (completionCause == DictationCompletionCause.TimeoutExceeded || completionCause == DictationCompletionCause.Complete)
+                {
+                    CoroutineManager.instance.StartCoroutine(DictationRestart());
                 }
             };
 
             drec.DictationError += (error, hresult) =>
             {
-                if (debugDictation)
-                    LogManager.LogError($"Dictation error: {error}");
+                LogManager.LogError($"Dictation error: {error}");
+
                 if (error.Contains("Dictation support is not enabled on this device"))
                 {
-                    DictationOff();
+                    CoroutineManager.instance.StartCoroutine(DictationOffNextFrame());
 
-                    NotificationManager.SendNotification($"<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Online Speech Recognition is not enabled on this device. Either open the menu to enable it, or check your internet connection.", 3000);
-                    Prompt("Online Speech Recognition is not enabled on your device. Would you like to open the Settings page to enable it?", () => { Process.Start("ms-settings:privacy-speech"); PromptSingle("Once you enable Online Speech Recognition, turn this mod back on!", () => mod.enabled = false, "Ok"); }, () => PromptSingle("You will not be able to use this mod until you enable Online Speech Recognition.", () => mod.enabled = false, "Ok"));
+                    NotificationManager.SendNotification("<color=grey>[</color><color=red>ERROR</color><color=grey>]</color> Online Speech Recognition is not enabled on this device. Either open the menu to enable it, or check your internet connection.", 3000);
+                    Prompt("Online Speech Recognition is not enabled on your device. Would you like to open the Settings page to enable it?", () =>
+                    {
+                        Process.Start("ms-settings:privacy-speech");
+                        PromptSingle("Once you enable Online Speech Recognition, turn this mod back on!", () => mod.enabled = false, "Ok");
+                    }, () => PromptSingle("You will not be able to use this mod until you enable Online Speech Recognition.", () => mod.enabled = false, "Ok"));
                 }
             };
 
@@ -5031,31 +5096,132 @@ exit 0";
             {
                 if (AIManager.generating)
                     return;
-                if (debugDictation)
-                    LogManager.Log($"Hypothesis: {text}");
+
+                LogManager.Log($"Voice assistant: dictation hypothesis \"{text ?? "(null)"}\".");
 
                 NotificationManager.ClearAllNotifications();
-                NotificationManager.SendNotification($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
+
+                if (!string.IsNullOrWhiteSpace(text))
+                    NotificationManager.SendNotification($"<color=grey>[</color><color=green>VOICE</color><color=grey>]</color> {text}");
+
+                VoiceAssistant.ShowHeard(text);
             };
 
-            drec?.Start();
+            try
+            {
+                drec.Start();
+            }
+            catch (Exception exception)
+            {
+                LogManager.LogError($"Voice assistant: dictation start exception: {exception.Message}");
+                StopDictationRecognizer();
+                VoiceAssistant.Hide();
+                CoroutineManager.instance.StartCoroutine(DictationRestart());
+                yield break;
+            }
+
+            float dictationDeadline = Time.time + 2f;
+            while (drec != null && drec.Status == SpeechSystemStatus.Stopped && Time.time < dictationDeadline)
+                yield return null;
+
+            string status = drec?.Status.ToString() ?? "none";
+            LogManager.Log($"Voice assistant: dictation listening (status {status}).");
+
+            if (drec == null || drec.Status != SpeechSystemStatus.Running)
+            {
+                LogManager.LogError($"Voice assistant: dictation did not start (status {status}) - check Windows Settings > Privacy & security > Speech > Online speech recognition = On AND Privacy & security > Microphone > Let apps access your microphone = On (and Gorilla Tag allowed).");
+                NotificationManager.SendNotification("<color=grey>[</color><color=red>VOICE</color><color=grey>]</color> Dictation failed to start. In Windows: Speech > Online = On AND Microphone > App access = On for Gorilla Tag.", 7000);
+                VoiceAssistant.Hide();
+                CoroutineManager.instance.StartCoroutine(DictationRestart());
+                yield break;
+            }
+
+            if (VoiceAssistant.greetingEnabled)
+            {
+                yield return new WaitForSecondsRealtime(0.15f);
+                if (drec != null && drec.Status == SpeechSystemStatus.Running)
+                    VoiceAssistant.Say(VoiceAssistant.Greeting, VoiceAssistant.voiceEnabled);
+            }
+
             yield break;
         }
 
         public static IEnumerator DictationRestart()
         {
-            DictationOff();
-            while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
-                yield return null;
-            CoroutineManager.instance.StartCoroutine(DictationOn());
+            yield return null;
+
+            LogManager.Log("Voice assistant: restarting the wake word listener.");
+
+            StopDictationRecognizer();
+            VoiceAssistant.HideIfListening();
+
+            EnsureWakeRecognizer();
             yield break;
+        }
+
+        public static void StopDictation()
+        {
+            StopDictationRecognizer();
+
+            CoroutineManager.instance.StartCoroutine(DictationRestart());
         }
         public static void DictationOff() 
         {
-            drec?.Dispose();
-            drec?.Stop();
-            drec = null;
+            StopDictationRecognizer();
+            DisposeWakeRecognizer();
             PhraseRecognitionSystem.Shutdown();
+            VoiceAssistant.HideIfListening();
+        }
+
+        private static void StopDictationRecognizer()
+        {
+            DictationRecognizer recognizer = drec;
+            drec = null;
+
+            if (recognizer == null)
+                return;
+
+            try
+            {
+                if (recognizer.Status == SpeechSystemStatus.Running)
+                    recognizer.Stop();
+
+                recognizer.Dispose();
+            }
+            catch (System.Exception exception)
+            {
+                LogManager.LogError($"Failed to stop dictation: {exception.Message}");
+            }
+        }
+
+        private static void DisposeWakeRecognizer()
+        {
+            KeywordRecognizer wakeRecognizer = krec;
+            krec = null;
+
+            if (wakeRecognizer == null)
+                return;
+
+            if (PhraseRecognitionSystem.Status == SpeechSystemStatus.Stopped)
+                return;
+
+            try
+            {
+                if (wakeRecognizer.IsRunning)
+                    wakeRecognizer.Stop();
+
+                wakeRecognizer.Dispose();
+            }
+            catch (System.Exception exception)
+            {
+                LogManager.LogError($"Failed to release the wake word recognizer: {exception.Message}");
+            }
+        }
+
+        private static IEnumerator DictationOffNextFrame()
+        {
+            yield return null;
+            DictationOff();
         }
 
         public static void DictationPlay(AudioClip clip, float volume)
@@ -5096,10 +5262,6 @@ exit 0";
         public static void EnableClickGUI()
         {
             clickGUI = true;
-
-            // Subscribe before rebuilding so the first PC category click is
-            // rendered immediately, and avoid duplicate callbacks after a
-            // preference reload or repeated toggle.
             Buttons.OnCategoryChanged -= ReloadOnCategoryChange;
             Buttons.OnCategoryChanged += ReloadOnCategoryChange;
             ReloadMenu();
@@ -5156,8 +5318,6 @@ exit 0";
                 toRecolor.Add(canvasTransform.Find(partName).GetComponent<MaskableGraphic>());
 
             Transform sidebarTransform = canvasTransform.Find("Main/Sidebar");
-
-            // Friend system removed - hide the sidebar button that came with the prefab
             sidebarTransform.Find("Friends").gameObject.SetActive(false);
 
             foreach (string buttonName in new[]
@@ -5579,7 +5739,6 @@ exit 0";
 
                 if (!XRSettings.isDeviceActive)
                 {
-                    // Desktop mode - the pointer follows the OS mouse instead of the hand ray
                     pointerData.position = Mouse.current?.position.ReadValue() ?? Vector2.zero;
 
                     uiResults.Clear();
@@ -5746,7 +5905,7 @@ exit 0";
                 pingLine.SetPosition(0, StartPosition);
                 pingLine.SetPosition(1, EndPosition);
 
-                VRRig rigTarget = Ray.collider.GetComponentInParent<VRRig>();
+                VRRig rigTarget = iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray);
                 if (Ray.collider != null && rigTarget != null && !rigTarget.IsLocal())
                 {
                     if (lastTarget != null && lastTarget != rigTarget)
@@ -5781,7 +5940,7 @@ exit 0";
                         NavigatePlayer(GetPlayerFromVRRig(rigTarget));
                         ReloadMenu();
 
-                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Selected player {GetPlayerFromVRRig(rigTarget).NickName}.");
+                        NotificationManager.SendNotification($"<color=grey>[</color><color=green>SUCCESS</color><color=grey>]</color> Selected player {GetPlayerName(rigTarget)}.");
                     }
 
                     lastTriggerSelect = trigger;
@@ -6000,7 +6159,13 @@ exit 0";
                 Safety.pingSpoofValue.ToString(),
                 Mathf.RoundToInt(SoundboardManager.LocalVolume * 10f).ToString(),
                 Mathf.RoundToInt(SoundboardManager.MicVolume * 10f).ToString(),
-                (SoundboardManager.HighQuality ? "1" : "0")
+                (SoundboardManager.HighQuality ? "1" : "0"),
+                (throwableFollowPlayer ? "1" : "0"),
+                (throwableMenuGestures ? "1" : "0"),
+                Safety.antiReportPressIndex.ToString(),
+                Safety.watchdogIntervalIndex.ToString(),
+                (Safety.visualizePressRadius ? "1" : "0"),
+                Safety.micGateHoldIndex.ToString()
             };
 
             string settingstext = string.Join(seperator, settings);
@@ -6088,7 +6253,13 @@ exit 0";
                     continue;
 
                 if (Buttons.GetIndex(activebuttons[index]) == null)
-                    continue; // Skip buttons that no longer exist (e.g. removed mods)
+                    continue;
+
+                if (activebuttons[index] == "Connect to iiServers" || activebuttons[index] == "Discord RPC")
+                {
+                    Buttons.GetIndex(activebuttons[index]).enabled = false;
+                    continue;
+                }
 
                 Toggle(activebuttons[index]);
             }
@@ -6313,6 +6484,20 @@ exit 0";
                     if (data.Length > 69) SoundboardManager.LocalVolume = Mathf.Clamp(int.Parse(data[69]) / 10f, 0f, 2f);
                     if (data.Length > 70) SoundboardManager.MicVolume = Mathf.Clamp(int.Parse(data[70]) / 10f, 0f, 2f);
                     if (data.Length > 71) SoundboardManager.HighQuality = data[71] != "0";
+                    if (data.Length > 72) throwableFollowPlayer = data[72] != "0";
+                    if (data.Length > 73) throwableMenuGestures = data[73] != "0";
+
+                    Safety.antiReportPressIndex = GetPreferenceInt(data, 74, 2) - 1;
+                    Safety.ChangeAntiReportPressDistance();
+
+                    Safety.watchdogIntervalIndex = GetPreferenceInt(data, 75, 2) - 1;
+                    Safety.ChangeWatchdogInterval();
+
+                    if (data.Length > 76) Safety.visualizePressRadius = data[76] != "0";
+
+                    Safety.micGateHoldIndex = GetPreferenceInt(data, 77, 2) - 1;
+                    Safety.ChangeMicGateHoldTime();
+
                     SoundboardManager.ApplySettings();
                     try
                     {
@@ -6394,6 +6579,10 @@ exit 0";
             } catch { }
 
             hasLoadedPreferences = true;
+            clickGUI = false;
+            ButtonInfo clickGuiButton = Buttons.GetIndex("Click GUI");
+            if (clickGuiButton != null)
+                clickGuiButton.enabled = false;
         }
 
         public static void LoadPreferences()
@@ -6403,9 +6592,7 @@ exit 0";
                 if (!File.Exists($"{PluginInfo.BaseDirectory}/iiMenu_Preferences.txt"))
                 {
                     hasLoadedPreferences = true;
-
-                    // First launch defaults: Discord RPC on (saved preferences override)
-                    Toggle("Discord RPC");
+                    clickGUI = false;
                     return;
                 }
 

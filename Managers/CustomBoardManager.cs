@@ -201,8 +201,12 @@ namespace iiMenu.Managers
         private TMP_FontAsset archiveGorillaTagFont;
 
         private bool hasFoundAllBoards;
-        public void ReloadBoards() =>
+        private bool loggedMissingBoardObjects;
+        public void ReloadBoards()
+        {
             hasFoundAllBoards = false;
+            loggedMissingBoardObjects = false;
+        }
 
         public void Update()
         {
@@ -254,22 +258,32 @@ namespace iiMenu.Managers
                             if (!textMeshPro.Contains(text))
                                 textMeshPro.Add(text);
                         }
-                        else
+                        else if (!loggedMissingBoardObjects)
                             LogManager.Log("Could not find " + objectName);
                     }
 
-                    Transform forestTransform = GetObject("Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard").transform;
-                    for (int i = 0; i < forestTransform.transform.childCount; i++)
+                    GameObject forestBoard = GetObject("Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard");
+                    if (forestBoard == null)
+                    {
+                        hasFoundAllBoards = true;
+                        loggedMissingBoardObjects = true;
+                    }
+                    else
+                    {
+                        Transform forestTransform = forestBoard.transform;
+                        for (int i = 0; i < forestTransform.transform.childCount; i++)
                     {
                         GameObject v = forestTransform.GetChild(i).gameObject;
                         if ((!v.name.Contains("Board Text") && !v.name.Contains("Scoreboard_OfflineText")) ||
                             !v.activeSelf) continue;
                         TextMeshPro text = v.GetComponent<TextMeshPro>();
-                        if (!textMeshPro.Contains(text))
-                            textMeshPro.Add(text);
-                    }
+                            if (!textMeshPro.Contains(text))
+                                textMeshPro.Add(text);
+                        }
 
-                    hasFoundAllBoards = true;
+                        hasFoundAllBoards = true;
+                    }
+                    loggedMissingBoardObjects = true;
                 }
                 catch (Exception exc)
                 {

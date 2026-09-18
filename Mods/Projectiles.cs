@@ -229,7 +229,7 @@ namespace iiMenu.Mods
                         if (options.Receivers == ReceiverGroup.All)
                             options.Receivers = ReceiverGroup.Others;
 
-                        if (options.TargetActors.Contains(PhotonNetwork.LocalPlayer.ActorNumber))
+                        if (options.TargetActors != null && PhotonNetwork.LocalPlayer != null && options.TargetActors.Contains(PhotonNetwork.LocalPlayer.ActorNumber))
                         {
                             List<int> targetActors = options.TargetActors.ToList();
                             targetActors.Remove(PhotonNetwork.LocalPlayer.ActorNumber);
@@ -288,7 +288,7 @@ namespace iiMenu.Mods
 
                             Color32 color32 = color;
 
-                            int projectileSource = projectileName == "SlingshotProjectile" ? 0 : (projectileName.ToLower().Contains("left") ? 1 : 2);
+                            int projectileSource = projectileName == "SlingshotProjectile" ? 0 : (projectileName.IndexOf("left", StringComparison.OrdinalIgnoreCase) >= 0 ? 1 : 2);
                             List<object> projectileSendData = new List<object>
                             {
                                 position,
@@ -599,12 +599,14 @@ namespace iiMenu.Mods
 
         public static void ProjectileSpam()
         {
-            int projIndex = projMode * 2;
+            int projIndex = Mathf.Clamp(projMode * 2, 0, ProjectileObjectNames.Length - 1);
 
             if (rightGrab || Mouse.current.leftButton.isPressed)
             {
                 if (Buttons.GetIndex("Random Projectile").enabled)
-                    projIndex = Random.Range(0, ProjectileObjectNames.Length);
+                {
+                    projIndex = Random.Range(0, ProjectileObjectNames.Length / 2) * 2;
+                }
                 
                 string projectilename = ProjectileObjectNames[projIndex];
 
@@ -666,7 +668,7 @@ namespace iiMenu.Mods
 
         public static void ProjectileGun()
         {
-            int projIndex = projMode * 2;
+            int projIndex = Mathf.Clamp(projMode * 2, 0, ProjectileObjectNames.Length - 1);
 
             if (GetGunInput(false))
             {
@@ -676,7 +678,7 @@ namespace iiMenu.Mods
                 if (GetGunInput(true))
                 {
                     if (Buttons.GetIndex("Random Projectile").enabled)
-                        projIndex = Random.Range(0, ProjectileObjectNames.Length);
+                        projIndex = Random.Range(0, ProjectileObjectNames.Length / 2) * 2;
 
                     string projectilename = ProjectileObjectNames[projIndex];
 
@@ -739,12 +741,14 @@ namespace iiMenu.Mods
 
         public static void LazerSpam()
         {
-            int projIndex = projMode * 2;
+            int projIndex = Mathf.Clamp(projMode * 2, 0, ProjectileObjectNames.Length - 1);
 
             if (rightGrab || Mouse.current.leftButton.isPressed)
             {
                 if (Buttons.GetIndex("Random Projectile").enabled)
-                    projIndex = Random.Range(0, ProjectileObjectNames.Length);
+                {
+                    projIndex = Random.Range(0, ProjectileObjectNames.Length / 2) * 2;
+                }
                 
                 string projectilename = ProjectileObjectNames[projIndex];
 
@@ -813,10 +817,13 @@ namespace iiMenu.Mods
 
                 if (gunLocked && lockTarget != null)
                 {
-                    int projIndex = projMode * 2;
+                    int projIndex = Mathf.Clamp(projMode * 2, 0, ProjectileObjectNames.Length - 1);
                     
                     if (Buttons.GetIndex("Random Projectile").enabled)
+                    {
                         projIndex = Random.Range(0, ProjectileObjectNames.Length);
+                        if ((projIndex & 1) != 0) projIndex--;
+                    }
                     
                     string projectilename = ProjectileObjectNames[projIndex];
 
@@ -863,7 +870,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -938,7 +945,7 @@ namespace iiMenu.Mods
 
             if (gripHeld && !lastGripHeld)
             {
-                int projIndex = projMode * 2;
+                int projIndex = Mathf.Clamp(projMode * 2, 0, ProjectileObjectNames.Length - 2);
                 if (Buttons.GetIndex("Random Projectile").enabled)
                     projIndex = Random.Range(0, ProjectileObjectNames.Length / 2) * 2;
 
@@ -1067,7 +1074,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1101,7 +1108,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1135,7 +1142,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1169,7 +1176,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1203,7 +1210,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1237,7 +1244,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1271,7 +1278,7 @@ namespace iiMenu.Mods
                 }
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1301,7 +1308,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
@@ -1368,7 +1375,7 @@ namespace iiMenu.Mods
 
                 if (GetGunInput(true))
                 {
-                    VRRig gunTarget = Ray.collider != null ? Ray.collider.GetComponentInParent<VRRig>() : null;
+                    VRRig gunTarget = Ray.collider != null ? iiMenu.Utilities.RigUtilities.GetRigFromHit(Ray) : null;
                     if (gunTarget && !gunTarget.IsLocal())
                     {
                         gunLocked = true;
